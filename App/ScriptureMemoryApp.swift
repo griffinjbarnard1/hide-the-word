@@ -24,8 +24,8 @@ struct ScriptureMemoryApp: App {
                         }
                         .onReceive(NotificationCenter.default.publisher(for: .didTapNotification)) { notification in
                             if let route = notification.userInfo?["route"] as? String,
-                               route == "session/today" {
-                                appModel.startOrResumeSession()
+                               let url = URL(string: "scripturememory://\(route)") {
+                                appModel.handleIncomingURL(url)
                             }
                         }
                         .onReceive(NotificationCenter.default.publisher(for: .didAcceptSharedPlan)) { notification in

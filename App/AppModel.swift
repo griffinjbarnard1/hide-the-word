@@ -1284,7 +1284,8 @@ final class AppModel {
         WidgetData.write(
             dueCount: dueReviewCount,
             nextReference: nextRef,
-            collectionName: selectedCollection.title
+            collectionName: selectedCollection.title,
+            fallbackRoute: dueReviewCount == 0 ? (activePlanEnrollment == nil ? .library : .journey) : nil
         )
     }
 
