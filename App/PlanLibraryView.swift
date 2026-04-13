@@ -47,7 +47,7 @@ struct PlanLibraryView: View {
             .padding(24)
         }
         .background(Color.screenBackground.ignoresSafeArea())
-        .navigationTitle("Plans")
+        .navigationTitle(String(localized: "plans.nav.title", defaultValue: "Plans", table: "Localizable"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -58,7 +58,7 @@ struct PlanLibraryView: View {
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Done") { dismiss() }
+                Button(String(localized: "common.done", defaultValue: "Done", table: "Localizable")) { dismiss() }
             }
         }
         .sheet(isPresented: $showingCreatePlan) {
@@ -81,11 +81,11 @@ struct PlanLibraryView: View {
 
     private var freeStudySection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Free Study")
+            Text(String(localized: "plans.free_study.title", defaultValue: "Free Study", table: "Localizable"))
                 .font(.headline)
                 .foregroundStyle(Color.primaryText)
 
-            Text("Study at your own pace with spaced repetition. Pick a collection and the app handles scheduling.")
+            Text(String(localized: "plans.free_study.body", defaultValue: "Study at your own pace with spaced repetition. Pick a collection and the app handles scheduling.", table: "Localizable"))
                 .font(.caption)
                 .foregroundStyle(Color.mutedText)
 
@@ -135,7 +135,7 @@ struct PlanLibraryView: View {
             HStack {
                 Image(systemName: plan.systemImageName)
                     .foregroundStyle(Color.accentMoss)
-                Text("Active Plan")
+                    Text(String(localized: "plans.active.badge", defaultValue: "Active Plan", table: "Localizable"))
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(Color.accentMoss)
                 Spacer()
@@ -162,7 +162,7 @@ struct PlanLibraryView: View {
             ProgressView(value: Double(enrollment.completedDays.count), total: Double(plan.duration))
                 .tint(Color.accentMoss)
 
-            Text("\(enrollment.completedDays.count) of \(plan.duration) days completed")
+            Text("\(enrollment.completedDays.count) \(String(localized: "common.of", defaultValue: "of", table: "Localizable")) \(plan.duration) \(String(localized: "unit.day.plural", defaultValue: "days", table: "Localizable")) \(String(localized: "plans.completed", defaultValue: "completed", table: "Localizable"))")
                 .font(.caption)
                 .foregroundStyle(Color.mutedText)
 
@@ -197,7 +197,7 @@ struct PlanLibraryView: View {
                     Text(plan.title)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Color.primaryText)
-                    Text("\(plan.duration) days • \(plan.totalVerseCount) verses")
+                    Text(planSummary(plan.duration, plan.totalVerseCount))
                         .font(.caption)
                         .foregroundStyle(Color.mutedText)
                 }
@@ -218,6 +218,16 @@ struct PlanLibraryView: View {
         }
         .buttonStyle(ScalableCardButtonStyle())
     }
+}
+
+private func planSummary(_ days: Int, _ verses: Int) -> String {
+    let dayLabel = days == 1
+        ? String(localized: "unit.day.singular", defaultValue: "day", table: "Localizable")
+        : String(localized: "unit.day.plural", defaultValue: "days", table: "Localizable")
+    let verseLabel = verses == 1
+        ? String(localized: "unit.verse.singular", defaultValue: "verse", table: "Localizable")
+        : String(localized: "unit.verse.plural", defaultValue: "verses", table: "Localizable")
+    return "\(days) \(dayLabel) • \(verses) \(verseLabel)"
 }
 
 struct PlanDetailView: View {

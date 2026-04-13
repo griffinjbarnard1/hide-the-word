@@ -26,7 +26,7 @@ struct TogetherView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 header
-                Picker("Together section", selection: $selectedTab) {
+                Picker(String(localized: "together.section.picker", defaultValue: "Together section", table: "Localizable"), selection: $selectedTab) {
                     ForEach(SectionTab.allCases) { section in
                         Text(section.rawValue).tag(section)
                     }
@@ -84,7 +84,7 @@ struct TogetherView: View {
                     .environment(appModel)
             }
         }
-        .confirmationDialog("Leave shared plan?", isPresented: Binding(
+        .confirmationDialog(String(localized: "together.leave_plan.confirmation.title", defaultValue: "Leave shared plan?", table: "Localizable"), isPresented: Binding(
             get: { pendingLeaveGroup != nil },
             set: { if !$0 { pendingLeaveGroup = nil } }
         ), titleVisibility: .visible) {
@@ -100,7 +100,7 @@ struct TogetherView: View {
                 pendingLeaveGroup = nil
             }
         } message: {
-            Text("You'll stop seeing this plan and your progress updates will no longer sync to the group.")
+            Text(String(localized: "together.leave_plan.confirmation.message", defaultValue: "You'll stop seeing this plan and your progress updates will no longer sync to the group.", table: "Localizable"))
         }
         .alert("Shared Plan", isPresented: Binding(
             get: { actionMessage != nil },
@@ -117,7 +117,7 @@ struct TogetherView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("Together")
+                Text(String(localized: "together.title", defaultValue: "Together", table: "Localizable"))
                     .font(.system(size: 34, weight: .semibold, design: .serif))
                     .foregroundStyle(Color.primaryText)
                 Spacer()
@@ -132,7 +132,7 @@ struct TogetherView: View {
                 }
             }
 
-            Text("Memorize together. Invite others to a plan and track each other's progress.")
+            Text(String(localized: "together.subtitle", defaultValue: "Memorize together. Invite others to a plan and track each other's progress.", table: "Localizable"))
                 .font(.body)
                 .foregroundStyle(Color.mutedText)
         }
@@ -142,18 +142,18 @@ struct TogetherView: View {
 
     private var peopleTab: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Button("Edit my profile") {
+            Button(String(localized: "together.people.edit_profile", defaultValue: "Edit my profile", table: "Localizable")) {
                 showingProfileEditor = true
             }
             .buttonStyle(PrimaryButtonStyle())
 
-            Text("People appear from shared plans you are part of. There is no global friend list yet.")
+            Text(String(localized: "together.people.caption", defaultValue: "People appear from shared plans you are part of. There is no global friend list yet.", table: "Localizable"))
                 .font(.caption)
                 .foregroundStyle(Color.mutedText)
                 .cardSurface()
 
             if peopleSummaries.isEmpty {
-                Text("No people yet — share a plan to start memorizing together.")
+                Text(String(localized: "together.people.empty", defaultValue: "No people yet — share a plan to start memorizing together.", table: "Localizable"))
                     .font(.subheadline)
                     .foregroundStyle(Color.mutedText)
                     .cardSurface()
@@ -178,7 +178,7 @@ struct TogetherView: View {
                                     Text(person.summary.displayName)
                                         .font(.subheadline.weight(.semibold))
                                         .foregroundStyle(Color.primaryText)
-                                    Text("\(person.summary.plansInCommonCount) \(person.summary.plansInCommonCount == 1 ? "plan" : "plans") in common")
+                                    Text("\(person.summary.plansInCommonCount) \(person.summary.plansInCommonCount == 1 ? String(localized: "unit.plan.singular", defaultValue: "plan", table: "Localizable") : String(localized: "unit.plan.plural", defaultValue: "plans", table: "Localizable")) \(String(localized: "together.people.in_common", defaultValue: "in common", table: "Localizable"))")
                                         .font(.caption)
                                         .foregroundStyle(Color.mutedText)
                                 }
@@ -192,7 +192,7 @@ struct TogetherView: View {
 
                             HStack {
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("Most progress")
+                                    Text(String(localized: "together.people.most_progress", defaultValue: "Most progress", table: "Localizable"))
                                         .font(.caption2)
                                         .foregroundStyle(Color.mutedText)
                                     Text("Day \(person.summary.mostAdvancedDay)")
@@ -201,7 +201,7 @@ struct TogetherView: View {
                                 }
                                 Spacer()
                                 VStack(alignment: .trailing, spacing: 4) {
-                                    Text("Last active")
+                                    Text(String(localized: "together.people.last_active", defaultValue: "Last active", table: "Localizable"))
                                         .font(.caption2)
                                         .foregroundStyle(Color.mutedText)
                                     Text(relativeDate(person.summary.lastActiveAt))
@@ -306,11 +306,11 @@ struct TogetherView: View {
                 .font(.largeTitle)
                 .foregroundStyle(Color.accentMoss)
 
-            Text("No shared plans yet")
+            Text(String(localized: "together.empty.title", defaultValue: "No shared plans yet", table: "Localizable"))
                 .font(.headline)
                 .foregroundStyle(Color.primaryText)
 
-            Text("Start a plan and invite others to memorize together. Everyone works at their own pace, and you can see each other's progress.")
+            Text(String(localized: "together.empty.body", defaultValue: "Start a plan and invite others to memorize together. Everyone works at their own pace, and you can see each other's progress.", table: "Localizable"))
                 .font(.subheadline)
                 .foregroundStyle(Color.mutedText)
 

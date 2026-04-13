@@ -1,0 +1,14 @@
+name: Localization Lint
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  localization-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run localization lint
+        run: python3 scripts/localization_lint.py

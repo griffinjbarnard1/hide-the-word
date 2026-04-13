@@ -22,9 +22,9 @@ struct HomeView: View {
                 } else if appModel.startedVerseCount > 0 {
                     EmptyStateView(
                         systemImage: "clock",
-                        headline: "No reviews yet",
-                        bodyText: "Complete your first session and your activity will appear here.",
-                        ctaTitle: "Start today's session",
+                        headline: String(localized: "home.empty.headline", defaultValue: "No reviews yet", table: "Localizable"),
+                        bodyText: String(localized: "home.empty.body", defaultValue: "Complete your first session and your activity will appear here.", table: "Localizable"),
+                        ctaTitle: String(localized: "home.empty.cta", defaultValue: "Start today's session", table: "Localizable"),
                         ctaAction: { appModel.startOrResumeSession() }
                     )
                 }
@@ -74,27 +74,27 @@ struct HomeView: View {
     private var heroGreeting: String {
         let hour = Calendar.current.component(.hour, from: .now)
         switch hour {
-        case 5..<12: return "Good morning."
-        case 12..<17: return "Good afternoon."
-        default: return "Good evening."
+        case 5..<12: return String(localized: "home.hero.greeting.morning", defaultValue: "Good morning.", table: "Localizable")
+        case 12..<17: return String(localized: "home.hero.greeting.afternoon", defaultValue: "Good afternoon.", table: "Localizable")
+        default: return String(localized: "home.hero.greeting.evening", defaultValue: "Good evening.", table: "Localizable")
         }
     }
 
     private var heroSubtitle: String {
         if appModel.currentStreak > 2 {
-            return "\(appModel.currentStreak) days in a row. Keep going."
+            return "\(appModel.currentStreak) \(String(localized: "unit.day.plural", defaultValue: "days", table: "Localizable")) in a row. \(String(localized: "home.subtitle.keep_going", defaultValue: "Keep going.", table: "Localizable"))"
         }
         if appModel.dueReviewCount > 0 {
-            return "\(appModel.dueReviewCount) \(appModel.dueReviewCount == 1 ? "verse" : "verses") waiting for you."
+            return "\(appModel.dueReviewCount) \(appModel.dueReviewCount == 1 ? String(localized: "unit.verse.singular", defaultValue: "verse", table: "Localizable") : String(localized: "unit.verse.plural", defaultValue: "verses", table: "Localizable")) \(String(localized: "home.subtitle.waiting", defaultValue: "waiting for you.", table: "Localizable"))"
         }
-        return "A few quiet minutes with the Word."
+        return String(localized: "home.subtitle.default", defaultValue: "A few quiet minutes with the Word.", table: "Localizable")
     }
 
     private var todayCard: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(appModel.hasDraftSession ? "Resume" : "Today")
+                    Text(appModel.hasDraftSession ? String(localized: "home.today.resume", defaultValue: "Resume", table: "Localizable") : String(localized: "home.today.title", defaultValue: "Today", table: "Localizable"))
                         .font(.footnote.weight(.medium))
                         .foregroundStyle(.secondary)
 
@@ -138,17 +138,17 @@ struct HomeView: View {
             }
 
             if appModel.currentPlanDay?.goal == .rest, !appModel.hasDraftSession {
-                Button("Skip to next day") {
+                Button(String(localized: "home.action.skip_next_day", defaultValue: "Skip to next day", table: "Localizable")) {
                     showSkipDayConfirmation = true
                 }
                 .buttonStyle(SecondaryButtonStyle(fullWidth: true))
             } else if appModel.hasDraftSession {
-                Button("Start fresh") {
+                Button(String(localized: "home.action.start_fresh", defaultValue: "Start fresh", table: "Localizable")) {
                     appModel.startFreshSession()
                 }
                 .buttonStyle(SecondaryButtonStyle(fullWidth: true))
             } else if appModel.activePlanEnrollment == nil, appModel.selectedCollectionID == BuiltInContent.myVersesSetID {
-                Button("Open Bible Library", action: appModel.openVerseLibrary)
+                Button(String(localized: "home.action.open_bible_library", defaultValue: "Open Bible Library", table: "Localizable"), action: appModel.openVerseLibrary)
                     .buttonStyle(SecondaryButtonStyle(fullWidth: true))
             }
         }
@@ -228,7 +228,7 @@ struct HomeView: View {
                 HStack {
                     Image(systemName: appModel.selectedCollection.systemImageName)
                         .foregroundStyle(Color.accentGold)
-                    Text("Free Study")
+                    Text(String(localized: "home.free_study.title", defaultValue: "Free Study", table: "Localizable"))
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Color.primaryText)
                     Spacer()
@@ -237,11 +237,11 @@ struct HomeView: View {
                         .foregroundStyle(Color.accentMoss)
                 }
 
-                Text("Studying \(appModel.activeCollectionCountLabel) at your own pace with spaced repetition.")
+                Text(String(localized: "home.free_study.body_prefix", defaultValue: "Studying", table: "Localizable") + " \(appModel.activeCollectionCountLabel) " + String(localized: "home.free_study.body_suffix", defaultValue: "at your own pace with spaced repetition.", table: "Localizable"))
                     .font(.caption)
                     .foregroundStyle(Color.mutedText)
 
-                Button("Browse plans") {
+                Button(String(localized: "home.action.browse_plans", defaultValue: "Browse plans", table: "Localizable")) {
                     appModel.openPlans()
                 }
                 .buttonStyle(SecondaryButtonStyle(fullWidth: true))
@@ -350,7 +350,7 @@ struct HomeView: View {
 
     private var recentActivityCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Recent activity")
+            Text(String(localized: "home.recent_activity.title", defaultValue: "Recent activity", table: "Localizable"))
                 .font(.headline)
 
             ForEach(Array(appModel.recentReviewEvents.prefix(3)), id: \.id) { event in
@@ -382,7 +382,7 @@ struct HomeView: View {
                 }
             }
 
-            Button("Open journey", action: appModel.openJourney)
+            Button(String(localized: "home.action.open_journey", defaultValue: "Open journey", table: "Localizable"), action: appModel.openJourney)
                 .buttonStyle(SecondaryButtonStyle(fullWidth: true))
         }
         .cardSurface()

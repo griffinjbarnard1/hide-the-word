@@ -26,14 +26,14 @@ struct CreatePlanView: View {
             .padding(24)
         }
         .background(Color.screenBackground.ignoresSafeArea())
-        .navigationTitle("Create Plan")
+        .navigationTitle(String(localized: "create_plan.nav.title", defaultValue: "Create Plan", table: "Localizable"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button("Cancel") { dismiss() }
+                Button(String(localized: "common.cancel", defaultValue: "Cancel", table: "Localizable")) { dismiss() }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Save") { savePlan() }
+                Button(String(localized: "common.save", defaultValue: "Save", table: "Localizable")) { savePlan() }
                     .fontWeight(.semibold)
                     .disabled(!canSave)
             }
@@ -47,17 +47,17 @@ struct CreatePlanView: View {
 
     private var detailsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Plan Details")
+            Text(String(localized: "create_plan.details.title", defaultValue: "Plan Details", table: "Localizable"))
                 .font(.headline)
                 .foregroundStyle(Color.primaryText)
 
-            TextField("Plan title", text: $title)
+            TextField(String(localized: "create_plan.field.title", defaultValue: "Plan title", table: "Localizable"), text: $title)
                 .font(.body)
                 .padding(12)
                 .background(Color.paper)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
-            TextField("Short description (optional)", text: $description)
+            TextField(String(localized: "create_plan.field.description", defaultValue: "Short description (optional)", table: "Localizable"), text: $description)
                 .font(.body)
                 .padding(12)
                 .background(Color.paper)
@@ -69,7 +69,7 @@ struct CreatePlanView: View {
 
     private var versePickerSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Add Verses")
+            Text(String(localized: "create_plan.verses.title", defaultValue: "Add Verses", table: "Localizable"))
                 .font(.headline)
                 .foregroundStyle(Color.primaryText)
 
@@ -144,7 +144,7 @@ struct CreatePlanView: View {
 
                 // Quick range buttons
                 HStack(spacing: 8) {
-                    Button("Select all") {
+                    Button(String(localized: "create_plan.action.select_all", defaultValue: "Select all", table: "Localizable")) {
                         for v in 1...max(lastVerse, 1) {
                             let ref = VerseReference(bookID: bookID, chapter: chapter, verse: v)
                             if !selectedVerses.contains(ref) {
@@ -154,7 +154,7 @@ struct CreatePlanView: View {
                     }
                     .buttonStyle(SecondaryButtonStyle(fullWidth: false))
 
-                    Button("Clear chapter") {
+                    Button(String(localized: "create_plan.action.clear_chapter", defaultValue: "Clear chapter", table: "Localizable")) {
                         selectedVerses.removeAll { $0.bookID == bookID && $0.chapter == chapter }
                     }
                     .buttonStyle(SecondaryButtonStyle(fullWidth: false))
@@ -168,11 +168,11 @@ struct CreatePlanView: View {
     private var selectedVersesSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("Selected")
+                Text(String(localized: "create_plan.selected.title", defaultValue: "Selected", table: "Localizable"))
                     .font(.headline)
                     .foregroundStyle(Color.primaryText)
                 Spacer()
-                Text("\(selectedVerses.count) verse\(selectedVerses.count == 1 ? "" : "s")")
+                Text("\(selectedVerses.count) \(selectedVerses.count == 1 ? String(localized: "unit.verse.singular", defaultValue: "verse", table: "Localizable") : String(localized: "unit.verse.plural", defaultValue: "verses", table: "Localizable"))")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(Color.accentMoss)
             }
@@ -204,16 +204,16 @@ struct CreatePlanView: View {
     private var previewSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("Day Breakdown")
+                Text(String(localized: "create_plan.breakdown.title", defaultValue: "Day Breakdown", table: "Localizable"))
                     .font(.headline)
                     .foregroundStyle(Color.primaryText)
                 Spacer()
-                Text("\(generatedDays.count) days")
+                Text("\(generatedDays.count) \(generatedDays.count == 1 ? String(localized: "unit.day.singular", defaultValue: "day", table: "Localizable") : String(localized: "unit.day.plural", defaultValue: "days", table: "Localizable"))")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(Color.accentGold)
             }
 
-            Text("Auto-generated: ~2 verses per day with review days every 3rd day and a full recall day at the end.")
+            Text(String(localized: "create_plan.breakdown.body", defaultValue: "Auto-generated: ~2 verses per day with review days every 3rd day and a full recall day at the end.", table: "Localizable"))
                 .font(.caption)
                 .foregroundStyle(Color.mutedText)
 

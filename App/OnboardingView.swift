@@ -34,7 +34,7 @@ struct OnboardingView: View {
                     currentPage = max(currentPage - 1, 0)
                 }
             } label: {
-                Label("Back", systemImage: "chevron.left")
+                Label(String(localized: "onboarding.nav.back", defaultValue: "Back", table: "Localizable"), systemImage: "chevron.left")
                     .labelStyle(.titleAndIcon)
             }
             .opacity(currentPage == 0 ? 0 : 1)
@@ -44,7 +44,7 @@ struct OnboardingView: View {
             Spacer()
 
             if currentPage < 3 {
-                Button("Skip") {
+                Button(String(localized: "onboarding.nav.skip", defaultValue: "Skip", table: "Localizable")) {
                     appModel.completeOnboarding()
                 }
                 .font(.subheadline.weight(.medium))
@@ -63,19 +63,19 @@ struct OnboardingView: View {
                 .font(.system(size: 56))
                 .foregroundStyle(Color.accentMoss)
 
-            Text("Hide the Word\nin your heart.")
+            Text(String(localized: "onboarding.welcome.title", defaultValue: "Hide the Word\nin your heart.", table: "Localizable"))
                 .font(.system(size: 40, weight: .semibold, design: .serif))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(Color.primaryText)
 
-            Text("A calm daily system for retaining Scripture through recall, review, and return.")
+            Text(String(localized: "onboarding.welcome.body", defaultValue: "A calm daily system for retaining Scripture through recall, review, and return.", table: "Localizable"))
                 .font(.body)
                 .foregroundStyle(Color.mutedText)
                 .multilineTextAlignment(.center)
 
             Spacer()
 
-            Button("Next") {
+            Button(String(localized: "common.next", defaultValue: "Next", table: "Localizable")) {
                 withAnimation { currentPage = 1 }
             }
             .buttonStyle(PrimaryButtonStyle())
@@ -87,32 +87,32 @@ struct OnboardingView: View {
         VStack(spacing: 28) {
             Spacer()
 
-            Text("How it works")
+            Text(String(localized: "onboarding.loop.title", defaultValue: "How it works", table: "Localizable"))
                 .font(.system(size: 34, weight: .semibold, design: .serif))
                 .foregroundStyle(Color.primaryText)
 
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 20) {
-                    stepItem(icon: "eye", title: "Read", description: "See the full verse")
-                    stepItem(icon: "brain.head.profile", title: "Recall", description: "Mask it or type it back")
-                    stepItem(icon: "hand.thumbsup", title: "Rate", description: "Easy, medium, or hard")
+                    stepItem(icon: "eye", title: String(localized: "onboarding.loop.step.read.title", defaultValue: "Read", table: "Localizable"), description: String(localized: "onboarding.loop.step.read.body", defaultValue: "See the full verse", table: "Localizable"))
+                    stepItem(icon: "brain.head.profile", title: String(localized: "onboarding.loop.step.recall.title", defaultValue: "Recall", table: "Localizable"), description: String(localized: "onboarding.loop.step.recall.body", defaultValue: "Mask it or type it back", table: "Localizable"))
+                    stepItem(icon: "hand.thumbsup", title: String(localized: "onboarding.loop.step.rate.title", defaultValue: "Rate", table: "Localizable"), description: String(localized: "onboarding.loop.step.rate.body", defaultValue: "Easy, medium, or hard", table: "Localizable"))
                 }
 
                 VStack(spacing: 16) {
-                    stepItem(icon: "eye", title: "Read", description: "See the full verse")
-                    stepItem(icon: "brain.head.profile", title: "Recall", description: "Mask it or type it back")
-                    stepItem(icon: "hand.thumbsup", title: "Rate", description: "Easy, medium, or hard")
+                    stepItem(icon: "eye", title: String(localized: "onboarding.loop.step.read.title", defaultValue: "Read", table: "Localizable"), description: String(localized: "onboarding.loop.step.read.body", defaultValue: "See the full verse", table: "Localizable"))
+                    stepItem(icon: "brain.head.profile", title: String(localized: "onboarding.loop.step.recall.title", defaultValue: "Recall", table: "Localizable"), description: String(localized: "onboarding.loop.step.recall.body", defaultValue: "Mask it or type it back", table: "Localizable"))
+                    stepItem(icon: "hand.thumbsup", title: String(localized: "onboarding.loop.step.rate.title", defaultValue: "Rate", table: "Localizable"), description: String(localized: "onboarding.loop.step.rate.body", defaultValue: "Easy, medium, or hard", table: "Localizable"))
                 }
             }
 
-            Text("The app brings verses back at the right time based on your ratings. No penalties for missing a day.")
+            Text(String(localized: "onboarding.loop.body", defaultValue: "The app brings verses back at the right time based on your ratings. No penalties for missing a day.", table: "Localizable"))
                 .font(.subheadline)
                 .foregroundStyle(Color.mutedText)
                 .multilineTextAlignment(.center)
 
             Spacer()
 
-            Button("Next") {
+            Button(String(localized: "common.next", defaultValue: "Next", table: "Localizable")) {
                 withAnimation { currentPage = 2 }
             }
             .buttonStyle(PrimaryButtonStyle())
@@ -123,19 +123,19 @@ struct OnboardingView: View {
     private var planPickerPage: some View {
         ScrollView {
             VStack(spacing: 24) {
-                Text("Pick a plan\nto begin")
+                Text(String(localized: "onboarding.plan.title", defaultValue: "Pick a plan\nto begin", table: "Localizable"))
                     .font(.system(size: 34, weight: .semibold, design: .serif))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(Color.primaryText)
                     .padding(.top, 32)
 
-                Text("Follow a structured plan or study at your own pace. You can change this anytime.")
+                Text(String(localized: "onboarding.plan.body", defaultValue: "Follow a structured plan or study at your own pace. You can change this anytime.", table: "Localizable"))
                     .font(.subheadline)
                     .foregroundStyle(Color.mutedText)
                     .multilineTextAlignment(.center)
 
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Popular Plans")
+                    Text(String(localized: "onboarding.plan.popular", defaultValue: "Popular Plans", table: "Localizable"))
                         .font(.headline)
                         .foregroundStyle(Color.primaryText)
 
@@ -154,7 +154,7 @@ struct OnboardingView: View {
                                     Text(plan.title)
                                         .font(.headline)
                                         .foregroundStyle(Color.primaryText)
-                                    Text("\(plan.duration) days • \(plan.totalVerseCount) verses")
+                                    Text(planSummary(plan.duration, plan.totalVerseCount))
                                         .font(.caption)
                                         .foregroundStyle(Color.mutedText)
                                 }
@@ -175,13 +175,13 @@ struct OnboardingView: View {
                 Button {
                     withAnimation { currentPage = 3 }
                 } label: {
-                    Text("Explore on my own")
+                    Text(String(localized: "onboarding.plan.explore_alone", defaultValue: "Explore on my own", table: "Localizable"))
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(Color.accentGold)
                 }
                 .padding(.top, 4)
 
-                Button("Browse all plans") {
+                Button(String(localized: "onboarding.plan.browse_all", defaultValue: "Browse all plans", table: "Localizable")) {
                     guard !isOpeningPlans else { return }
                     isOpeningPlans = true
                     appModel.completeOnboarding()
@@ -206,18 +206,18 @@ struct OnboardingView: View {
                 .font(.system(size: 56))
                 .foregroundStyle(Color.accentGold)
 
-            Text("Stay in rhythm")
+            Text(String(localized: "onboarding.notifications.title", defaultValue: "Stay in rhythm", table: "Localizable"))
                 .font(.system(size: 34, weight: .semibold, design: .serif))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(Color.primaryText)
 
-            Text("A gentle daily reminder helps you build a lasting habit. You can change the time or turn it off in Settings.")
+            Text(String(localized: "onboarding.notifications.body", defaultValue: "A gentle daily reminder helps you build a lasting habit. You can change the time or turn it off in Settings.", table: "Localizable"))
                 .font(.body)
                 .foregroundStyle(Color.mutedText)
                 .multilineTextAlignment(.center)
 
             if notificationStatus == .pending {
-                Button("Turn on reminders") {
+                Button(String(localized: "onboarding.notifications.enable", defaultValue: "Turn on reminders", table: "Localizable")) {
                     Task {
                         let granted = await NotificationManager.requestPermission()
                         notificationStatus = granted ? .granted : .denied
@@ -228,7 +228,7 @@ struct OnboardingView: View {
                 }
                 .buttonStyle(PrimaryButtonStyle())
 
-                Button("Not now") {
+                Button(String(localized: "common.not_now", defaultValue: "Not now", table: "Localizable")) {
                     appModel.completeOnboarding()
                 }
                 .font(.subheadline.weight(.medium))
@@ -239,13 +239,15 @@ struct OnboardingView: View {
                         .font(.title2)
                         .foregroundStyle(notificationStatus == .granted ? Color.accentMoss : Color.mutedText)
 
-                    Text(notificationStatus == .granted ? "Reminders enabled" : "No worries — you can enable them in Settings later.")
+                    Text(notificationStatus == .granted
+                         ? String(localized: "onboarding.notifications.enabled", defaultValue: "Reminders enabled", table: "Localizable")
+                         : String(localized: "onboarding.notifications.denied", defaultValue: "No worries — you can enable them in Settings later.", table: "Localizable"))
                         .font(.subheadline)
                         .foregroundStyle(Color.mutedText)
                         .multilineTextAlignment(.center)
                 }
 
-                Button("Let's go") {
+                Button(String(localized: "onboarding.finish", defaultValue: "Let's go", table: "Localizable")) {
                     appModel.completeOnboarding()
                 }
                 .buttonStyle(PrimaryButtonStyle())
@@ -275,5 +277,15 @@ struct OnboardingView: View {
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
+    }
+
+    private func planSummary(_ days: Int, _ verses: Int) -> String {
+        let dayLabel = days == 1
+            ? String(localized: "unit.day.singular", defaultValue: "day", table: "Localizable")
+            : String(localized: "unit.day.plural", defaultValue: "days", table: "Localizable")
+        let verseLabel = verses == 1
+            ? String(localized: "unit.verse.singular", defaultValue: "verse", table: "Localizable")
+            : String(localized: "unit.verse.plural", defaultValue: "verses", table: "Localizable")
+        return "\(days) \(dayLabel) • \(verses) \(verseLabel)"
     }
 }

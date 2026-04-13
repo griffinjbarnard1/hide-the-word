@@ -11,9 +11,9 @@ struct SettingsView: View {
         List {
             Section {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Settings")
+                    Text(String(localized: "settings.title", defaultValue: "Settings", table: "Localizable"))
                         .font(.title.weight(.semibold))
-                    Text("Keep preferences simple and local. These choices shape what you see throughout the app.")
+                    Text(String(localized: "settings.subtitle", defaultValue: "Keep preferences simple and local. These choices shape what you see throughout the app.", table: "Localizable"))
                         .font(.subheadline)
                         .foregroundStyle(Color.mutedText)
                 }
@@ -21,7 +21,7 @@ struct SettingsView: View {
                 .listRowSeparator(.hidden)
             }
 
-            Section("Preferred Translation") {
+            Section(String(localized: "settings.section.translation", defaultValue: "Preferred Translation", table: "Localizable")) {
                 ForEach(BibleTranslation.allCases) { translation in
                     Button {
                         appModel.setPreferredTranslation(translation)
@@ -65,7 +65,7 @@ struct SettingsView: View {
                 }
             }
 
-            Section("Appearance") {
+            Section(String(localized: "settings.section.appearance", defaultValue: "Appearance", table: "Localizable")) {
                 ForEach(AppAppearance.allCases) { appearance in
                     Button {
                         appModel.setAppearance(appearance)
@@ -86,7 +86,7 @@ struct SettingsView: View {
                 }
             }
 
-            Section("Session Size") {
+            Section(String(localized: "settings.section.session_size", defaultValue: "Session Size", table: "Localizable")) {
                 ForEach(SessionSizePreset.allCases) { preset in
                     Button {
                         appModel.setSessionSizePreset(preset)
@@ -112,8 +112,8 @@ struct SettingsView: View {
                 }
             }
 
-            Section("Daily Reminder") {
-                Toggle("Remind me to review", isOn: Binding(
+            Section(String(localized: "settings.section.reminder", defaultValue: "Daily Reminder", table: "Localizable")) {
+                Toggle(String(localized: "settings.reminder.toggle", defaultValue: "Remind me to review", table: "Localizable"), isOn: Binding(
                     get: { appModel.reminderEnabled },
                     set: { appModel.setReminderEnabled($0) }
                 ))
@@ -121,7 +121,7 @@ struct SettingsView: View {
 
                 if appModel.reminderEnabled {
                     DatePicker(
-                        "Reminder time",
+                        String(localized: "settings.reminder.time", defaultValue: "Reminder time", table: "Localizable"),
                         selection: Binding(
                             get: {
                                 var components = DateComponents()
@@ -139,40 +139,40 @@ struct SettingsView: View {
                 }
             }
 
-            Section("Recall Mode") {
-                Toggle("Type to recall", isOn: Binding(
+            Section(String(localized: "settings.section.recall_mode", defaultValue: "Recall Mode", table: "Localizable")) {
+                Toggle(String(localized: "settings.recall.toggle", defaultValue: "Type to recall", table: "Localizable"), isOn: Binding(
                     get: { appModel.typeRecallEnabled },
                     set: { appModel.setTypeRecallEnabled($0) }
                 ))
                 .tint(Color.accentMoss)
 
                 if appModel.typeRecallEnabled {
-                    Text("Recall screens switch from progressive masking to typed recall with light prompts.")
+                    Text(String(localized: "settings.recall.body", defaultValue: "Recall screens switch from progressive masking to typed recall with light prompts.", table: "Localizable"))
                         .font(.caption)
                         .foregroundStyle(Color.mutedText)
                 }
             }
 
-            Section("Display Name") {
-                TextField("Your name", text: Binding(
+            Section(String(localized: "settings.section.display_name", defaultValue: "Display Name", table: "Localizable")) {
+                TextField(String(localized: "settings.display_name.placeholder", defaultValue: "Your name", table: "Localizable"), text: Binding(
                     get: { appModel.userDisplayName },
                     set: { appModel.userDisplayName = $0 }
                 ))
-                Text("Shown to people in shared plans.")
+                Text(String(localized: "settings.display_name.caption", defaultValue: "Shown to people in shared plans.", table: "Localizable"))
                     .font(.caption)
                     .foregroundStyle(Color.mutedText)
             }
 
-            Section("Profile") {
-                NavigationLink("Edit my profile") {
+            Section(String(localized: "settings.section.profile", defaultValue: "Profile", table: "Localizable")) {
+                NavigationLink(String(localized: "settings.profile.edit", defaultValue: "Edit my profile", table: "Localizable")) {
                     PublicProfileEditorView()
                 }
             }
 
-            Section("Identity") {
+            Section(String(localized: "settings.section.identity", defaultValue: "Identity", table: "Localizable")) {
                 HStack {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Connected account")
+                        Text(String(localized: "settings.identity.connected", defaultValue: "Connected account", table: "Localizable"))
                             .foregroundStyle(Color.primaryText)
                         Text("iCloud: \(identityStatusLabel)")
                             .font(.caption)
@@ -185,17 +185,17 @@ struct SettingsView: View {
                         .multilineTextAlignment(.trailing)
                 }
 
-                Text("Hide the Word has no separate app login. Sharing and sync use your iCloud account.")
+                Text(String(localized: "settings.identity.caption", defaultValue: "Hide the Word has no separate app login. Sharing and sync use your iCloud account.", table: "Localizable"))
                     .font(.caption)
                     .foregroundStyle(Color.mutedText)
             }
 
-            Section("Data") {
+            Section(String(localized: "settings.section.data", defaultValue: "Data", table: "Localizable")) {
                 if let exportURL = appModel.exportDataURL() {
                     ShareLink(item: exportURL) {
-                        Label("Export all data", systemImage: "square.and.arrow.up")
+                        Label(String(localized: "settings.data.export", defaultValue: "Export all data", table: "Localizable"), systemImage: "square.and.arrow.up")
                     }
-                    Text("Exports your progress, custom verses, and preferences as a JSON file.")
+                    Text(String(localized: "settings.data.caption", defaultValue: "Exports your progress, custom verses, and preferences as a JSON file.", table: "Localizable"))
                         .font(.caption)
                         .foregroundStyle(Color.mutedText)
                 }
@@ -205,7 +205,7 @@ struct SettingsView: View {
         .background(Color.screenBackground.ignoresSafeArea())
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Done") {
+                Button(String(localized: "common.done", defaultValue: "Done", table: "Localizable")) {
                     appModel.dismissActiveRoute()
                 }
             }

@@ -39,20 +39,20 @@ struct JourneyView: View {
             .padding(24)
         }
         .background(Color.screenBackground.ignoresSafeArea())
-        .searchable(text: $searchText, prompt: "Search verses")
+        .searchable(text: $searchText, prompt: String(localized: "journey.search.prompt", defaultValue: "Search verses", table: "Localizable"))
         .onAppear { didAppear = true }
     }
 
     private var emptyState: some View {
         EmptyStateView(
             systemImage: "text.book.closed",
-            headline: "Your journey will fill in as you review",
-            bodyText: "Once you begin reviewing, this screen will help you revisit older material, see what is sticking, and notice what has gone quiet."
+            headline: String(localized: "journey.empty.headline", defaultValue: "Your journey will fill in as you review", table: "Localizable"),
+            bodyText: String(localized: "journey.empty.body", defaultValue: "Once you begin reviewing, this screen will help you revisit older material, see what is sticking, and notice what has gone quiet.", table: "Localizable")
         )
     }
 
     private var header: some View {
-        Text("See what has stayed with you, what you have touched recently, and what may need a gentle return.")
+        Text(String(localized: "journey.header", defaultValue: "See what has stayed with you, what you have touched recently, and what may need a gentle return.", table: "Localizable"))
             .font(.subheadline)
             .foregroundStyle(Color.mutedText)
             .offset(y: didAppear ? 0 : 10)
@@ -97,10 +97,10 @@ struct JourneyView: View {
         let activeCount = days.filter { activeDates.contains($0) }.count
 
         return VStack(alignment: .leading, spacing: 12) {
-            Text("Your rhythm")
+            Text(String(localized: "journey.rhythm.title", defaultValue: "Your rhythm", table: "Localizable"))
                 .font(.headline)
 
-            Text("The last 30 days")
+            Text(String(localized: "journey.rhythm.last_30", defaultValue: "The last 30 days", table: "Localizable"))
                 .font(.caption)
                 .foregroundStyle(Color.mutedText)
 
@@ -112,7 +112,7 @@ struct JourneyView: View {
                 }
             }
 
-            Text("\(activeCount) of 30 days active")
+            Text("\(activeCount) \(String(localized: "journey.rhythm.of_30_days_active", defaultValue: "of 30 days active", table: "Localizable"))")
                 .font(.caption)
                 .foregroundStyle(Color.mutedText)
         }
@@ -121,7 +121,7 @@ struct JourneyView: View {
 
     private var recentActivitySection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Recent activity")
+            Text(String(localized: "journey.recent_activity.title", defaultValue: "Recent activity", table: "Localizable"))
                 .font(.headline)
 
             ForEach(Array(appModel.recentReviewEvents.prefix(6)), id: \.id) { event in

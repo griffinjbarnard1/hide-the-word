@@ -29,7 +29,7 @@ struct Provider: TimelineProvider {
         let defaults = UserDefaults(suiteName: Self.appGroupID)
         let dueCount = defaults?.integer(forKey: "widget_due_count") ?? 0
         let nextRef = defaults?.string(forKey: "widget_next_reference")
-        let collection = defaults?.string(forKey: "widget_collection_name") ?? "Hide the Word"
+        let collection = defaults?.string(forKey: "widget_collection_name") ?? String(localized: "widget.collection.default", defaultValue: "Hide the Word", table: "Localizable")
         return WidgetEntry(date: .now, dueCount: dueCount, nextReference: nextRef, collectionName: collection)
     }
 }
@@ -51,7 +51,9 @@ struct SmallWidgetView: View {
                 .font(.system(size: 36, weight: .bold, design: .serif))
                 .foregroundStyle(Color(red: 0.12, green: 0.11, blue: 0.09))
 
-            Text(entry.dueCount == 1 ? "verse due" : "verses due")
+            Text(entry.dueCount == 1
+                 ? String(localized: "widget.due.singular", defaultValue: "verse due", table: "Localizable")
+                 : String(localized: "widget.due.plural", defaultValue: "verses due", table: "Localizable"))
                 .font(.caption)
                 .foregroundStyle(Color(red: 0.54, green: 0.51, blue: 0.47))
         }
@@ -77,7 +79,9 @@ struct MediumWidgetView: View {
                     .font(.system(size: 36, weight: .bold, design: .serif))
                     .foregroundStyle(Color(red: 0.12, green: 0.11, blue: 0.09))
 
-                Text(entry.dueCount == 1 ? "verse due" : "verses due")
+                Text(entry.dueCount == 1
+                     ? String(localized: "widget.due.singular", defaultValue: "verse due", table: "Localizable")
+                     : String(localized: "widget.due.plural", defaultValue: "verses due", table: "Localizable"))
                     .font(.caption)
                     .foregroundStyle(Color(red: 0.54, green: 0.51, blue: 0.47))
             }
@@ -90,14 +94,14 @@ struct MediumWidgetView: View {
                 Spacer()
 
                 if let nextRef = entry.nextReference {
-                    Text("Next up")
+                    Text(String(localized: "widget.next_up", defaultValue: "Next up", table: "Localizable"))
                         .font(.caption2)
                         .foregroundStyle(Color(red: 0.54, green: 0.51, blue: 0.47))
                     Text(nextRef)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Color(red: 0.12, green: 0.11, blue: 0.09))
                 } else {
-                    Text("All caught up")
+                    Text(String(localized: "widget.all_caught_up", defaultValue: "All caught up", table: "Localizable"))
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(Color(red: 0.37, green: 0.42, blue: 0.32))
                 }
@@ -119,8 +123,8 @@ struct ScriptureMemoryWidget: Widget {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             ScriptureMemoryWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("Hide the Word")
-        .description("See how many verses are due for review.")
+        .configurationDisplayName(String(localized: "widget.display_name", defaultValue: "Hide the Word", table: "Localizable"))
+        .description(String(localized: "widget.description", defaultValue: "See how many verses are due for review.", table: "Localizable"))
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
