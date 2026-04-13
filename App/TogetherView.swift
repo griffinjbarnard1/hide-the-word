@@ -15,6 +15,7 @@ struct TogetherView: View {
     @State private var sharingGroup: SharedPlanGroup?
     @State private var selectedTab: SectionTab = .plans
     @State private var selectedPerson: PlanMembership?
+    @State private var peopleSortOption: PeopleSortOption = .mostActive
     @State private var showingProfileEditor = false
     @State private var currentMemberID: String?
     @State private var pendingLeaveGroup: SharedPlanGroup?
@@ -140,47 +141,162 @@ struct TogetherView: View {
     // MARK: - Empty State
 
     private var peopleTab: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             Button("Edit my profile") {
                 showingProfileEditor = true
             }
             .buttonStyle(PrimaryButtonStyle())
 
-            ForEach(uniquePeople) { member in
-                Button {
-                    selectedPerson = member
-                } label: {
-                    HStack(spacing: 12) {
-                        ProfileAvatarView(member: member, size: 36)
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(member.profile?.displayName ?? member.displayName)
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundStyle(Color.primaryText)
-                            if let bio = member.profile?.bio, !bio.isEmpty {
+            Text("People appear from shared plans you are part of. There is no global friend list yet.")
+                .font(.caption)
+                .foregroundStyle(Color.mutedText)
+                .cardSurface()
+
+            if peopleSummaries.isEmpty {
+                Text("No people yet — share a plan to start memorizing together.")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mutedText)
+                    .cardSurface()
+            } else {
+                Picker("Sort people", selection: $peopleSortOption) {
+                    ForEach(PeopleSortOption.allCases) { option in
+                        Text(option.title).tag(option)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                peopleStatsRow
+
+                ForEach(peopleSummaries) { person in
+                    Button {
+                        selectedPerson = person.representativeMember
+                    } label: {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack(spacing: 12) {
+                                ProfileAvatarView(member: person.representativeMember, size: 36)
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(person.summary.displayName)
+                                        .font(.subheadline.weight(.semibold))
+                                        .foregroundStyle(Color.primaryText)
+                                    Text("\(person.summary.plansInCommonCount) \(person.summary.plansInCommonCount == 1 ? "plan" : "plans") in common")
+                                        .font(.caption)
+                                        .foregroundStyle(Color.mutedText)
+                                }
+                                Spacer()
+                                Label("\(person.summary.highestStreak)", systemImage: "flame.fill")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(Color.accentGold)
+                            }
+
+                            Divider()
+
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Most progress")
+                                        .font(.caption2)
+                                        .foregroundStyle(Color.mutedText)
+                                    Text("Day \(person.summary.mostAdvancedDay)")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(Color.primaryText)
+                                }
+                                Spacer()
+                                VStack(alignment: .trailing, spacing: 4) {
+                                    Text("Last active")
+                                        .font(.caption2)
+                                        .foregroundStyle(Color.mutedText)
+                                    Text(relativeDate(person.summary.lastActiveAt))
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(Color.primaryText)
+                                }
+                            }
+
+                            if let bio = person.representativeMember.profile?.bio, !bio.isEmpty {
                                 Text(bio)
                                     .font(.caption)
-                                    .foregroundStyle(Color.mutedText)
+                                    .foregroundStyle(Color.primaryText)
                                     .lineLimit(2)
                             }
                         }
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundStyle(Color.mutedText)
+                        .cardSurface()
                     }
-                    .cardSurface()
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
         }
     }
 
-    private var uniquePeople: [PlanMembership] {
-        let merged = socialService.groups.flatMap(\.members)
-        var seen: Set<String> = []
-        return merged.filter { member in
-            if seen.contains(member.id) { return false }
-            seen.insert(member.id)
-            return true
+    private var peopleSummaries: [PersonSummaryEntry] {
+        var membersByID: [String: [TogetherMemberContext]] = [:]
+
+        for group in socialService.groups {
+            for member in group.members {
+                membersByID[member.id, default: []].append(TogetherMemberContext(member: member, groupID: group.id))
+            }
+        }
+
+        let entries = membersByID.compactMap { memberID, contexts -> PersonSummaryEntry? in
+            guard let representative = contexts.sorted(by: {
+                ($0.member.lastActiveAt ?? .distantPast) > ($1.member.lastActiveAt ?? .distantPast)
+            }).first?.member else {
+                return nil
+            }
+
+            let summary = PersonSummary(
+                id: memberID,
+                displayName: representative.profile?.displayName ?? representative.displayName,
+                highestStreak: contexts.map(\.member.streak).max() ?? 0,
+                lastActiveAt: contexts.compactMap(\.member.lastActiveAt).max(),
+                plansInCommonCount: Set(contexts.map(\.groupID)).count,
+                mostAdvancedDay: contexts.map(\.member.currentDay).max() ?? 1
+            )
+            return PersonSummaryEntry(summary: summary, representativeMember: representative)
+        }
+
+        return entries.sorted { lhs, rhs in
+            switch peopleSortOption {
+            case .mostActive:
+                if lhs.summary.plansInCommonCount == rhs.summary.plansInCommonCount {
+                    return lhs.summary.displayName.localizedCaseInsensitiveCompare(rhs.summary.displayName) == .orderedAscending
+                }
+                return lhs.summary.plansInCommonCount > rhs.summary.plansInCommonCount
+            case .highestStreak:
+                if lhs.summary.highestStreak == rhs.summary.highestStreak {
+                    return lhs.summary.displayName.localizedCaseInsensitiveCompare(rhs.summary.displayName) == .orderedAscending
+                }
+                return lhs.summary.highestStreak > rhs.summary.highestStreak
+            case .recentlyActive:
+                return (lhs.summary.lastActiveAt ?? .distantPast) > (rhs.summary.lastActiveAt ?? .distantPast)
+            }
+        }
+    }
+
+    private var peopleStatsRow: some View {
+        HStack(spacing: 12) {
+            peopleStatPill(label: "People", value: "\(peopleSummaries.count)")
+            peopleStatPill(label: "Active today", value: "\(activeTodayCount)")
+            peopleStatPill(label: "Shared plans", value: "\(socialService.groups.count)")
+        }
+    }
+
+    private func peopleStatPill(label: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(Color.mutedText)
+            Text(value)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Color.primaryText)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .cardSurface()
+    }
+
+    private var activeTodayCount: Int {
+        let calendar = Calendar.current
+        return peopleSummaries.reduce(into: 0) { count, entry in
+            if let date = entry.summary.lastActiveAt, calendar.isDateInToday(date) {
+                count += 1
+            }
         }
     }
 
@@ -460,7 +576,8 @@ struct TogetherView: View {
             || lowercased.contains("restricted")
     }
 
-    private func relativeDate(_ date: Date) -> String {
+    private func relativeDate(_ date: Date?) -> String {
+        guard let date else { return "No activity yet" }
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: date, relativeTo: .now)
@@ -511,6 +628,17 @@ struct TogetherView: View {
         }
         return nil
     }
+}
+
+private struct PersonSummaryEntry: Identifiable {
+    var id: String { summary.id }
+    let summary: PersonSummary
+    let representativeMember: PlanMembership
+}
+
+private struct TogetherMemberContext {
+    let member: PlanMembership
+    let groupID: String
 }
 
 // MARK: - Shared Plan Detail
