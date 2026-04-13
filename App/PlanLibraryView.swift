@@ -75,7 +75,7 @@ struct PlanLibraryView: View {
             Button("Leave plan", role: .destructive) { appModel.leavePlan() }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Your progress will be lost. You can restart the plan anytime.")
+            Text("Leaving stops day tracking for this plan, but verses you've added stay in My Verses and keep their progress.")
         }
     }
 
@@ -302,7 +302,7 @@ struct PlanDetailView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Your progress will be lost. You can restart the plan anytime.")
+            Text("Leaving stops day tracking for this plan, but verses you've added stay in My Verses and keep their progress.")
         }
     }
 

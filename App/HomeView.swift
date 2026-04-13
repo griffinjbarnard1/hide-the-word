@@ -37,7 +37,7 @@ struct HomeView: View {
             Button("Leave plan", role: .destructive) { appModel.leavePlan() }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Your progress will be lost. You can restart the plan anytime.")
+            Text("Leaving stops day tracking for this plan, but verses you've added stay in My Verses and keep their progress.")
         }
         .confirmationDialog("Skip to the next day?", isPresented: $showSkipDayConfirmation, titleVisibility: .visible) {
             Button("Skip") { appModel.advancePlanDay() }
