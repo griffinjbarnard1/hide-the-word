@@ -12,6 +12,17 @@ public enum AppRoute: String, Hashable, Codable, Sendable, Identifiable {
 }
 
 public enum AppRouteBuilder {
+    public static func route(from url: URL) -> AppRoute? {
+        guard url.scheme == "scripturememory" else { return nil }
+
+        let rawRoute = url.host.map { host in
+            let path = url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+            return path.isEmpty ? host : "\(host)/\(path)"
+        } ?? url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+
+        return AppRoute(rawValue: rawRoute)
+    }
+
     public static func url(for route: AppRoute) -> URL {
         URL(string: "scripturememory://\(route.rawValue)")!
     }

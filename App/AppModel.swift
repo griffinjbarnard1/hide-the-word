@@ -1386,6 +1386,8 @@ final class AppModel {
             openJourney()
         case AppRoute.settings.rawValue:
             openSettings()
+        case AppRoute.plans.rawValue:
+            openPlans()
         case _ where route.hasPrefix("share/plan-enroll"):
             if let planIDString = components?.queryItems?.first(where: { $0.name == "planID" })?.value,
                let planID = UUID(uuidString: planIDString),
