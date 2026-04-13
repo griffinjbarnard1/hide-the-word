@@ -5,21 +5,54 @@ struct OnboardingView: View {
     @Environment(AppModel.self) private var appModel
     @State private var currentPage = 0
     @State private var notificationStatus: NotificationPromptStatus = .pending
+    @State private var isOpeningPlans = false
 
     enum NotificationPromptStatus {
         case pending, granted, denied
     }
 
     var body: some View {
-        TabView(selection: $currentPage) {
-            welcomePage.tag(0)
-            loopPage.tag(1)
-            planPickerPage.tag(2)
-            notificationPage.tag(3)
+        VStack(spacing: 0) {
+            topBar
+
+            TabView(selection: $currentPage) {
+                welcomePage.tag(0)
+                loopPage.tag(1)
+                planPickerPage.tag(2)
+                notificationPage.tag(3)
+            }
+            .tabViewStyle(.page(indexDisplayMode: .always))
+            .indexViewStyle(.page(backgroundDisplayMode: .always))
         }
-        .tabViewStyle(.page(indexDisplayMode: .always))
-        .indexViewStyle(.page(backgroundDisplayMode: .always))
         .background(Color.screenBackground.ignoresSafeArea())
+    }
+
+    private var topBar: some View {
+        HStack {
+            Button {
+                withAnimation {
+                    currentPage = max(currentPage - 1, 0)
+                }
+            } label: {
+                Label("Back", systemImage: "chevron.left")
+                    .labelStyle(.titleAndIcon)
+            }
+            .opacity(currentPage == 0 ? 0 : 1)
+            .disabled(currentPage == 0)
+            .accessibilityHidden(currentPage == 0)
+
+            Spacer()
+
+            if currentPage < 3 {
+                Button("Skip") {
+                    appModel.completeOnboarding()
+                }
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(Color.mutedText)
+            }
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 12)
     }
 
     private var welcomePage: some View {
@@ -58,10 +91,18 @@ struct OnboardingView: View {
                 .font(.system(size: 34, weight: .semibold, design: .serif))
                 .foregroundStyle(Color.primaryText)
 
-            HStack(spacing: 20) {
-                stepItem(icon: "eye", title: "Read", description: "See the full verse")
-                stepItem(icon: "brain.head.profile", title: "Recall", description: "Mask it or type it back")
-                stepItem(icon: "hand.thumbsup", title: "Rate", description: "Easy, medium, or hard")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 20) {
+                    stepItem(icon: "eye", title: "Read", description: "See the full verse")
+                    stepItem(icon: "brain.head.profile", title: "Recall", description: "Mask it or type it back")
+                    stepItem(icon: "hand.thumbsup", title: "Rate", description: "Easy, medium, or hard")
+                }
+
+                VStack(spacing: 16) {
+                    stepItem(icon: "eye", title: "Read", description: "See the full verse")
+                    stepItem(icon: "brain.head.profile", title: "Recall", description: "Mask it or type it back")
+                    stepItem(icon: "hand.thumbsup", title: "Rate", description: "Easy, medium, or hard")
+                }
             }
 
             Text("The app brings verses back at the right time based on your ratings. No penalties for missing a day.")
@@ -139,6 +180,19 @@ struct OnboardingView: View {
                         .foregroundStyle(Color.accentGold)
                 }
                 .padding(.top, 4)
+
+                Button("Browse all plans") {
+                    guard !isOpeningPlans else { return }
+                    isOpeningPlans = true
+                    appModel.completeOnboarding()
+                    DispatchQueue.main.async {
+                        appModel.openPlans()
+                        isOpeningPlans = false
+                    }
+                }
+                .buttonStyle(SecondaryButtonStyle(fullWidth: true))
+                .padding(.top, 2)
+                .disabled(isOpeningPlans)
             }
             .padding(32)
         }
