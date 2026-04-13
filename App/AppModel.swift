@@ -1281,10 +1281,16 @@ final class AppModel {
             }
             .sorted { $0.1 < $1.1 }
             .first?.0
+        let fallbackRoute: AppRoute? = if dueReviewCount == 0 {
+            activePlanEnrollment == nil ? .library : .journey
+        } else {
+            nil
+        }
         WidgetData.write(
             dueCount: dueReviewCount,
             nextReference: nextRef,
-            collectionName: selectedCollection.title
+            collectionName: selectedCollection.title,
+            fallbackRoute: fallbackRoute
         )
     }
 

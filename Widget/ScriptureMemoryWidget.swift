@@ -6,13 +6,25 @@ struct WidgetEntry: TimelineEntry {
     let dueCount: Int
     let nextReference: String?
     let collectionName: String
+    let fallbackRoute: String
+
+    var deepLinkURL: URL? {
+        let route = dueCount > 0 ? "session/today" : fallbackRoute
+        return URL(string: "scripturememory://\(route)")
+    }
 }
 
 struct Provider: TimelineProvider {
     private static let appGroupID = "group.com.griffinbarnard.ScriptureMemory"
 
     func placeholder(in context: Context) -> WidgetEntry {
-        WidgetEntry(date: .now, dueCount: 3, nextReference: "Romans 8:28", collectionName: "Anxiety & Peace")
+        WidgetEntry(
+            date: .now,
+            dueCount: 3,
+            nextReference: "Romans 8:28",
+            collectionName: "Anxiety & Peace",
+            fallbackRoute: "library"
+        )
     }
 
     func getSnapshot(in context: Context, completion: @escaping (WidgetEntry) -> Void) {
@@ -30,7 +42,14 @@ struct Provider: TimelineProvider {
         let dueCount = defaults?.integer(forKey: "widget_due_count") ?? 0
         let nextRef = defaults?.string(forKey: "widget_next_reference")
         let collection = defaults?.string(forKey: "widget_collection_name") ?? String(localized: "widget.collection.default", defaultValue: "Hide the Word", table: "Localizable")
-        return WidgetEntry(date: .now, dueCount: dueCount, nextReference: nextRef, collectionName: collection)
+        let fallbackRoute = defaults?.string(forKey: "widget_fallback_route") ?? "library"
+        return WidgetEntry(
+            date: .now,
+            dueCount: dueCount,
+            nextReference: nextRef,
+            collectionName: collection,
+            fallbackRoute: fallbackRoute
+        )
     }
 }
 
@@ -61,6 +80,7 @@ struct SmallWidgetView: View {
         .containerBackground(for: .widget) {
             Color(red: 0.99, green: 0.98, blue: 0.96)
         }
+        .widgetURL(entry.deepLinkURL)
     }
 }
 
@@ -112,6 +132,7 @@ struct MediumWidgetView: View {
         .containerBackground(for: .widget) {
             Color(red: 0.99, green: 0.98, blue: 0.96)
         }
+        .widgetURL(entry.deepLinkURL)
     }
 }
 
