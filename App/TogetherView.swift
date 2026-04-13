@@ -3,9 +3,25 @@ import ScriptureMemory
 import CloudKit
 
 struct TogetherView: View {
+    private enum TogetherSection: String, CaseIterable, Identifiable {
+        case plans = "Plans"
+        case people = "People"
+
+        var id: String { rawValue }
+    }
+
+    private struct PersonRollup: Identifiable {
+        let id: String
+        let displayName: String
+        let plansInCommon: Int
+        let currentStreak: Int
+        let isActiveToday: Bool
+        let lastActiveAt: Date?
+    }
+
     @Environment(AppModel.self) private var appModel
     @State private var planManager = SharedPlanManager.shared
-    @State private var showingShareSheet = false
+    @State private var selectedSection: TogetherSection = .plans
     @State private var selectedGroup: SharedPlanGroup?
     @State private var sharingGroup: SharedPlanGroup?
 
@@ -13,6 +29,7 @@ struct TogetherView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 header
+                sectionPicker
 
                 if planManager.isLoading, planManager.groups.isEmpty {
                     ProgressView()
@@ -20,8 +37,13 @@ struct TogetherView: View {
                 } else if planManager.groups.isEmpty {
                     emptyState
                 } else {
-                    ForEach(planManager.groups) { group in
-                        groupCard(group)
+                    switch selectedSection {
+                    case .plans:
+                        ForEach(planManager.groups) { group in
+                            groupCard(group)
+                        }
+                    case .people:
+                        peopleSection
                     }
                 }
 
@@ -37,6 +59,10 @@ struct TogetherView: View {
         .background(Color.screenBackground.ignoresSafeArea())
         .task { await planManager.fetchGroups() }
         .refreshable { await planManager.fetchGroups() }
+        .onChange(of: selectedSection) { _, section in
+            guard section == .people else { return }
+            TogetherAnalytics.track(.viewPeople, metadata: ["group_count": "\(planManager.groups.count)"])
+        }
         .sheet(item: $selectedGroup) { group in
             NavigationStack {
                 SharedPlanDetailView(group: group, planManager: planManager)
@@ -45,6 +71,15 @@ struct TogetherView: View {
         .sheet(item: $sharingGroup) { group in
             PlanCloudSharingSheet(group: group, planManager: planManager)
         }
+    }
+
+    private var sectionPicker: some View {
+        Picker("Together section", selection: $selectedSection) {
+            ForEach(TogetherSection.allCases) { section in
+                Text(section.rawValue).tag(section)
+            }
+        }
+        .pickerStyle(.segmented)
     }
 
     // MARK: - Header
@@ -104,6 +139,101 @@ struct TogetherView: View {
         .cardSurface()
     }
 
+    private var peopleSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("People across shared plans")
+                .font(.headline)
+                .foregroundStyle(Color.primaryText)
+
+            Text("Lightweight status only from plans you already share.")
+                .font(.caption)
+                .foregroundStyle(Color.mutedText)
+
+            let people = peopleRollups()
+            if people.isEmpty {
+                Text("No people found in your shared plans yet.")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mutedText)
+                    .cardSurface()
+            } else {
+                ForEach(people) { person in
+                    personRow(person)
+                }
+            }
+        }
+    }
+
+    private func peopleRollups() -> [PersonRollup] {
+        var byID: [String: PersonRollup] = [:]
+        let startOfToday = Calendar.current.startOfDay(for: .now)
+
+        for group in planManager.groups {
+            for member in group.members {
+                var existing = byID[member.id] ?? PersonRollup(
+                    id: member.id,
+                    displayName: member.displayName,
+                    plansInCommon: 0,
+                    currentStreak: 0,
+                    isActiveToday: false,
+                    lastActiveAt: nil
+                )
+                existing = PersonRollup(
+                    id: existing.id,
+                    displayName: existing.displayName,
+                    plansInCommon: existing.plansInCommon + 1,
+                    currentStreak: max(existing.currentStreak, member.streak),
+                    isActiveToday: existing.isActiveToday || (member.lastActiveAt ?? .distantPast) >= startOfToday,
+                    lastActiveAt: [existing.lastActiveAt, member.lastActiveAt].compactMap { $0 }.max()
+                )
+                byID[member.id] = existing
+            }
+        }
+
+        return byID.values
+            .sorted { lhs, rhs in
+                if lhs.plansInCommon != rhs.plansInCommon { return lhs.plansInCommon > rhs.plansInCommon }
+                return lhs.displayName.localizedCaseInsensitiveCompare(rhs.displayName) == .orderedAscending
+            }
+    }
+
+    private func personRow(_ person: PersonRollup) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Circle()
+                    .fill(Color.accentMoss.opacity(0.15))
+                    .frame(width: 34, height: 34)
+                    .overlay {
+                        Text(String(person.displayName.prefix(1)).uppercased())
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(Color.accentMoss)
+                    }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(person.displayName)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Color.primaryText)
+                    Text("\(person.plansInCommon) plan\(person.plansInCommon == 1 ? "" : "s") in common")
+                        .font(.caption2)
+                        .foregroundStyle(Color.mutedText)
+                }
+                Spacer()
+                if person.isActiveToday {
+                    StatusPill(title: "Active today", tint: .accentMoss)
+                } else if let lastActive = person.lastActiveAt, lastActive > .distantPast {
+                    Text(relativeDate(lastActive))
+                        .font(.caption2)
+                        .foregroundStyle(Color.mutedText)
+                }
+            }
+
+            if person.currentStreak > 0 {
+                Label("\(person.currentStreak)-day streak", systemImage: "flame.fill")
+                    .font(.caption)
+                    .foregroundStyle(Color.accentGold)
+            }
+        }
+        .cardSurface()
+    }
+
     // MARK: - Group Card
 
     private func groupCard(_ group: SharedPlanGroup) -> some View {
@@ -122,6 +252,7 @@ struct TogetherView: View {
                 }
                 Spacer()
                 Button {
+                    TogetherAnalytics.track(.invite, metadata: ["surface": "group_card"])
                     sharingGroup = group
                 } label: {
                     Image(systemName: "person.badge.plus")
@@ -235,6 +366,7 @@ struct TogetherView: View {
 
     private func shareActivePlan() async {
         guard let plan = appModel.activePlan else { return }
+        TogetherAnalytics.track(.invite, metadata: ["surface": "active_plan"])
         let share = await planManager.createSharedPlan(
             planID: plan.id,
             planTitle: plan.title,
@@ -419,6 +551,7 @@ struct SharedPlanDetailView: View {
 
                 if let plan = BuiltInPlans.plan(withID: group.planID) ?? appModel.customPlans.first(where: { $0.id == group.planID }) {
                     Button("Join \(plan.title)") {
+                        TogetherAnalytics.track(.joinSharedPlan, metadata: ["surface": "shared_plan_detail"])
                         appModel.enrollInPlan(plan)
                     }
                     .buttonStyle(PrimaryButtonStyle())
@@ -527,6 +660,7 @@ struct SharedPlanDetailView: View {
                 .disabled(isSyncing)
 
                 Button("Invite to plan") {
+                    TogetherAnalytics.track(.invite, metadata: ["surface": "shared_plan_detail"])
                     sharingGroup = group
                 }
                 .buttonStyle(FilledSoftButtonStyle())

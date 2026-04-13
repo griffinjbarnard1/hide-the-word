@@ -1,8 +1,35 @@
 import CloudKit
 import Foundation
+import os
 import ScriptureMemory
 
 // MARK: - Models
+
+enum TogetherAnalyticsEvent: String {
+    case viewPeople = "together_view_people"
+    case invite = "together_invite"
+    case joinSharedPlan = "together_join_shared_plan"
+    case sync = "together_sync"
+}
+
+enum TogetherAnalytics {
+    private static let logger = Logger(subsystem: "HideTheWord", category: "TogetherAnalytics")
+    private static let defaults = UserDefaults.standard
+
+    static func track(_ event: TogetherAnalyticsEvent, metadata: [String: String] = [:]) {
+        defaults.set(Date.now, forKey: "\(event.rawValue)_last_at")
+        defaults.set(defaults.integer(forKey: "\(event.rawValue)_count") + 1, forKey: "\(event.rawValue)_count")
+        if metadata.isEmpty {
+            logger.log("\(event.rawValue, privacy: .public)")
+        } else {
+            let fields = metadata
+                .sorted { $0.key < $1.key }
+                .map { "\($0.key)=\($0.value)" }
+                .joined(separator: ",")
+            logger.log("\(event.rawValue, privacy: .public) \(fields, privacy: .public)")
+        }
+    }
+}
 
 struct SharedPlanGroup: Identifiable, Codable, Hashable, Sendable {
     let id: String // CKRecordZone name
@@ -158,6 +185,7 @@ final class SharedPlanManager {
         completedDays: Set<Int>,
         streak: Int
     ) async -> SharedPlanSyncResult {
+        TogetherAnalytics.track(.sync, metadata: ["group_id": groupZoneID.zoneName, "phase": "attempt"])
         // Conflict-safe merge rules (deterministic):
         // 1) Member identity is the record name `member-<stableMemberID>`, never display name.
         // 2) completedDays is treated as a set union across devices; never remove remote completions.
@@ -213,12 +241,14 @@ final class SharedPlanManager {
 
             try await targetDatabase.save(record)
             syncStateByGroupID[groupZoneID.zoneName] = .success(now)
+            TogetherAnalytics.track(.sync, metadata: ["group_id": groupZoneID.zoneName, "phase": "success"])
             return .success(syncedAt: now)
         } catch {
             let reason: SharedPlanSyncFailureReason = .saveFailed(error.localizedDescription)
             let message = error.localizedDescription
             lastError = message
             syncStateByGroupID[groupZoneID.zoneName] = .failure(message)
+            TogetherAnalytics.track(.sync, metadata: ["group_id": groupZoneID.zoneName, "phase": "failure"])
             return .failure(reason)
         }
     }
@@ -322,6 +352,7 @@ final class SharedPlanManager {
     func acceptShare(_ metadata: CKShare.Metadata) async {
         do {
             try await container.accept(metadata)
+            TogetherAnalytics.track(.joinSharedPlan, metadata: ["surface": "cloud_share_accept"])
             await fetchGroups()
         } catch {
             lastError = error.localizedDescription
