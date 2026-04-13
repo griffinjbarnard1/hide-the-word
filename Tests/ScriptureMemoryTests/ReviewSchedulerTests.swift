@@ -147,6 +147,13 @@ struct ReviewSchedulerTests {
     }
 
     @Test
+    func incomingPlansDeepLinkResolvesToPlansRoute() {
+        let route = AppRouteBuilder.route(from: URL(string: "scripturememory://plans")!)
+
+        #expect(route == .plans)
+    }
+
+    @Test
     func bibleCatalogReusesFixedIDsForKnownBuiltInVerses() {
         let verse = BibleCatalog.verse(
             bookID: "john",
