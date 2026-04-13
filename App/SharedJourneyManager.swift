@@ -64,11 +64,8 @@ final class SharedPlanManager {
     }
 
     func isOwner(of group: SharedPlanGroup, currentMemberID: String?, currentDisplayName: String) -> Bool {
-        if let currentMemberID {
-            if let ownerMemberID = group.ownerMemberID {
-                return ownerMemberID == currentMemberID
-            }
-            return group.members.contains(where: { $0.id == "member-\(currentMemberID)" && $0.displayName == group.ownerName })
+        if let ownerMemberID = group.ownerMemberID, let currentMemberID {
+            return ownerMemberID == currentMemberID
         }
         return group.ownerName == currentDisplayName
     }
