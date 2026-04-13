@@ -147,6 +147,13 @@ final class SharedPlanManager {
         let message: String
     }
 
+    struct MergedProgressState: Equatable {
+        let currentDay: Int
+        let streak: Int
+        let lastActiveAt: Date
+        let completedDays: Set<Int>
+    }
+
     init() {
         container = CKContainer(identifier: Self.containerID)
         privateDB = container.privateCloudDatabase
@@ -335,24 +342,22 @@ final class SharedPlanManager {
             }
 
             record["memberName"] = memberName
-            let mergedCurrentDay = max(record["currentDay"] as? Int ?? 1, currentDay)
-            let mergedStreak = max(record["streak"] as? Int ?? 0, streak)
             let now = Date.now
-            let mergedLastActive = max(record["lastActiveAt"] as? Date ?? .distantPast, now)
+            let mergedState = Self.mergeProgressState(
+                existingCurrentDay: record["currentDay"] as? Int,
+                existingStreak: record["streak"] as? Int,
+                existingLastActiveAt: record["lastActiveAt"] as? Date,
+                existingCompletedDaysJSON: record["completedDaysJSON"] as? String,
+                incomingCurrentDay: currentDay,
+                incomingCompletedDays: completedDays,
+                incomingStreak: streak,
+                now: now
+            )
 
-            record["currentDay"] = mergedCurrentDay
-            record["streak"] = mergedStreak
-            record["lastActiveAt"] = mergedLastActive
-
-            let encoder = JSONEncoder()
-            var mergedCompletedDays = completedDays
-            let decoder = JSONDecoder()
-            if let existingJSON = record["completedDaysJSON"] as? String,
-               let existingData = existingJSON.data(using: .utf8),
-               let existingDays = try? decoder.decode([Int].self, from: existingData) {
-                mergedCompletedDays.formUnion(existingDays)
-            }
-            if let data = try? encoder.encode(Array(mergedCompletedDays).sorted()),
+            record["currentDay"] = mergedState.currentDay
+            record["streak"] = mergedState.streak
+            record["lastActiveAt"] = mergedState.lastActiveAt
+            if let data = try? JSONEncoder().encode(Array(mergedState.completedDays).sorted()),
                let json = String(data: data, encoding: .utf8) {
                 record["completedDaysJSON"] = json
             }
@@ -367,6 +372,35 @@ final class SharedPlanManager {
             syncStateByGroupID[groupZoneID.zoneName] = .failure(message)
             return .failure(reason)
         }
+    }
+
+    static func mergeProgressState(
+        existingCurrentDay: Int?,
+        existingStreak: Int?,
+        existingLastActiveAt: Date?,
+        existingCompletedDaysJSON: String?,
+        incomingCurrentDay: Int,
+        incomingCompletedDays: Set<Int>,
+        incomingStreak: Int,
+        now: Date
+    ) -> MergedProgressState {
+        let mergedCurrentDay = max(existingCurrentDay ?? 1, incomingCurrentDay)
+        let mergedStreak = max(existingStreak ?? 0, incomingStreak)
+        let mergedLastActive = max(existingLastActiveAt ?? .distantPast, now)
+
+        var mergedCompletedDays = incomingCompletedDays
+        if let existingCompletedDaysJSON,
+           let data = existingCompletedDaysJSON.data(using: .utf8),
+           let decodedDays = try? JSONDecoder().decode([Int].self, from: data) {
+            mergedCompletedDays.formUnion(decodedDays)
+        }
+
+        return MergedProgressState(
+            currentDay: mergedCurrentDay,
+            streak: mergedStreak,
+            lastActiveAt: mergedLastActive,
+            completedDays: mergedCompletedDays
+        )
     }
 
     func fetchMyProfile(defaultDisplayName: String) async -> PublicProfile {

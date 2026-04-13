@@ -26,6 +26,17 @@ struct SectionBundleSummary: Identifiable, Hashable {
 @MainActor
 @Observable
 final class AppModel {
+    enum IncomingURLAction: Equatable {
+        case startSession
+        case openCollections
+        case openLibrary
+        case openJourney
+        case openSettings
+        case enrollPlan(UUID)
+        case handleSharedPlan
+        case ignore
+    }
+
     private let progressStore: ReviewProgressStore
     private let urlSession: URLSession
     private let esvAPIKey: String?
@@ -1370,6 +1381,33 @@ final class AppModel {
             selectCollection(requestedCollectionID)
         }
 
+        switch Self.incomingURLAction(
+            for: url,
+            customPlanIDs: Set(customPlans.map(\.id))
+        ) {
+        case .startSession:
+            startOrResumeSession()
+        case .openCollections:
+            openCollections()
+        case .openLibrary:
+            openVerseLibrary()
+        case .openJourney:
+            openJourney()
+        case .openSettings:
+            openSettings()
+        case let .enrollPlan(planID):
+            if let plan = BuiltInPlans.plan(withID: planID) ?? customPlans.first(where: { $0.id == planID }) {
+                enrollInPlan(plan)
+                openPlans()
+            }
+        case .handleSharedPlan:
+            handleSharePlanURL(components)
+        case .ignore:
+            return
+        }
+    }
+
+    static func incomingURLAction(for url: URL, customPlanIDs: Set<UUID>) -> IncomingURLAction {
         let route = url.host.map { host -> String in
             let path = url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
             return path.isEmpty ? host : "\(host)/\(path)"
@@ -1377,26 +1415,27 @@ final class AppModel {
 
         switch route {
         case AppRoute.todaySession.rawValue:
-            startOrResumeSession()
+            return .startSession
         case AppRoute.verseSets.rawValue:
-            openCollections()
+            return .openCollections
         case AppRoute.library.rawValue:
-            openVerseLibrary()
+            return .openLibrary
         case AppRoute.journey.rawValue:
-            openJourney()
+            return .openJourney
         case AppRoute.settings.rawValue:
-            openSettings()
+            return .openSettings
         case _ where route.hasPrefix("share/plan-enroll"):
-            if let planIDString = components?.queryItems?.first(where: { $0.name == "planID" })?.value,
-               let planID = UUID(uuidString: planIDString),
-               let plan = BuiltInPlans.plan(withID: planID) ?? customPlans.first(where: { $0.id == planID }) {
-                enrollInPlan(plan)
-                openPlans()
-            }
+            let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+            guard
+                let planIDString = components?.queryItems?.first(where: { $0.name == "planID" })?.value,
+                let planID = UUID(uuidString: planIDString),
+                BuiltInPlans.plan(withID: planID) != nil || customPlanIDs.contains(planID)
+            else { return .ignore }
+            return .enrollPlan(planID)
         case _ where route.hasPrefix("share/"):
-            handleSharePlanURL(components)
+            return .handleSharedPlan
         default:
-            return
+            return .ignore
         }
     }
 
