@@ -1,5 +1,6 @@
 import CryptoKit
 import Foundation
+import os
 
 public struct BibleBookSummary: Identifiable, Hashable, Codable, Sendable {
     public let id: String
@@ -15,7 +16,33 @@ public struct BibleBookSummary: Identifiable, Hashable, Codable, Sendable {
     }
 }
 
+public enum BibleCatalogError: LocalizedError, Sendable {
+    case missingResource(name: String, fileExtension: String)
+    case readFailed(underlyingDescription: String)
+    case decodeFailed(underlyingDescription: String)
+
+    public var errorDescription: String? {
+        switch self {
+        case let .missingResource(name, fileExtension):
+            return "Missing bundled resource: \(name).\(fileExtension)"
+        case let .readFailed(underlyingDescription):
+            return "Failed reading Bible catalog resource. \(underlyingDescription)"
+        case let .decodeFailed(underlyingDescription):
+            return "Failed decoding Bible catalog resource. \(underlyingDescription)"
+        }
+    }
+}
+
 public enum BibleCatalog {
+    private static let logger = Logger(subsystem: "com.griffinbarnard.ScriptureMemory", category: "BibleCatalog")
+
+    public static var initializationError: BibleCatalogError? {
+        if case let .failed(error) = state {
+            return error
+        }
+        return nil
+    }
+
     public static var books: [BibleBookSummary] {
         store.books.map { book in
             BibleBookSummary(
@@ -158,7 +185,34 @@ public enum BibleCatalog {
         return (before, after)
     }
 
-    private static let store = BibleStore.load()
+    private enum LoadState {
+        case loaded(BibleStore)
+        case failed(BibleCatalogError)
+    }
+
+    private static let state = makeState()
+
+    private static var store: BibleStore {
+        switch state {
+        case let .loaded(store):
+            return store
+        case .failed:
+            return BibleStore(books: [])
+        }
+    }
+
+    private static func makeState() -> LoadState {
+        do {
+            return .loaded(try BibleStore.load())
+        } catch let error as BibleCatalogError {
+            logger.error("Bible catalog initialization failed: \(error.localizedDescription, privacy: .public)")
+            return .failed(error)
+        } catch {
+            let typedError = BibleCatalogError.decodeFailed(underlyingDescription: String(describing: error))
+            logger.error("Bible catalog initialization failed with unexpected error: \(typedError.localizedDescription, privacy: .public)")
+            return .failed(typedError)
+        }
+    }
 
     private static func makeVerse(
         book: BibleBook,
@@ -198,6 +252,13 @@ public enum BibleCatalog {
             bytes[12], bytes[13], bytes[14], bytes[15]
         ))
     }
+
+    static func _loadStoreForTesting(
+        resourceURLProvider: () -> URL?,
+        fileLoader: (URL) throws -> Data
+    ) throws -> BibleStore {
+        try BibleStore.load(resourceURLProvider: resourceURLProvider, fileLoader: fileLoader)
+    }
 }
 
 private struct VerseCursor: Comparable {
@@ -212,7 +273,7 @@ private struct VerseCursor: Comparable {
     }
 }
 
-private struct BibleStore: Decodable {
+struct BibleStore: Decodable {
     let books: [BibleBook]
 
     let booksByID: [String: BibleBook]
@@ -254,16 +315,25 @@ private struct BibleStore: Decodable {
         self.init(books: books)
     }
 
-    static func load() -> BibleStore {
-        guard let url = Bundle.module.url(forResource: "bible-data", withExtension: "json") else {
-            fatalError("Missing bundled bible-data.json resource")
+    static func load(
+        resourceURLProvider: () -> URL? = { Bundle.module.url(forResource: "bible-data", withExtension: "json") },
+        fileLoader: (URL) throws -> Data = { try Data(contentsOf: $0) }
+    ) throws -> BibleStore {
+        guard let url = resourceURLProvider() else {
+            throw BibleCatalogError.missingResource(name: "bible-data", fileExtension: "json")
         }
 
         do {
-            let data = try Data(contentsOf: url)
-            return try JSONDecoder().decode(BibleStore.self, from: data)
+            let data = try fileLoader(url)
+            do {
+                return try JSONDecoder().decode(BibleStore.self, from: data)
+            } catch {
+                throw BibleCatalogError.decodeFailed(underlyingDescription: String(describing: error))
+            }
+        } catch let error as BibleCatalogError {
+            throw error
         } catch {
-            fatalError("Failed to load Bible catalog: \(error)")
+            throw BibleCatalogError.readFailed(underlyingDescription: String(describing: error))
         }
     }
 }
@@ -275,19 +345,19 @@ private struct VerseLookup: Hashable {
     let order: Int
 }
 
-private struct BibleBook: Codable, Sendable {
+struct BibleBook: Codable, Sendable {
     let number: Int
     let id: String
     let name: String
     let chapters: [BibleChapter]
 }
 
-private struct BibleChapter: Codable, Sendable {
+struct BibleChapter: Codable, Sendable {
     let number: Int
     let verses: [BibleVerse]
 }
 
-private struct BibleVerse: Codable, Sendable {
+struct BibleVerse: Codable, Sendable {
     let number: Int
     let kjv: String
     let web: String

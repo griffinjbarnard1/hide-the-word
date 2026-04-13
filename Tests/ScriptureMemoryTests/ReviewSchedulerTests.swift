@@ -159,6 +159,45 @@ struct ReviewSchedulerTests {
         #expect(verse?.reference == "John 3:16")
     }
 
+
+
+    @Test
+    func bibleCatalogReportsMissingResourceAsTypedError() {
+        do {
+            _ = try BibleCatalog._loadStoreForTesting(
+                resourceURLProvider: { nil },
+                fileLoader: { _ in Data() }
+            )
+            Issue.record("Expected missing-resource error")
+        } catch let error as BibleCatalogError {
+            if case .missingResource = error {
+                #expect(Bool(true))
+            } else {
+                Issue.record("Unexpected BibleCatalogError: \(error)")
+            }
+        } catch {
+            Issue.record("Unexpected error type: \(error)")
+        }
+    }
+
+    @Test
+    func bibleCatalogReportsCorruptedPayloadAsTypedError() {
+        do {
+            _ = try BibleCatalog._loadStoreForTesting(
+                resourceURLProvider: { URL(filePath: "/tmp/not-used.json") },
+                fileLoader: { _ in Data("{bad json".utf8) }
+            )
+            Issue.record("Expected decode failure error")
+        } catch let error as BibleCatalogError {
+            if case .decodeFailed = error {
+                #expect(Bool(true))
+            } else {
+                Issue.record("Unexpected BibleCatalogError: \(error)")
+            }
+        } catch {
+            Issue.record("Unexpected error type: \(error)")
+        }
+    }
     @Test
     func bibleCatalogSupportsCrossChapterRanges() {
         let verses = BibleCatalog.verseRange(

@@ -569,5 +569,5 @@ struct HomeView: View {
 
 #Preview {
     HomeView()
-        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .environment(AppModel(progressStore: ReviewProgressStore.initialize(inMemory: true).store))
 }

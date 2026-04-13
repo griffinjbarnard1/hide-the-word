@@ -211,5 +211,5 @@ enum PeopleSortOption: String, CaseIterable, Identifiable {
             .navigationTitle("People")
             .navigationBarTitleDisplayMode(.inline)
     }
-    .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+    .environment(AppModel(progressStore: ReviewProgressStore.initialize(inMemory: true).store))
 }
