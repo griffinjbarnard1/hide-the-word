@@ -63,6 +63,16 @@ final class SharedPlanManager {
         }
     }
 
+    func isOwner(of group: SharedPlanGroup, currentMemberID: String?, currentDisplayName: String) -> Bool {
+        if let currentMemberID {
+            if let ownerMemberID = group.ownerMemberID {
+                return ownerMemberID == currentMemberID
+            }
+            return group.members.contains(where: { $0.id == "member-\(currentMemberID)" && $0.displayName == group.ownerName })
+        }
+        return group.ownerName == currentDisplayName
+    }
+
     // MARK: - Create Shared Plan
 
     func createSharedPlan(
@@ -286,8 +296,9 @@ final class SharedPlanManager {
 
     // MARK: - Leave Group
 
-    func leaveGroup(_ group: SharedPlanGroup, isOwner: Bool) async -> ActionFeedback {
+    func leaveGroup(_ group: SharedPlanGroup, currentDisplayName: String) async -> ActionFeedback {
         let memberID = await stableMemberID()
+        let isOwner = isOwner(of: group, currentMemberID: memberID, currentDisplayName: currentDisplayName)
         let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: group.zoneOwnerName)
         let recordID = CKRecord.ID(recordName: "member-\(memberID)", zoneID: zoneID)
         let isPrivatelyOwnedZone = group.zoneOwnerName == CKCurrentUserDefaultName

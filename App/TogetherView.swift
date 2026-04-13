@@ -58,7 +58,7 @@ struct TogetherView: View {
             Button("Leave", role: .destructive) {
                 guard let group = pendingLeaveGroup else { return }
                 Task {
-                    let feedback = await planManager.leaveGroup(group, isOwner: false)
+                    let feedback = await planManager.leaveGroup(group, currentDisplayName: appModel.userDisplayName)
                     actionMessage = feedback.message
                     pendingLeaveGroup = nil
                 }
@@ -312,13 +312,7 @@ struct TogetherView: View {
     }
 
     private func isOwner(_ group: SharedPlanGroup) -> Bool {
-        if let currentMemberID {
-            if let ownerMemberID = group.ownerMemberID {
-                return ownerMemberID == currentMemberID
-            }
-            return group.members.contains(where: { $0.id == "member-\(currentMemberID)" && $0.displayName == group.ownerName })
-        }
-        return group.ownerName == appModel.userDisplayName
+        planManager.isOwner(of: group, currentMemberID: currentMemberID, currentDisplayName: appModel.userDisplayName)
     }
 
     private func relativeDate(_ date: Date) -> String {
@@ -370,7 +364,7 @@ struct SharedPlanDetailView: View {
         .confirmationDialog("Leave shared plan?", isPresented: $showLeaveConfirm, titleVisibility: .visible) {
             Button("Leave Plan", role: .destructive) {
                 Task {
-                    let feedback = await planManager.leaveGroup(group, isOwner: false)
+                    let feedback = await planManager.leaveGroup(group, currentDisplayName: appModel.userDisplayName)
                     actionMessage = feedback.message
                     if feedback.success { dismiss() }
                 }
@@ -382,7 +376,7 @@ struct SharedPlanDetailView: View {
         .confirmationDialog("Archive and stop sharing?", isPresented: $showArchiveConfirm, titleVisibility: .visible) {
             Button("Archive Group", role: .destructive) {
                 Task {
-                    let feedback = await planManager.leaveGroup(group, isOwner: true)
+                    let feedback = await planManager.leaveGroup(group, currentDisplayName: appModel.userDisplayName)
                     actionMessage = feedback.message
                     if feedback.success { dismiss() }
                 }
@@ -606,13 +600,7 @@ struct SharedPlanDetailView: View {
     }
 
     private var isOwner: Bool {
-        if let currentMemberID {
-            if let ownerMemberID = group.ownerMemberID {
-                return ownerMemberID == currentMemberID
-            }
-            return group.members.contains(where: { $0.id == "member-\(currentMemberID)" && $0.displayName == group.ownerName })
-        }
-        return group.ownerName == appModel.userDisplayName
+        planManager.isOwner(of: group, currentMemberID: currentMemberID, currentDisplayName: appModel.userDisplayName)
     }
 }
 
