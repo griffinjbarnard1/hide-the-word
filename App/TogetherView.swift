@@ -11,7 +11,6 @@ struct TogetherView: View {
 
     @Environment(AppModel.self) private var appModel
     @State private var socialService = SocialService.shared
-    @State private var showingShareSheet = false
     @State private var selectedGroup: SharedPlanGroup?
     @State private var sharingGroup: SharedPlanGroup?
     @State private var selectedTab: SectionTab = .plans
