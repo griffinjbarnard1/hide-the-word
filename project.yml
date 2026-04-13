@@ -51,4 +51,14 @@ targets:
         DEVELOPMENT_TEAM: ""
         TARGETED_DEVICE_FAMILY: "1"
     scheme:
-      testTargets: []
+      testTargets:
+        - ScriptureMemoryAppTests
+
+  ScriptureMemoryAppTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: Tests/ScriptureMemoryAppTests
+    dependencies:
+      - target: ScriptureMemoryApp
