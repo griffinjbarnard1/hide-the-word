@@ -40,7 +40,10 @@ struct TogetherView: View {
             await refreshIdentity()
             await planManager.fetchGroups()
         }
-        .refreshable { await planManager.fetchGroups() }
+        .refreshable {
+            await refreshIdentity()
+            await planManager.fetchGroups()
+        }
         .sheet(item: $selectedGroup) { group in
             NavigationStack {
                 SharedPlanDetailView(group: group, planManager: planManager)
@@ -283,11 +286,6 @@ struct TogetherView: View {
             }
             return error
         }
-
-        if identityStatus != .available {
-            return iCloudUnavailableMessage
-        }
-
         return nil
     }
 
@@ -365,7 +363,7 @@ struct SharedPlanDetailView: View {
             PlanCloudSharingSheet(group: group, planManager: planManager)
         }
         .task {
-            identityStatus = await planManager.identityStatus()
+            await refreshIdentity()
         }
     }
 

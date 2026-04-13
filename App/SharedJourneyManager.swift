@@ -59,9 +59,9 @@ final class SharedPlanManager {
             switch accountStatus {
             case .available:
                 return .available
-            case .restricted, .couldNotDetermine:
+            case .restricted:
                 return .restricted
-            case .noAccount, .temporarilyUnavailable:
+            case .noAccount, .temporarilyUnavailable, .couldNotDetermine:
                 return .unavailable
             @unknown default:
                 return .unavailable
