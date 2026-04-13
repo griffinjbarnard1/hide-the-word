@@ -11,7 +11,6 @@ struct TogetherView: View {
 
     @Environment(AppModel.self) private var appModel
     @State private var socialService = SocialService.shared
-    @State private var showingShareSheet = false
     @State private var selectedGroup: SharedPlanGroup?
     @State private var sharingGroup: SharedPlanGroup?
     @State private var selectedTab: SectionTab = .plans
@@ -22,6 +21,7 @@ struct TogetherView: View {
     @State private var actionMessage: String?
     @State private var identityStatus: SharedPlanManager.IdentityStatus = .unavailable
     @State private var cloudActionError: String?
+    @AppStorage("has_seen_together_people_tooltip") private var hasSeenPeopleTooltip = false
 
     var body: some View {
         ScrollView {
@@ -133,10 +133,54 @@ struct TogetherView: View {
                 }
             }
 
-            Text("Share a plan with shared plan members. You collaborate per plan; there is no global friend list yet.")
+            Text("Share a plan with people in shared plans.")
                 .font(.body)
                 .foregroundStyle(Color.mutedText)
+
+            Text("You see people you share plans with.")
+                .font(.subheadline)
+                .foregroundStyle(Color.mutedText)
+
+            if !hasSeenPeopleTooltip {
+                peopleTooltip
+            }
         }
+    }
+
+    private var peopleTooltip: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "info.circle.fill")
+                .foregroundStyle(Color.accentMoss)
+                .padding(.top, 1)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("People are plan-specific")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.primaryText)
+                Text("Invite people to a shared plan to see them here. People appear only in plans you share.")
+                    .font(.caption)
+                    .foregroundStyle(Color.mutedText)
+            }
+
+            Spacer(minLength: 8)
+
+            Button {
+                hasSeenPeopleTooltip = true
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color.mutedText)
+                    .frame(width: 28, height: 28)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Dismiss people tip")
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color.paper)
+        )
     }
 
     // MARK: - Empty State
@@ -196,7 +240,7 @@ struct TogetherView: View {
                 .font(.headline)
                 .foregroundStyle(Color.primaryText)
 
-            Text("Start a plan and invite people in this plan. You collaborate per plan; there is no global friend list yet. Everyone works at their own pace, and progress is visible only to shared plan members.")
+            Text("Start a plan and invite people in this shared plan. Everyone works at their own pace, and progress is visible only to people in shared plans.")
                 .font(.subheadline)
                 .foregroundStyle(Color.mutedText)
 
@@ -433,7 +477,7 @@ struct TogetherView: View {
         case .available:
             return "iCloud is required for invites and sync. Please try again."
         case .unavailable:
-            return "iCloud is unavailable. Sign in to iCloud in Settings to invite friends and sync shared plans."
+            return "iCloud is unavailable. Sign in to iCloud in Settings to invite people and sync shared plans."
         case .restricted:
             return "iCloud access is restricted on this device. Invites and sync are unavailable until iCloud is enabled."
         }
@@ -624,7 +668,7 @@ struct SharedPlanDetailView: View {
                 .font(.headline)
                 .foregroundStyle(Color.primaryText)
 
-            Text("Membership is per shared plan. There is no global friend list, so only people invited to this plan can view and sync progress here.")
+            Text("Membership is per shared plan, so only people invited to this plan can view and sync progress here.")
                 .font(.caption)
                 .foregroundStyle(Color.mutedText)
         }
@@ -666,9 +710,13 @@ struct SharedPlanDetailView: View {
 
     private var membersSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Everyone's progress")
+            Text("People")
                 .font(.headline)
                 .foregroundStyle(Color.primaryText)
+
+            Text("You see people you share plans with.")
+                .font(.caption)
+                .foregroundStyle(Color.mutedText)
 
             ForEach(group.members) { member in
                 memberCard(member)
