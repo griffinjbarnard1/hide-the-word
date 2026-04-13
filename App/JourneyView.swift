@@ -350,7 +350,9 @@ private struct StudyUnitDetailView: View {
                 }
 
                 Text(appModel.displayText(for: unit))
-                    .font(.system(size: 30, weight: .medium, design: .serif))
+                    .font(.system(.title2, design: .serif, weight: .medium))
+                    .lineLimit(nil)
+                    .minimumScaleFactor(0.8)
                     .foregroundStyle(Color.primaryText)
 
                 if appModel.shouldShowESVAttribution(for: unit.reference) {
@@ -503,4 +505,22 @@ private struct DetailLine: View {
                 .foregroundStyle(Color.primaryText)
         }
     }
+}
+
+#Preview("Journey · XXXL") {
+    JourneyView()
+        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .dynamicTypeSize(.xxxLarge)
+}
+
+#Preview("Journey · AX Medium") {
+    JourneyView()
+        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .dynamicTypeSize(.accessibility2)
+}
+
+#Preview("Journey · AX XL") {
+    JourneyView()
+        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .dynamicTypeSize(.accessibility3)
 }

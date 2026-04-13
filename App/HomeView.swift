@@ -59,7 +59,9 @@ struct HomeView: View {
     private var hero: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text(heroGreeting)
-                .font(.system(size: 34, weight: .semibold, design: .serif))
+                .font(.system(.title, design: .serif, weight: .semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
                 .foregroundStyle(Color.primaryText)
 
             Text(heroSubtitle)
@@ -99,7 +101,9 @@ struct HomeView: View {
                         .foregroundStyle(.secondary)
 
                     Text(todaySummary)
-                        .font(.system(size: 28, weight: .semibold, design: .serif))
+                        .font(.system(.title2, design: .serif, weight: .semibold))
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
                         .foregroundStyle(Color.primaryText)
                 }
 
@@ -567,7 +571,25 @@ struct HomeView: View {
     }
 }
 
-#Preview {
+#Preview("Home · Default") {
     HomeView()
         .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+}
+
+#Preview("Home · XXXL") {
+    HomeView()
+        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .dynamicTypeSize(.xxxLarge)
+}
+
+#Preview("Home · AX Medium") {
+    HomeView()
+        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .dynamicTypeSize(.accessibility2)
+}
+
+#Preview("Home · AX XL") {
+    HomeView()
+        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .dynamicTypeSize(.accessibility3)
 }
