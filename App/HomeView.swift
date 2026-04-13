@@ -516,7 +516,14 @@ struct HomeView: View {
     }
 
     private var newUnitLabel: String {
-        appModel.queuedNewUnitCount == 1 ? "1 new unit queued" : "No new unit queued"
+        switch appModel.queuedNewUnitCount {
+        case 0:
+            return "No new unit queued"
+        case 1:
+            return "1 new unit queued"
+        default:
+            return "\(appModel.queuedNewUnitCount) new units queued"
+        }
     }
 
     private var practiceDetail: String {
