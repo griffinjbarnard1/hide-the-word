@@ -107,6 +107,13 @@ enum PublicProfilePersistenceStatus: Sendable, Equatable {
     case syncedToSharedPlans
 }
 
+struct SharedPlanProgressSnapshot: Sendable, Equatable {
+    var currentDay: Int
+    var completedDays: Set<Int>
+    var streak: Int
+    var lastActiveAt: Date
+}
+
 // MARK: - Manager
 
 @MainActor
@@ -152,6 +159,21 @@ final class SharedPlanManager {
     struct ActionFeedback: Sendable {
         let success: Bool
         let message: String
+    }
+
+    static func mergeProgress(
+        existing: SharedPlanProgressSnapshot?,
+        incomingCurrentDay: Int,
+        incomingCompletedDays: Set<Int>,
+        incomingStreak: Int,
+        now: Date
+    ) -> SharedPlanProgressSnapshot {
+        SharedPlanProgressSnapshot(
+            currentDay: max(existing?.currentDay ?? 1, incomingCurrentDay),
+            completedDays: (existing?.completedDays ?? []).union(incomingCompletedDays),
+            streak: max(existing?.streak ?? 0, incomingStreak),
+            lastActiveAt: max(existing?.lastActiveAt ?? .distantPast, now)
+        )
     }
 
     init() {
@@ -343,24 +365,34 @@ final class SharedPlanManager {
             }
 
             record["memberName"] = memberName
-            let mergedCurrentDay = max(record["currentDay"] as? Int ?? 1, currentDay)
-            let mergedStreak = max(record["streak"] as? Int ?? 0, streak)
             let now = Date.now
-            let mergedLastActive = max(record["lastActiveAt"] as? Date ?? .distantPast, now)
-
-            record["currentDay"] = mergedCurrentDay
-            record["streak"] = mergedStreak
-            record["lastActiveAt"] = mergedLastActive
-
-            let encoder = JSONEncoder()
-            var mergedCompletedDays = completedDays
             let decoder = JSONDecoder()
+            var existingCompletedDays: Set<Int> = []
             if let existingJSON = record["completedDaysJSON"] as? String,
                let existingData = existingJSON.data(using: .utf8),
                let existingDays = try? decoder.decode([Int].self, from: existingData) {
-                mergedCompletedDays.formUnion(existingDays)
+                existingCompletedDays = Set(existingDays)
             }
-            if let data = try? encoder.encode(Array(mergedCompletedDays).sorted()),
+
+            let merged = Self.mergeProgress(
+                existing: SharedPlanProgressSnapshot(
+                    currentDay: record["currentDay"] as? Int ?? 1,
+                    completedDays: existingCompletedDays,
+                    streak: record["streak"] as? Int ?? 0,
+                    lastActiveAt: record["lastActiveAt"] as? Date ?? .distantPast
+                ),
+                incomingCurrentDay: currentDay,
+                incomingCompletedDays: completedDays,
+                incomingStreak: streak,
+                now: now
+            )
+
+            record["currentDay"] = merged.currentDay
+            record["streak"] = merged.streak
+            record["lastActiveAt"] = merged.lastActiveAt
+
+            let encoder = JSONEncoder()
+            if let data = try? encoder.encode(Array(merged.completedDays).sorted()),
                let json = String(data: data, encoding: .utf8) {
                 record["completedDaysJSON"] = json
             }
