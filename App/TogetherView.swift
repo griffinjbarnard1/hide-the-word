@@ -5,7 +5,6 @@ import CloudKit
 struct TogetherView: View {
     @Environment(AppModel.self) private var appModel
     @State private var socialService = SocialService.shared
-    @State private var showingShareSheet = false
     @State private var selectedGroup: SharedPlanGroup?
     @State private var sharingGroup: SharedPlanGroup?
     @AppStorage("has_seen_together_people_tooltip") private var hasSeenPeopleTooltip = false
@@ -68,7 +67,7 @@ struct TogetherView: View {
                 }
             }
 
-            Text("Share a plan with shared plan members. You collaborate per plan; there is no global friend list yet.")
+            Text("Share a plan with people in shared plans.")
                 .font(.body)
                 .foregroundStyle(Color.mutedText)
 
@@ -92,7 +91,7 @@ struct TogetherView: View {
                 Text("People are plan-specific")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Color.primaryText)
-                Text("Invite people to a shared plan to see them here. There is no global friends list.")
+                Text("Invite people to a shared plan to see them here. People appear only in plans you share.")
                     .font(.caption)
                     .foregroundStyle(Color.mutedText)
             }
@@ -130,7 +129,7 @@ struct TogetherView: View {
                 .font(.headline)
                 .foregroundStyle(Color.primaryText)
 
-            Text("Start a plan and invite people in this shared plan. You collaborate per plan; there is no global friend list yet. Everyone works at their own pace, and progress is visible only to people in shared plans.")
+            Text("Start a plan and invite people in this shared plan. Everyone works at their own pace, and progress is visible only to people in shared plans.")
                 .font(.subheadline)
                 .foregroundStyle(Color.mutedText)
 
@@ -433,7 +432,7 @@ struct SharedPlanDetailView: View {
                 .font(.headline)
                 .foregroundStyle(Color.primaryText)
 
-            Text("Membership is per shared plan. There is no global friend list, so only people invited to this plan can view and sync progress here.")
+            Text("Membership is per shared plan, so only people invited to this plan can view and sync progress here.")
                 .font(.caption)
                 .foregroundStyle(Color.mutedText)
         }
