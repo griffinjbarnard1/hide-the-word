@@ -136,6 +136,61 @@ struct MediumWidgetView: View {
     }
 }
 
+
+struct LargeWidgetView: View {
+    let entry: WidgetEntry
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Label(entry.collectionName, systemImage: "book.closed")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color(red: 0.37, green: 0.42, blue: 0.32))
+                    .lineLimit(1)
+                Spacer()
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("\(entry.dueCount)")
+                    .font(.system(size: 52, weight: .bold, design: .serif))
+                    .foregroundStyle(Color(red: 0.12, green: 0.11, blue: 0.09))
+
+                Text(entry.dueCount == 1
+                     ? String(localized: "widget.due.one", defaultValue: "verse due", table: "Localizable")
+                     : String(localized: "widget.due.many", defaultValue: "verses due", table: "Localizable"))
+                    .font(.headline)
+                    .foregroundStyle(Color(red: 0.54, green: 0.51, blue: 0.47))
+            }
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(String(localized: "widget.next_up", defaultValue: "Next up", table: "Localizable"))
+                    .font(.caption2)
+                    .foregroundStyle(Color(red: 0.54, green: 0.51, blue: 0.47))
+
+                if let nextRef = entry.nextReference {
+                    Text(nextRef)
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(Color(red: 0.12, green: 0.11, blue: 0.09))
+                        .lineLimit(2)
+                } else {
+                    Text(String(localized: "widget.all_caught_up", defaultValue: "All caught up", table: "Localizable"))
+                        .font(.title3.weight(.medium))
+                        .foregroundStyle(Color(red: 0.37, green: 0.42, blue: 0.32))
+                }
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding()
+        .containerBackground(for: .widget) {
+            Color(red: 0.99, green: 0.98, blue: 0.96)
+        }
+        .widgetURL(entry.deepLinkURL)
+    }
+}
+
 @main
 struct ScriptureMemoryWidget: Widget {
     let kind = "ScriptureMemoryWidget"
@@ -146,7 +201,7 @@ struct ScriptureMemoryWidget: Widget {
         }
         .configurationDisplayName(String(localized: "widget.config.display_name", defaultValue: "Hide the Word", table: "Localizable"))
         .description(String(localized: "widget.config.description", defaultValue: "See how many verses are due for review.", table: "Localizable"))
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
 
@@ -156,6 +211,8 @@ struct ScriptureMemoryWidgetEntryView: View {
 
     var body: some View {
         switch family {
+        case .systemLarge:
+            LargeWidgetView(entry: entry)
         case .systemMedium:
             MediumWidgetView(entry: entry)
         default:
