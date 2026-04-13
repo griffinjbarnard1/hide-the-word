@@ -625,9 +625,12 @@ struct RatingView: View {
 }
 
 struct CompletionView: View {
+    @Environment(AppModel.self) private var appModel
     @Environment(\.requestReview) private var requestReview
     @State private var didAppear = false
     @State private var pulse = false
+    @State private var showWidgetPrompt = false
+    @State private var showingWidgetGuide = false
     let reviewedCount: Int
     let newVerseCount: Int
     let streak: Int
@@ -698,6 +701,37 @@ struct CompletionView: View {
                     .cardSurface()
                 }
 
+                if showWidgetPrompt {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Keep review in view")
+                            .font(.headline)
+                            .foregroundStyle(Color.primaryText)
+                        Text("See how many verses are due right from your Home Screen.")
+                            .font(.subheadline)
+                            .foregroundStyle(Color.mutedText)
+
+                        HStack(spacing: 10) {
+                            Button("How to add widget") {
+                                showingWidgetGuide = true
+                            }
+                            .buttonStyle(SecondaryButtonStyle(fullWidth: false))
+
+                            Button("Not now") {
+                                withAnimation(.snappy(duration: 0.2)) {
+                                    showWidgetPrompt = false
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .foregroundStyle(Color.mutedText)
+                            .font(.subheadline.weight(.semibold))
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .cardSurface()
+                    .opacity(didAppear ? 1 : 0)
+                    .animation(.easeOut(duration: 0.32).delay(0.13), value: didAppear)
+                }
+
                 if let ctx = planContext, let duration = planDuration {
                     VStack(spacing: 10) {
                         HStack(spacing: 8) {
@@ -762,6 +796,13 @@ struct CompletionView: View {
                     requestReview()
                 }
             }
+            if appModel.shouldShowWidgetPrompt(reviewedCount: reviewedCount, streak: streak, milestones: milestones) {
+                showWidgetPrompt = true
+                appModel.markWidgetPromptShown()
+            }
+        }
+        .sheet(isPresented: $showingWidgetGuide) {
+            WidgetEducationSheet()
         }
     }
 
@@ -991,4 +1032,3 @@ private enum RecallMask {
         return groups.filter { !$0.isEmpty }
     }
 }
-
