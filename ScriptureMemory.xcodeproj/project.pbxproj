@@ -1,0 +1,469 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		09679663AB31CF66DF28CC39 /* VerseLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EF5D60B721297CFD339B875 /* VerseLibraryView.swift */; };
+		0A23C384B4AD2CF287A50B06 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14BCBDE7BFCB600A7F4EE30 /* SettingsView.swift */; };
+		1DAA90B642E722235136CF08 /* SharedJourneyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 156B10B30F93DCDA9CE1B84C /* SharedJourneyManager.swift */; };
+		2F68A1CD371DDFA0EED23C55 /* ScriptureMemoryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11DAFD98894F97FAA86E6A9 /* ScriptureMemoryApp.swift */; };
+		3DB338436C6F158961480B2A /* PlanLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B8AF0C9DA76E40A1C3196CB /* PlanLibraryView.swift */; };
+		49D7135CB3A9C14EDFAC953D /* PlanShareCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BACCDEC8A35F4455BA851F8 /* PlanShareCard.swift */; };
+		52C3CE18CED92BDEFBDBF21C /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B9E4A32787CAC916160910E /* EmptyStateView.swift */; };
+		60C2F744F092C4A9BA99BA99 /* SessionDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD8F6F4FEA972B5F61A2DB5 /* SessionDraft.swift */; };
+		6479D4C2ABA2769722612A0A /* SpeechManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8854C313D21C874CF630DBEE /* SpeechManager.swift */; };
+		6A72B3B0ADD37E401A1AADAF /* SessionFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FDCDDBCAD423CDB6DE9A6C /* SessionFlowView.swift */; };
+		73508AF874272E5EC7EE1995 /* CreatePlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A18709362365931C722372 /* CreatePlanView.swift */; };
+		831B2D9F89DF5452BEFFACE3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E17C1AD40468628BB3495C1 /* HomeView.swift */; };
+		8A71E1405F4E7E97F39298CA /* SessionViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C8EC38257689A9D827B218 /* SessionViews.swift */; };
+		9116B5945EE633DEE6DDC317 /* JourneyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D1A82E96DC626DDF5A8C38 /* JourneyView.swift */; };
+		91AF4FA319B9B9B35CAE04F4 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E56BC5E8BC8BE9FC2E59454 /* NotificationManager.swift */; };
+		9C02ED5FFF0150CDA610CF40 /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE70668B83591B60FAD293A /* HapticManager.swift */; };
+		A8812E6872C51D73BD4916DD /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475387F54DB737C77D2891C4 /* OnboardingView.swift */; };
+		B566B1849A6CF06CC462AF20 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A721ADBAB64A54B79B1E81A /* RootView.swift */; };
+		BA4C0B341D55F45A2765DD18 /* WidgetDataWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B714009C29370A17D5BCD37 /* WidgetDataWriter.swift */; };
+		BE2834A60D3FFFDD025AD7A9 /* PassageBreakdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF600C5F8E5ABCD2DDFF913 /* PassageBreakdown.swift */; };
+		C03A8622E093E4615933DC9E /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE27DDFD39459B7124DE1ACD /* Theme.swift */; };
+		C44DE0A45851919297CD5A49 /* ReviewProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D304FB9EE1A7ED109EA4257A /* ReviewProgressStore.swift */; };
+		D012632E333126497BCD40EC /* ScriptureMemory in Frameworks */ = {isa = PBXBuildFile; productRef = CFE1CEA73D418DFCB53660EC /* ScriptureMemory */; };
+		D402744931127C08FF9543D9 /* VerseCardRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC7EC20F225ABE3FEC48831 /* VerseCardRenderer.swift */; };
+		D485F0F56C42CFAE3CE367F4 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D7093A76639DFA0AF734CD /* AppModel.swift */; };
+		E1B39523AA68C49F52EBB077 /* WeeklyProgressCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE7DD203D4AF2835514D7F1A /* WeeklyProgressCard.swift */; };
+		E5F11C742A0A123DDCAE5CB3 /* TogetherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B6FA947F3C2B1C4E9258204 /* TogetherView.swift */; };
+		EA07A9D5CE139664BD03AA4A /* VerseSetListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC9C25EC2550465E039AD69 /* VerseSetListView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		01BEBD8C917A08EF920B1555 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
+		02CD1A157CF9B74F26527A96 /* New project */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "New project"; path = .; sourceTree = SOURCE_ROOT; };
+		156B10B30F93DCDA9CE1B84C /* SharedJourneyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedJourneyManager.swift; sourceTree = "<group>"; };
+		1B6FA947F3C2B1C4E9258204 /* TogetherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TogetherView.swift; sourceTree = "<group>"; };
+		1B8AF0C9DA76E40A1C3196CB /* PlanLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanLibraryView.swift; sourceTree = "<group>"; };
+		1EF5D60B721297CFD339B875 /* VerseLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseLibraryView.swift; sourceTree = "<group>"; };
+		2BACCDEC8A35F4455BA851F8 /* PlanShareCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanShareCard.swift; sourceTree = "<group>"; };
+		2BD8F6F4FEA972B5F61A2DB5 /* SessionDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDraft.swift; sourceTree = "<group>"; };
+		2E56BC5E8BC8BE9FC2E59454 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		3A721ADBAB64A54B79B1E81A /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		475387F54DB737C77D2891C4 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		4B9E4A32787CAC916160910E /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
+		5DC9C25EC2550465E039AD69 /* VerseSetListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseSetListView.swift; sourceTree = "<group>"; };
+		6DC7EC20F225ABE3FEC48831 /* VerseCardRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseCardRenderer.swift; sourceTree = "<group>"; };
+		73F05F35306154D8E0288DED /* ScriptureMemoryApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ScriptureMemoryApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		77D7093A76639DFA0AF734CD /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		8854C313D21C874CF630DBEE /* SpeechManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechManager.swift; sourceTree = "<group>"; };
+		93FDCDDBCAD423CDB6DE9A6C /* SessionFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionFlowView.swift; sourceTree = "<group>"; };
+		9B714009C29370A17D5BCD37 /* WidgetDataWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDataWriter.swift; sourceTree = "<group>"; };
+		9E17C1AD40468628BB3495C1 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		A11DAFD98894F97FAA86E6A9 /* ScriptureMemoryApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptureMemoryApp.swift; sourceTree = "<group>"; };
+		C14BCBDE7BFCB600A7F4EE30 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		C5A18709362365931C722372 /* CreatePlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePlanView.swift; sourceTree = "<group>"; };
+		CCF600C5F8E5ABCD2DDFF913 /* PassageBreakdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassageBreakdown.swift; sourceTree = "<group>"; };
+		CFE70668B83591B60FAD293A /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
+		D304FB9EE1A7ED109EA4257A /* ReviewProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewProgressStore.swift; sourceTree = "<group>"; };
+		DE7DD203D4AF2835514D7F1A /* WeeklyProgressCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyProgressCard.swift; sourceTree = "<group>"; };
+		EE27DDFD39459B7124DE1ACD /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		F0C8EC38257689A9D827B218 /* SessionViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionViews.swift; sourceTree = "<group>"; };
+		F4D1A82E96DC626DDF5A8C38 /* JourneyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JourneyView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D6C9CEE6022F8BD95A6FF342 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D012632E333126497BCD40EC /* ScriptureMemory in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		79F1D21DA241AD6F561B4124 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				02CD1A157CF9B74F26527A96 /* New project */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		8BFE980701A7C65837A41B98 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				01BEBD8C917A08EF920B1555 /* App.entitlements */,
+				77D7093A76639DFA0AF734CD /* AppModel.swift */,
+				C5A18709362365931C722372 /* CreatePlanView.swift */,
+				4B9E4A32787CAC916160910E /* EmptyStateView.swift */,
+				CFE70668B83591B60FAD293A /* HapticManager.swift */,
+				9E17C1AD40468628BB3495C1 /* HomeView.swift */,
+				F4D1A82E96DC626DDF5A8C38 /* JourneyView.swift */,
+				2E56BC5E8BC8BE9FC2E59454 /* NotificationManager.swift */,
+				475387F54DB737C77D2891C4 /* OnboardingView.swift */,
+				CCF600C5F8E5ABCD2DDFF913 /* PassageBreakdown.swift */,
+				1B8AF0C9DA76E40A1C3196CB /* PlanLibraryView.swift */,
+				2BACCDEC8A35F4455BA851F8 /* PlanShareCard.swift */,
+				D304FB9EE1A7ED109EA4257A /* ReviewProgressStore.swift */,
+				3A721ADBAB64A54B79B1E81A /* RootView.swift */,
+				A11DAFD98894F97FAA86E6A9 /* ScriptureMemoryApp.swift */,
+				2BD8F6F4FEA972B5F61A2DB5 /* SessionDraft.swift */,
+				93FDCDDBCAD423CDB6DE9A6C /* SessionFlowView.swift */,
+				F0C8EC38257689A9D827B218 /* SessionViews.swift */,
+				C14BCBDE7BFCB600A7F4EE30 /* SettingsView.swift */,
+				156B10B30F93DCDA9CE1B84C /* SharedJourneyManager.swift */,
+				8854C313D21C874CF630DBEE /* SpeechManager.swift */,
+				EE27DDFD39459B7124DE1ACD /* Theme.swift */,
+				1B6FA947F3C2B1C4E9258204 /* TogetherView.swift */,
+				6DC7EC20F225ABE3FEC48831 /* VerseCardRenderer.swift */,
+				1EF5D60B721297CFD339B875 /* VerseLibraryView.swift */,
+				5DC9C25EC2550465E039AD69 /* VerseSetListView.swift */,
+				DE7DD203D4AF2835514D7F1A /* WeeklyProgressCard.swift */,
+				9B714009C29370A17D5BCD37 /* WidgetDataWriter.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		ACC225FA5908950CE5DA524F = {
+			isa = PBXGroup;
+			children = (
+				8BFE980701A7C65837A41B98 /* App */,
+				79F1D21DA241AD6F561B4124 /* Packages */,
+				E06D18B8680156C214D15000 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E06D18B8680156C214D15000 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				73F05F35306154D8E0288DED /* ScriptureMemoryApp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		85589FDD7E0922354392BF41 /* ScriptureMemoryApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7B1BE84B360D77D2BD696621 /* Build configuration list for PBXNativeTarget "ScriptureMemoryApp" */;
+			buildPhases = (
+				9CC1FD61B709A02396696973 /* Sources */,
+				D6C9CEE6022F8BD95A6FF342 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ScriptureMemoryApp;
+			packageProductDependencies = (
+				CFE1CEA73D418DFCB53660EC /* ScriptureMemory */,
+			);
+			productName = ScriptureMemoryApp;
+			productReference = 73F05F35306154D8E0288DED /* ScriptureMemoryApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4F57BC72588F23AFC6552C1E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					85589FDD7E0922354392BF41 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = C8F7E04CD80EC2F32A7E7FF4 /* Build configuration list for PBXProject "ScriptureMemory" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = ACC225FA5908950CE5DA524F;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F6C74A1FFDF4DD5A7A323660 /* XCLocalSwiftPackageReference "." */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = E06D18B8680156C214D15000 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				85589FDD7E0922354392BF41 /* ScriptureMemoryApp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9CC1FD61B709A02396696973 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D485F0F56C42CFAE3CE367F4 /* AppModel.swift in Sources */,
+				73508AF874272E5EC7EE1995 /* CreatePlanView.swift in Sources */,
+				52C3CE18CED92BDEFBDBF21C /* EmptyStateView.swift in Sources */,
+				9C02ED5FFF0150CDA610CF40 /* HapticManager.swift in Sources */,
+				831B2D9F89DF5452BEFFACE3 /* HomeView.swift in Sources */,
+				9116B5945EE633DEE6DDC317 /* JourneyView.swift in Sources */,
+				91AF4FA319B9B9B35CAE04F4 /* NotificationManager.swift in Sources */,
+				A8812E6872C51D73BD4916DD /* OnboardingView.swift in Sources */,
+				BE2834A60D3FFFDD025AD7A9 /* PassageBreakdown.swift in Sources */,
+				3DB338436C6F158961480B2A /* PlanLibraryView.swift in Sources */,
+				49D7135CB3A9C14EDFAC953D /* PlanShareCard.swift in Sources */,
+				C44DE0A45851919297CD5A49 /* ReviewProgressStore.swift in Sources */,
+				B566B1849A6CF06CC462AF20 /* RootView.swift in Sources */,
+				2F68A1CD371DDFA0EED23C55 /* ScriptureMemoryApp.swift in Sources */,
+				60C2F744F092C4A9BA99BA99 /* SessionDraft.swift in Sources */,
+				6A72B3B0ADD37E401A1AADAF /* SessionFlowView.swift in Sources */,
+				8A71E1405F4E7E97F39298CA /* SessionViews.swift in Sources */,
+				0A23C384B4AD2CF287A50B06 /* SettingsView.swift in Sources */,
+				1DAA90B642E722235136CF08 /* SharedJourneyManager.swift in Sources */,
+				6479D4C2ABA2769722612A0A /* SpeechManager.swift in Sources */,
+				C03A8622E093E4615933DC9E /* Theme.swift in Sources */,
+				E5F11C742A0A123DDCAE5CB3 /* TogetherView.swift in Sources */,
+				D402744931127C08FF9543D9 /* VerseCardRenderer.swift in Sources */,
+				09679663AB31CF66DF28CC39 /* VerseLibraryView.swift in Sources */,
+				EA07A9D5CE139664BD03AA4A /* VerseSetListView.swift in Sources */,
+				E1B39523AA68C49F52EBB077 /* WeeklyProgressCard.swift in Sources */,
+				BA4C0B341D55F45A2765DD18 /* WidgetDataWriter.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		045DF10C914E2302D7322E28 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		94D803952E6E6FFA5D22223A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				ESV_API_KEY = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Hide the Word";
+				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLSchemes\": [\"scripturememory\"], \"CFBundleURLName\": \"com.griffinbarnard.ScriptureMemory\"]]";
+				INFOPLIST_KEY_ESV_API_KEY = "$(ESV_API_KEY)";
+				INFOPLIST_KEY_LSApplicationQueriesSchemes = (
+					scripturememory,
+				);
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = (
+					UIInterfaceOrientationPortrait,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.griffinbarnard.ScriptureMemory;
+				PRODUCT_NAME = ScriptureMemoryApp;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		E983B7C5F78D7780832BFB5B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				ESV_API_KEY = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Hide the Word";
+				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLSchemes\": [\"scripturememory\"], \"CFBundleURLName\": \"com.griffinbarnard.ScriptureMemory\"]]";
+				INFOPLIST_KEY_ESV_API_KEY = "$(ESV_API_KEY)";
+				INFOPLIST_KEY_LSApplicationQueriesSchemes = (
+					scripturememory,
+				);
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = (
+					UIInterfaceOrientationPortrait,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.griffinbarnard.ScriptureMemory;
+				PRODUCT_NAME = ScriptureMemoryApp;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		EB0C7570914AF0A6C3EBC0CC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7B1BE84B360D77D2BD696621 /* Build configuration list for PBXNativeTarget "ScriptureMemoryApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E983B7C5F78D7780832BFB5B /* Debug */,
+				94D803952E6E6FFA5D22223A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C8F7E04CD80EC2F32A7E7FF4 /* Build configuration list for PBXProject "ScriptureMemory" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB0C7570914AF0A6C3EBC0CC /* Debug */,
+				045DF10C914E2302D7322E28 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		F6C74A1FFDF4DD5A7A323660 /* XCLocalSwiftPackageReference "." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = .;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CFE1CEA73D418DFCB53660EC /* ScriptureMemory */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ScriptureMemory;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 4F57BC72588F23AFC6552C1E /* Project object */;
+}

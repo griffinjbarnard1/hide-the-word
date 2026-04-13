@@ -1,0 +1,54 @@
+name: ScriptureMemory
+options:
+  bundleIdPrefix: com.griffinbarnard
+packages:
+  ScriptureMemory:
+    path: .
+settings:
+  base:
+    SWIFT_VERSION: 6.0
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  ScriptureMemoryApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: App
+    dependencies:
+      - package: ScriptureMemory
+        product: ScriptureMemory
+    entitlements:
+      path: App/App.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.griffinbarnard.ScriptureMemory
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.com.griffinbarnard.ScriptureMemory
+        com.apple.developer.icloud-services:
+          - CloudKit
+    settings:
+      base:
+        PRODUCT_NAME: ScriptureMemoryApp
+        PRODUCT_BUNDLE_IDENTIFIER: com.griffinbarnard.ScriptureMemory
+        ESV_API_KEY: ""
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Hide the Word
+        INFOPLIST_KEY_ESV_API_KEY: $(ESV_API_KEY)
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone:
+          - UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_LSApplicationQueriesSchemes:
+          - scripturememory
+        INFOPLIST_KEY_CFBundleURLTypes:
+          - CFBundleURLName: com.griffinbarnard.ScriptureMemory
+            CFBundleURLSchemes:
+              - scripturememory
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ""
+        TARGETED_DEVICE_FAMILY: "1"
+    scheme:
+      testTargets: []
