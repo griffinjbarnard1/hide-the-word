@@ -902,5 +902,5 @@ struct VerseLibraryView: View {
 
 #Preview {
     VerseLibraryView()
-        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .environment(AppModel(progressStore: ReviewProgressStore.initialize(inMemory: true).store))
 }

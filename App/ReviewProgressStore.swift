@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import ScriptureMemory
 import SwiftData
 
@@ -89,8 +90,24 @@ struct ReviewEvent: Identifiable, Hashable, Codable, Sendable {
     }
 }
 
+enum PersistenceInitError: LocalizedError, Sendable {
+    case modelContainerCreationFailed(underlyingDescription: String)
+
+    var errorDescription: String? {
+        switch self {
+        case let .modelContainerCreationFailed(underlyingDescription):
+            return "Failed to initialize persistence container. \(underlyingDescription)"
+        }
+    }
+}
+
 @MainActor
 final class ReviewProgressStore {
+    private enum Mode {
+        case readWrite
+        case readOnly
+    }
+
     private enum PreferenceKey {
         static let selectedCollectionID = "selected_collection_id"
         static let preferredTranslation = "preferred_translation"
@@ -105,29 +122,53 @@ final class ReviewProgressStore {
         static let typeRecallEnabled = "type_recall_enabled"
     }
 
-    let container: ModelContainer
-    let context: ModelContext
+    private static let logger = Logger(subsystem: "com.griffinbarnard.ScriptureMemory", category: "Persistence")
 
-    init(inMemory: Bool = false) {
+    private let mode: Mode
+    private let context: ModelContext?
+
+    var isReadOnly: Bool { mode == .readOnly }
+
+    static func initialize(inMemory: Bool = false) -> (store: ReviewProgressStore, error: PersistenceInitError?) {
+        do {
+            return (try ReviewProgressStore(inMemory: inMemory), nil)
+        } catch let error as PersistenceInitError {
+            logger.error("Persistence initialization failed: \(error.localizedDescription, privacy: .public)")
+            return (ReviewProgressStore(readOnly: ()), error)
+        } catch {
+            let typedError = PersistenceInitError.modelContainerCreationFailed(underlyingDescription: String(describing: error))
+            logger.error("Persistence initialization failed with unexpected error: \(typedError.localizedDescription, privacy: .public)")
+            return (ReviewProgressStore(readOnly: ()), typedError)
+        }
+    }
+
+    init(inMemory: Bool = false) throws {
         let configuration = ModelConfiguration(
             schema: Schema([StoredVerseProgress.self, StoredAppPreference.self, StoredCustomVerseSelection.self, StoredReviewEvent.self]),
             isStoredInMemoryOnly: inMemory
         )
         do {
-            container = try ModelContainer(
+            let container = try ModelContainer(
                 for: StoredVerseProgress.self,
                 StoredAppPreference.self,
                 StoredCustomVerseSelection.self,
                 StoredReviewEvent.self,
                 configurations: configuration
             )
+            mode = .readWrite
             context = ModelContext(container)
         } catch {
-            fatalError("Failed to create SwiftData container: \(error)")
+            throw PersistenceInitError.modelContainerCreationFailed(underlyingDescription: String(describing: error))
         }
     }
 
+    private init(readOnly: Void) {
+        mode = .readOnly
+        context = nil
+    }
+
     func loadProgress() -> [UUID: VerseProgress] {
+        guard let context else { return [:] }
         let descriptor = FetchDescriptor<StoredVerseProgress>(
             sortBy: [SortDescriptor(\.nextReviewAt), SortDescriptor(\.verseID)]
         )
@@ -149,6 +190,7 @@ final class ReviewProgressStore {
     }
 
     func save(_ progress: VerseProgress) {
+        guard let context else { return }
         let descriptor = FetchDescriptor<StoredVerseProgress>(
             predicate: #Predicate { $0.verseID == progress.verseID }
         )
@@ -314,6 +356,7 @@ final class ReviewProgressStore {
     }
 
     func loadCustomVerseIDs() -> Set<UUID> {
+        guard let context else { return [] }
         let descriptor = FetchDescriptor<StoredCustomVerseSelection>(
             sortBy: [SortDescriptor(\.verseID)]
         )
@@ -323,6 +366,7 @@ final class ReviewProgressStore {
     }
 
     func saveCustomVerseIDs(_ verseIDs: Set<UUID>) {
+        guard let context else { return }
         let descriptor = FetchDescriptor<StoredCustomVerseSelection>()
         let existingRecords = (try? context.fetch(descriptor)) ?? []
         let existingIDs = Set(existingRecords.map(\.verseID))
@@ -339,6 +383,7 @@ final class ReviewProgressStore {
     }
 
     func loadReviewEvents(limit: Int? = nil) -> [ReviewEvent] {
+        guard let context else { return [] }
         var descriptor = FetchDescriptor<StoredReviewEvent>(
             sortBy: [SortDescriptor(\.reviewedAt, order: .reverse)]
         )
@@ -364,6 +409,7 @@ final class ReviewProgressStore {
     }
 
     func saveReviewEvent(_ event: ReviewEvent) {
+        guard let context else { return }
         let record = StoredReviewEvent(
             unitID: event.unitID,
             unitReference: event.unitReference,
@@ -399,6 +445,7 @@ final class ReviewProgressStore {
     }
 
     private func value(forPreferenceKey key: String) -> String? {
+        guard let context else { return nil }
         let descriptor = FetchDescriptor<StoredAppPreference>(
             predicate: #Predicate { $0.key == key }
         )
@@ -406,6 +453,7 @@ final class ReviewProgressStore {
     }
 
     private func removePreferenceValue(forKey key: String) {
+        guard let context else { return }
         let descriptor = FetchDescriptor<StoredAppPreference>(
             predicate: #Predicate { $0.key == key }
         )
@@ -417,6 +465,7 @@ final class ReviewProgressStore {
     }
 
     private func savePreferenceValue(_ value: String, forKey key: String) {
+        guard let context else { return }
         let descriptor = FetchDescriptor<StoredAppPreference>(
             predicate: #Predicate { $0.key == key }
         )
@@ -433,6 +482,7 @@ final class ReviewProgressStore {
     }
 
     private func trimReviewEventsIfNeeded(maxEvents: Int) {
+        guard let context else { return }
         let descriptor = FetchDescriptor<StoredReviewEvent>(
             sortBy: [SortDescriptor(\.reviewedAt, order: .reverse)]
         )
