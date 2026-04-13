@@ -29,6 +29,12 @@ struct SharedPlanMember: Identifiable, Codable, Hashable, Sendable {
 @MainActor
 @Observable
 final class SharedPlanManager {
+    enum IdentityStatus: String, Sendable {
+        case available
+        case unavailable
+        case restricted
+    }
+
     private let container: CKContainer
     private let privateDB: CKDatabase
 
@@ -43,6 +49,36 @@ final class SharedPlanManager {
     init() {
         container = CKContainer(identifier: Self.containerID)
         privateDB = container.privateCloudDatabase
+    }
+
+    // MARK: - Identity
+
+    func identityStatus() async -> IdentityStatus {
+        do {
+            let accountStatus = try await container.accountStatus()
+            switch accountStatus {
+            case .available:
+                return .available
+            case .restricted, .couldNotDetermine:
+                return .restricted
+            case .noAccount, .temporarilyUnavailable:
+                return .unavailable
+            @unknown default:
+                return .unavailable
+            }
+        } catch {
+            return .unavailable
+        }
+    }
+
+    func resolvedCloudKitIdentity() async -> String? {
+        guard await identityStatus() == .available else { return nil }
+        do {
+            let recordID = try await container.userRecordID()
+            return recordID.recordName
+        } catch {
+            return nil
+        }
     }
 
     // MARK: - Stable Member ID
