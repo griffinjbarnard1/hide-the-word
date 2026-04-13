@@ -6,6 +6,7 @@ struct SettingsView: View {
     private let socialService = SocialService.shared
     @State private var identityStatus: SharedPlanManager.IdentityStatus = .unavailable
     @State private var cloudKitIdentity: String?
+    @State private var showingWidgetGuide = false
 
     var body: some View {
         List {
@@ -214,6 +215,17 @@ struct SettingsView: View {
                         .foregroundStyle(Color.mutedText)
                 }
             }
+
+            Section("Home Screen Widget") {
+                Button {
+                    showingWidgetGuide = true
+                } label: {
+                    Label("Add Home Screen Widget", systemImage: "square.grid.2x2")
+                }
+                Text("Show due verses and your next prompt at a glance from the Home Screen.")
+                    .font(.caption)
+                    .foregroundStyle(Color.mutedText)
+            }
         }
         .scrollContentBackground(.hidden)
         .background(Color.screenBackground.ignoresSafeArea())
@@ -234,6 +246,9 @@ struct SettingsView: View {
             identityStatus = snapshot.status
             cloudKitIdentity = snapshot.resolvedIdentity
             _ = await socialService.fetchMyProfile(defaultDisplayName: appModel.userDisplayName)
+        }
+        .sheet(isPresented: $showingWidgetGuide) {
+            WidgetEducationSheet()
         }
     }
 
@@ -261,4 +276,58 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
         .environment(AppModel(progressStore: ReviewProgressStore.initialize(inMemory: true).store))
+}
+
+struct WidgetEducationSheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Keep review in view")
+                            .font(.title3.weight(.semibold))
+                        Text("See how many verses are due right from your Home Screen.")
+                            .font(.body)
+                            .foregroundStyle(Color.mutedText)
+                    }
+                    .padding(.vertical, 4)
+                }
+
+                Section("How to add the widget") {
+                    step(number: 1, text: "Touch and hold your Home Screen until apps start to jiggle.")
+                    step(number: 2, text: "Tap the plus (+) button in the corner.")
+                    step(number: 3, text: "Search for Hide the Word.")
+                    step(number: 4, text: "Pick a widget size and tap Add Widget.")
+                    step(number: 5, text: "Place it where you like and tap Done.")
+                }
+
+                Section {
+                    Text("iOS does not support one-tap widget install, so this quick flow is the fastest path.")
+                        .font(.caption)
+                        .foregroundStyle(Color.mutedText)
+                }
+            }
+            .navigationTitle("Home Screen Widget")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+    }
+
+    private func step(number: Int, text: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Text("\(number).")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Color.accentMoss)
+                .frame(width: 20, alignment: .leading)
+            Text(text)
+                .font(.subheadline)
+                .foregroundStyle(Color.primaryText)
+        }
+    }
 }

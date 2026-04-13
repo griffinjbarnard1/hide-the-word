@@ -49,6 +49,8 @@ final class AppModel {
     var currentStreak: Int
     var lastStreakDate: Date?
     var sessionMilestones: [String]
+    var widgetPromptDisplayCount: Int
+    var widgetPromptLastShownAt: Date?
     var activePlanEnrollment: PlanEnrollment?
     var esvTextByReference: [String: String]
     private var esvVerseCountByReference: [String: Int]
@@ -109,6 +111,8 @@ final class AppModel {
         self.currentStreak = progressStore.loadIntPreference("streak_count", default: 0)
         self.lastStreakDate = progressStore.loadDatePreference("streak_last_date")
         self.sessionMilestones = []
+        self.widgetPromptDisplayCount = progressStore.loadIntPreference("widget_prompt_display_count", default: 0)
+        self.widgetPromptLastShownAt = progressStore.loadDatePreference("widget_prompt_last_shown_at")
         self.activePlanEnrollment = progressStore.loadCodableValue(forKey: "active_plan_enrollment")
         self.esvTextByReference = [:]
         self.esvVerseCountByReference = [:]
@@ -1298,6 +1302,38 @@ final class AppModel {
             collectionName: selectedCollection.title,
             fallbackRoute: fallbackRoute
         )
+    }
+
+    func shouldShowWidgetPrompt(
+        reviewedCount: Int,
+        streak: Int,
+        milestones: [String],
+        now: Date = .now
+    ) -> Bool {
+        guard reviewedCount > 0 else { return false }
+        guard widgetPromptDisplayCount < 2 else { return false }
+
+        if let lastShownAt = widgetPromptLastShownAt {
+            let daysSincePrompt = Calendar.current.dateComponents(
+                [.day],
+                from: Calendar.current.startOfDay(for: lastShownAt),
+                to: Calendar.current.startOfDay(for: now)
+            ).day ?? 0
+            guard daysSincePrompt >= 30 else { return false }
+        }
+
+        let totalReviews = progressByVerseID.values.reduce(0) { $0 + $1.reviewCount }
+        let isFirstCompletedSession = totalReviews == reviewedCount
+        let hasEarlyStreakMilestone = streak == 3
+        let hasMilestoneEvent = !milestones.isEmpty
+        return isFirstCompletedSession || hasEarlyStreakMilestone || hasMilestoneEvent
+    }
+
+    func markWidgetPromptShown(now: Date = .now) {
+        widgetPromptDisplayCount += 1
+        widgetPromptLastShownAt = now
+        progressStore.saveIntPreference(widgetPromptDisplayCount, forKey: "widget_prompt_display_count")
+        progressStore.saveDatePreference(now, forKey: "widget_prompt_last_shown_at")
     }
 
     private static func maskedWidgetPreview(from text: String) -> String {
