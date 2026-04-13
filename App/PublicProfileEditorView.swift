@@ -8,6 +8,7 @@ struct PublicProfileEditorView: View {
     @State private var profile = PublicProfile(id: "", displayName: "")
     @State private var isSaving = false
     @State private var saveError: String?
+    @State private var persistenceStatus: PublicProfilePersistenceStatus = .savedLocally
 
     var body: some View {
         Form {
@@ -33,6 +34,12 @@ struct PublicProfileEditorView: View {
                         .font(.caption)
                         .foregroundStyle(.red)
                 }
+            }
+
+            Section("Sync status") {
+                Text(statusText)
+                    .font(.caption)
+                    .foregroundStyle(Color.mutedText)
             }
 
             Section {
@@ -86,6 +93,7 @@ struct PublicProfileEditorView: View {
 
     private func loadProfile() async {
         profile = await socialService.fetchMyProfile(defaultDisplayName: appModel.userDisplayName)
+        persistenceStatus = socialService.profilePersistenceStatus
     }
 
     private func saveProfile() async {
@@ -104,9 +112,19 @@ struct PublicProfileEditorView: View {
         isSaving = false
         if didSave {
             appModel.userDisplayName = cleaned.displayName
+            persistenceStatus = socialService.profilePersistenceStatus
             dismiss()
         } else {
             saveError = socialService.lastError ?? "Could not save profile."
+        }
+    }
+
+    private var statusText: String {
+        switch persistenceStatus {
+        case .savedLocally:
+            return "Saved locally"
+        case .syncedToSharedPlans:
+            return "Synced to shared plans"
         }
     }
 

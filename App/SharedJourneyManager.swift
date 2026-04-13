@@ -102,6 +102,11 @@ enum SharedPlanSyncState: Sendable, Equatable {
     case failure(String)
 }
 
+enum PublicProfilePersistenceStatus: Sendable, Equatable {
+    case savedLocally
+    case syncedToSharedPlans
+}
+
 // MARK: - Manager
 
 @MainActor
@@ -132,6 +137,7 @@ final class SharedPlanManager {
     var isLoading = false
     var lastError: String?
     var syncStateByGroupID: [String: SharedPlanSyncState] = [:]
+    var profilePersistenceStatus: PublicProfilePersistenceStatus = .savedLocally
 
     static let containerID = "iCloud.com.griffinbarnard.ScriptureMemory"
     static let shared = SharedPlanManager()
@@ -141,6 +147,7 @@ final class SharedPlanManager {
     /// record type for global friend status in the future.
     private static let memberRecordType = "PlanMember"
     private static let profileRecordType = "PublicProfile"
+    private static let localProfileDefaultsKey = "local-public-profile-v1"
 
     struct ActionFeedback: Sendable {
         let success: Bool
@@ -150,6 +157,7 @@ final class SharedPlanManager {
     init() {
         container = CKContainer(identifier: Self.containerID)
         privateDB = container.privateCloudDatabase
+        profilePersistenceStatus = .savedLocally
     }
 
     // MARK: - Identity
@@ -371,19 +379,20 @@ final class SharedPlanManager {
 
     func fetchMyProfile(defaultDisplayName: String) async -> PublicProfile {
         let memberID = await stableMemberID()
-        for group in groups {
-            let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: CKCurrentUserDefaultName)
-            let recordID = CKRecord.ID(recordName: "profile-\(memberID)", zoneID: zoneID)
-            let databases: [CKDatabase] = [container.sharedCloudDatabase, privateDB]
-            for database in databases {
-                if let record = try? await database.record(for: recordID),
-                   let profile = profile(from: record, fallbackName: defaultDisplayName) {
-                    return profile
-                }
-            }
+        if let localProfile = loadLocalProfile(), localProfile.id == memberID {
+            return localProfile
         }
 
-        return PublicProfile(id: memberID, displayName: defaultDisplayName)
+        if let remoteProfile = await fetchRemoteProfile(memberID: memberID, fallbackName: defaultDisplayName) {
+            persistLocalProfile(remoteProfile)
+            profilePersistenceStatus = groups.isEmpty ? .savedLocally : .syncedToSharedPlans
+            return remoteProfile
+        }
+
+        let fallback = PublicProfile(id: memberID, displayName: defaultDisplayName)
+        persistLocalProfile(fallback)
+        profilePersistenceStatus = .savedLocally
+        return fallback
     }
 
     func saveMyProfile(_ profile: PublicProfile) async -> Bool {
@@ -401,27 +410,15 @@ final class SharedPlanManager {
             return false
         }
 
-        var didSave = false
-        for group in groups {
-            let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: CKCurrentUserDefaultName)
-            let recordID = CKRecord.ID(recordName: "profile-\(cleaned.id)", zoneID: zoneID)
-            let databases: [CKDatabase] = [container.sharedCloudDatabase, privateDB]
-            for database in databases {
-                let record = (try? await database.record(for: recordID)) ?? CKRecord(recordType: Self.profileRecordType, recordID: recordID)
-                write(profile: cleaned, to: record)
-                do {
-                    _ = try await database.save(record)
-                    didSave = true
-                    break
-                } catch {}
-            }
+        persistLocalProfile(cleaned)
+        profilePersistenceStatus = .savedLocally
+        lastError = nil
+
+        if groups.isEmpty {
+            return true
         }
 
-        if !didSave {
-            lastError = "Join or create a shared plan to publish a profile."
-            return false
-        }
-
+        _ = await syncLocalProfileToSharedPlans(cleaned)
         await fetchGroups()
         return true
     }
@@ -457,6 +454,10 @@ final class SharedPlanManager {
         }
 
         groups = fetched.sorted { $0.createdAt > $1.createdAt }
+
+        if !groups.isEmpty, let localProfile = loadLocalProfile() {
+            _ = await syncLocalProfileToSharedPlans(localProfile)
+        }
     }
 
     private func fetchGroup(in zoneID: CKRecordZone.ID, database: CKDatabase) async -> SharedPlanGroup? {
@@ -556,6 +557,65 @@ final class SharedPlanManager {
         record["favoriteVerse"] = PublicProfile.clean(profile.favoriteVerse, max: PublicProfile.maxFavoriteVerseLength)
         record["avatarSeed"] = PublicProfile.clean(profile.avatarSeed, max: PublicProfile.maxAvatarSeedLength)
         record["updatedAt"] = Date.now
+    }
+
+    private func loadLocalProfile() -> PublicProfile? {
+        guard let data = UserDefaults.standard.data(forKey: Self.localProfileDefaultsKey) else { return nil }
+        return try? JSONDecoder().decode(PublicProfile.self, from: data)
+    }
+
+    private func persistLocalProfile(_ profile: PublicProfile) {
+        guard let data = try? JSONEncoder().encode(profile) else { return }
+        UserDefaults.standard.set(data, forKey: Self.localProfileDefaultsKey)
+    }
+
+    private func fetchRemoteProfile(memberID: String, fallbackName: String) async -> PublicProfile? {
+        for group in groups {
+            let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: group.zoneOwnerName)
+            let recordID = CKRecord.ID(recordName: "profile-\(memberID)", zoneID: zoneID)
+            let databases: [CKDatabase] = group.zoneOwnerName == CKCurrentUserDefaultName
+                ? [privateDB, container.sharedCloudDatabase]
+                : [container.sharedCloudDatabase, privateDB]
+            for database in databases {
+                if let record = try? await database.record(for: recordID),
+                   let profile = profile(from: record, fallbackName: fallbackName) {
+                    return profile
+                }
+            }
+        }
+        return nil
+    }
+
+    @discardableResult
+    private func syncLocalProfileToSharedPlans(_ profile: PublicProfile) async -> Bool {
+        var didSyncAny = false
+        for group in groups {
+            let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: group.zoneOwnerName)
+            let recordID = CKRecord.ID(recordName: "profile-\(profile.id)", zoneID: zoneID)
+            let targetDB = group.zoneOwnerName == CKCurrentUserDefaultName ? privateDB : container.sharedCloudDatabase
+
+            let record = (try? await targetDB.record(for: recordID)) ?? CKRecord(recordType: Self.profileRecordType, recordID: recordID)
+            let existingUpdatedAt = record["updatedAt"] as? Date ?? .distantPast
+            guard existingUpdatedAt <= profile.updatedAt else {
+                didSyncAny = true
+                continue
+            }
+
+            write(profile: profile, to: record)
+            do {
+                _ = try await targetDB.save(record)
+                didSyncAny = true
+            } catch {
+                lastError = error.localizedDescription
+            }
+        }
+
+        if didSyncAny {
+            profilePersistenceStatus = .syncedToSharedPlans
+        } else {
+            profilePersistenceStatus = .savedLocally
+        }
+        return didSyncAny
     }
 
     // MARK: - Accept Share
