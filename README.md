@@ -74,7 +74,7 @@ Widget/                      Widget extension (small + medium)
 
 **Spaced repetition**: SM-2 variant. Rating adjusts review interval. Hard triggers same-session restudy (deduplicated). Mastery tiers: Learning → Familiar → Memorized → Mastered.
 
-**Social**: CloudKit shared zones. Owner creates a shared plan, invites via system share sheet. Each member syncs independently. Auto-sync on session completion. Stable member IDs via CloudKit user record.
+**Social**: CloudKit shared zones. Owner creates a shared plan, invites via system share sheet, and can manage members or archive/stop sharing. Members can leave a shared plan but cannot manage invites. Role checks use the plan `ownerName` for display plus a stable CloudKit user record identifier for identity decisions. Each member syncs independently and auto-sync runs on session completion.
 
 ## Configure ESV access
 

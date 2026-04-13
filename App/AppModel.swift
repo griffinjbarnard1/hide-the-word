@@ -1348,7 +1348,7 @@ final class AppModel {
                     return manager.groups
                 }()
                 for group in groups where group.planID == enrollment.planID {
-                    let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: CKCurrentUserDefaultName)
+                    let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: group.zoneOwnerName)
                     await manager.syncMyProgress(
                         groupZoneID: zoneID,
                         memberName: userDisplayName,
