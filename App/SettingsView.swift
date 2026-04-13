@@ -155,7 +155,7 @@ struct SettingsView: View {
                     get: { appModel.userDisplayName },
                     set: { appModel.userDisplayName = $0 }
                 ))
-                Text("Shown to friends in shared journeys.")
+                Text("Shown to people in shared plans.")
                     .font(.caption)
                     .foregroundStyle(Color.mutedText)
             }
