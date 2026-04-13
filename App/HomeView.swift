@@ -22,9 +22,9 @@ struct HomeView: View {
                 } else if appModel.startedVerseCount > 0 {
                     EmptyStateView(
                         systemImage: "clock",
-                        headline: "No reviews yet",
-                        bodyText: "Complete your first session and your activity will appear here.",
-                        ctaTitle: "Start today's session",
+                        headline: String(localized: "home.empty.reviews.headline", defaultValue: "No reviews yet", table: "Localizable"),
+                        bodyText: String(localized: "home.empty.reviews.body", defaultValue: "Complete your first session and your activity will appear here.", table: "Localizable"),
+                        ctaTitle: String(localized: "home.empty.reviews.cta", defaultValue: "Start today's session", table: "Localizable"),
                         ctaAction: { appModel.startOrResumeSession() }
                     )
                 }
@@ -33,17 +33,17 @@ struct HomeView: View {
         }
         .background(Color.screenBackground.ignoresSafeArea())
         .onAppear { didAppear = true }
-        .confirmationDialog("Leave this plan?", isPresented: $showLeavePlanConfirmation, titleVisibility: .visible) {
-            Button("Leave plan", role: .destructive) { appModel.leavePlan() }
-            Button("Cancel", role: .cancel) {}
+        .confirmationDialog(String(localized: "home.dialog.leave.title", defaultValue: "Leave this plan?", table: "Localizable"), isPresented: $showLeavePlanConfirmation, titleVisibility: .visible) {
+            Button(String(localized: "home.dialog.leave.confirm", defaultValue: "Leave plan", table: "Localizable"), role: .destructive) { appModel.leavePlan() }
+            Button(String(localized: "common.cancel", defaultValue: "Cancel", table: "Localizable"), role: .cancel) {}
         } message: {
-            Text("Leaving stops day tracking for this plan, but verses you've added stay in My Verses and keep their progress.")
+            Text(String(localized: "home.dialog.leave.message", defaultValue: "Leaving stops day tracking for this plan, but verses you've added stay in My Verses and keep their progress.", table: "Localizable"))
         }
-        .confirmationDialog("Skip to the next day?", isPresented: $showSkipDayConfirmation, titleVisibility: .visible) {
-            Button("Skip") { appModel.advancePlanDay() }
-            Button("Cancel", role: .cancel) {}
+        .confirmationDialog(String(localized: "home.dialog.skip.title", defaultValue: "Skip to the next day?", table: "Localizable"), isPresented: $showSkipDayConfirmation, titleVisibility: .visible) {
+            Button(String(localized: "home.dialog.skip.confirm", defaultValue: "Skip", table: "Localizable")) { appModel.advancePlanDay() }
+            Button(String(localized: "common.cancel", defaultValue: "Cancel", table: "Localizable"), role: .cancel) {}
         } message: {
-            Text("This rest day will be marked complete.")
+            Text(String(localized: "home.dialog.skip.message", defaultValue: "This rest day will be marked complete.", table: "Localizable"))
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -142,17 +142,17 @@ struct HomeView: View {
             }
 
             if appModel.currentPlanDay?.goal == .rest, !appModel.hasDraftSession {
-                Button("Skip to next day") {
+                Button(String(localized: "home.actions.skip_next_day", defaultValue: "Skip to next day", table: "Localizable")) {
                     showSkipDayConfirmation = true
                 }
                 .buttonStyle(SecondaryButtonStyle(fullWidth: true))
             } else if appModel.hasDraftSession {
-                Button("Start fresh") {
+                Button(String(localized: "home.actions.start_fresh", defaultValue: "Start fresh", table: "Localizable")) {
                     appModel.startFreshSession()
                 }
                 .buttonStyle(SecondaryButtonStyle(fullWidth: true))
             } else if appModel.activePlanEnrollment == nil, appModel.selectedCollectionID == BuiltInContent.myVersesSetID {
-                Button("Open Bible Library", action: appModel.openVerseLibrary)
+                Button(String(localized: "home.actions.open_bible_library", defaultValue: "Open Bible Library", table: "Localizable"), action: appModel.openVerseLibrary)
                     .buttonStyle(SecondaryButtonStyle(fullWidth: true))
             }
         }
@@ -232,7 +232,7 @@ struct HomeView: View {
                 HStack {
                     Image(systemName: appModel.selectedCollection.systemImageName)
                         .foregroundStyle(Color.accentGold)
-                    Text("Free Study")
+                    Text(String(localized: "home.free_study.title", defaultValue: "Free Study", table: "Localizable"))
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Color.primaryText)
                     Spacer()
@@ -241,11 +241,11 @@ struct HomeView: View {
                         .foregroundStyle(Color.accentMoss)
                 }
 
-                Text("Studying \(appModel.activeCollectionCountLabel) at your own pace with spaced repetition.")
+                Text(String(localized: "home.free_study.subtitle", defaultValue: "Studying \(appModel.activeCollectionCountLabel) at your own pace with spaced repetition.", table: "Localizable"))
                     .font(.caption)
                     .foregroundStyle(Color.mutedText)
 
-                Button("Browse plans") {
+                Button(String(localized: "home.actions.browse_plans", defaultValue: "Browse plans", table: "Localizable")) {
                     appModel.openPlans()
                 }
                 .buttonStyle(SecondaryButtonStyle(fullWidth: true))
@@ -354,7 +354,7 @@ struct HomeView: View {
 
     private var recentActivityCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Recent activity")
+            Text(String(localized: "home.recent_activity.title", defaultValue: "Recent activity", table: "Localizable"))
                 .font(.headline)
 
             ForEach(Array(appModel.recentReviewEvents.prefix(3)), id: \.id) { event in
@@ -386,7 +386,7 @@ struct HomeView: View {
                 }
             }
 
-            Button("Open journey", action: appModel.openJourney)
+            Button(String(localized: "home.actions.open_journey", defaultValue: "Open journey", table: "Localizable"), action: appModel.openJourney)
                 .buttonStyle(SecondaryButtonStyle(fullWidth: true))
         }
         .cardSurface()
@@ -513,29 +513,34 @@ struct HomeView: View {
 
     private var dueReviewLabel: String {
         if appModel.dueReviewCount == 0 {
-            return "No reviews due"
+            return String(localized: "home.pill.due.none", defaultValue: "No reviews due", table: "Localizable")
         }
-        let label = appModel.dueReviewCount == 1 ? "review due" : "reviews due"
-        return "\(appModel.dueReviewCount) \(label)"
+        if appModel.dueReviewCount == 1 {
+            return String(localized: "home.pill.due.one", defaultValue: "1 review due", table: "Localizable")
+        }
+        return String(localized: "home.pill.due.many", defaultValue: "\(appModel.dueReviewCount) reviews due", table: "Localizable")
     }
 
     private var newUnitLabel: String {
         switch appModel.queuedNewUnitCount {
         case 0:
-            return "No new unit queued"
+            return String(localized: "home.pill.new_units.none", defaultValue: "No new unit queued", table: "Localizable")
         case 1:
-            return "1 new unit queued"
+            return String(localized: "home.pill.new_units.one", defaultValue: "1 new unit queued", table: "Localizable")
         default:
-            return "\(appModel.queuedNewUnitCount) new units queued"
+            return String(localized: "home.pill.new_units.many", defaultValue: "\(appModel.queuedNewUnitCount) new units queued", table: "Localizable")
         }
     }
 
     private var practiceDetail: String {
         if appModel.practiceOnlyCustomStudyUnits.isEmpty {
-            return "No practice-only units"
+            return String(localized: "home.practice.none", defaultValue: "No practice-only units", table: "Localizable")
         }
         let count = appModel.practiceOnlyCustomStudyUnits.count
-        return "\(count) kept outside the daily queue"
+        if count == 1 {
+            return String(localized: "home.practice.one", defaultValue: "1 kept outside the daily queue", table: "Localizable")
+        }
+        return String(localized: "home.practice.many", defaultValue: "\(count) kept outside the daily queue", table: "Localizable")
     }
 
     private func planGoalLabel(_ goal: PlanDayGoal) -> String {
