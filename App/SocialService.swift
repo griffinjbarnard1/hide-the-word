@@ -26,6 +26,8 @@ protocol SocialServicing: AnyObject {
         completedDays: Set<Int>,
         streak: Int
     ) async -> SharedPlanSyncResult
+    func fetchMyProfile(defaultDisplayName: String) async -> PublicProfile
+    func saveMyProfile(_ profile: PublicProfile) async -> Bool
 }
 
 /// Thin social domain layer used by Together surfaces.
@@ -94,6 +96,16 @@ final class SocialService: SocialServicing {
         )
         refreshSnapshot()
         return result
+    }
+
+    func fetchMyProfile(defaultDisplayName: String) async -> PublicProfile {
+        await manager.fetchMyProfile(defaultDisplayName: defaultDisplayName)
+    }
+
+    func saveMyProfile(_ profile: PublicProfile) async -> Bool {
+        let didSave = await manager.saveMyProfile(profile)
+        refreshSnapshot()
+        return didSave
     }
 
     private func refreshSnapshot() {

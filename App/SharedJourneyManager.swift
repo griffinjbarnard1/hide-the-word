@@ -26,6 +26,45 @@ struct PlanMembership: Identifiable, Codable, Hashable, Sendable {
     var completedDays: Set<Int>
     var streak: Int
     var lastActiveAt: Date?
+    var profile: PublicProfile?
+}
+
+struct PublicProfile: Identifiable, Codable, Hashable, Sendable {
+    static let maxDisplayNameLength = 32
+    static let maxBioLength = 160
+    static let maxFavoriteVerseLength = 80
+    static let maxAvatarSeedLength = 24
+
+    let id: String
+    var displayName: String
+    var bio: String
+    var favoriteVerse: String
+    var avatarSeed: String
+    var updatedAt: Date
+
+    init(
+        id: String,
+        displayName: String,
+        bio: String = "",
+        favoriteVerse: String = "",
+        avatarSeed: String = "",
+        updatedAt: Date = .now
+    ) {
+        self.id = id
+        self.displayName = Self.clean(displayName, max: Self.maxDisplayNameLength)
+        self.bio = Self.clean(bio, max: Self.maxBioLength)
+        self.favoriteVerse = Self.clean(favoriteVerse, max: Self.maxFavoriteVerseLength)
+        self.avatarSeed = Self.clean(avatarSeed, max: Self.maxAvatarSeedLength)
+        self.updatedAt = updatedAt
+    }
+
+    var isValid: Bool {
+        !displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    static func clean(_ text: String, max: Int) -> String {
+        String(text.trimmingCharacters(in: .whitespacesAndNewlines).prefix(max))
+    }
 }
 
 /// Future global social relationship model.
@@ -88,6 +127,7 @@ final class SharedPlanManager {
     /// Extension point: keep this plan-local while introducing a separate `Connection`
     /// record type for global friend status in the future.
     private static let memberRecordType = "PlanMember"
+    private static let profileRecordType = "PublicProfile"
 
     init() {
         container = CKContainer(identifier: Self.containerID)
@@ -151,6 +191,14 @@ final class SharedPlanManager {
                 }
             }
             try await privateDB.save(memberRecord)
+
+            let ownerProfile = PublicProfile(id: memberID, displayName: ownerName)
+            let profileRecord = CKRecord(
+                recordType: Self.profileRecordType,
+                recordID: CKRecord.ID(recordName: "profile-\(memberID)", zoneID: zoneID)
+            )
+            write(profile: ownerProfile, to: profileRecord)
+            try await privateDB.save(profileRecord)
 
             // Create share
             let share = CKShare(rootRecord: planRecord)
@@ -253,6 +301,63 @@ final class SharedPlanManager {
         }
     }
 
+    func fetchMyProfile(defaultDisplayName: String) async -> PublicProfile {
+        let memberID = await stableMemberID()
+        for group in groups {
+            let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: CKCurrentUserDefaultName)
+            let recordID = CKRecord.ID(recordName: "profile-\(memberID)", zoneID: zoneID)
+            let databases: [CKDatabase] = [container.sharedCloudDatabase, privateDB]
+            for database in databases {
+                if let record = try? await database.record(for: recordID),
+                   let profile = profile(from: record, fallbackName: defaultDisplayName) {
+                    return profile
+                }
+            }
+        }
+
+        return PublicProfile(id: memberID, displayName: defaultDisplayName)
+    }
+
+    func saveMyProfile(_ profile: PublicProfile) async -> Bool {
+        let cleaned = PublicProfile(
+            id: profile.id,
+            displayName: profile.displayName,
+            bio: profile.bio,
+            favoriteVerse: profile.favoriteVerse,
+            avatarSeed: profile.avatarSeed,
+            updatedAt: .now
+        )
+
+        guard cleaned.isValid else {
+            lastError = "Display name is required."
+            return false
+        }
+
+        var didSave = false
+        for group in groups {
+            let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: CKCurrentUserDefaultName)
+            let recordID = CKRecord.ID(recordName: "profile-\(cleaned.id)", zoneID: zoneID)
+            let databases: [CKDatabase] = [container.sharedCloudDatabase, privateDB]
+            for database in databases {
+                let record = (try? await database.record(for: recordID)) ?? CKRecord(recordType: Self.profileRecordType, recordID: recordID)
+                write(profile: cleaned, to: record)
+                do {
+                    _ = try await database.save(record)
+                    didSave = true
+                    break
+                } catch {}
+            }
+        }
+
+        if !didSave {
+            lastError = "Join or create a shared plan to publish a profile."
+            return false
+        }
+
+        await fetchGroups()
+        return true
+    }
+
     // MARK: - Fetch Groups
 
     func fetchGroups() async {
@@ -303,6 +408,19 @@ final class SharedPlanManager {
 
         let query = CKQuery(recordType: Self.memberRecordType, predicate: NSPredicate(value: true))
         var members: [PlanMembership] = []
+        var profilesByMemberID: [String: PublicProfile] = [:]
+
+        do {
+            let profileQuery = CKQuery(recordType: Self.profileRecordType, predicate: NSPredicate(value: true))
+            let (profileResults, _) = try await database.records(matching: profileQuery, inZoneWith: zoneID)
+            for (_, profileResult) in profileResults {
+                guard let profileRecord = try? profileResult.get(),
+                      let memberID = profileRecord["memberID"] as? String,
+                      let profile = profile(from: profileRecord, fallbackName: "Unknown")
+                else { continue }
+                profilesByMemberID[memberID] = profile
+            }
+        } catch {}
 
         do {
             let (results, _) = try await database.records(matching: query, inZoneWith: zoneID)
@@ -328,7 +446,8 @@ final class SharedPlanManager {
                     currentDay: currentDay,
                     completedDays: completedDays,
                     streak: streak,
-                    lastActiveAt: lastActive
+                    lastActiveAt: lastActive,
+                    profile: profilesByMemberID[record.recordID.recordName.replacingOccurrences(of: "member-", with: "")]
                 ))
             }
         } catch {
@@ -345,6 +464,27 @@ final class SharedPlanManager {
             ownerName: ownerName,
             members: members.sorted { $0.currentDay > $1.currentDay }
         )
+    }
+
+    private func profile(from record: CKRecord, fallbackName: String) -> PublicProfile? {
+        guard let memberID = record["memberID"] as? String else { return nil }
+        return PublicProfile(
+            id: memberID,
+            displayName: record["displayName"] as? String ?? fallbackName,
+            bio: record["bio"] as? String ?? "",
+            favoriteVerse: record["favoriteVerse"] as? String ?? "",
+            avatarSeed: record["avatarSeed"] as? String ?? "",
+            updatedAt: record["updatedAt"] as? Date ?? .now
+        )
+    }
+
+    private func write(profile: PublicProfile, to record: CKRecord) {
+        record["memberID"] = profile.id
+        record["displayName"] = PublicProfile.clean(profile.displayName, max: PublicProfile.maxDisplayNameLength)
+        record["bio"] = PublicProfile.clean(profile.bio, max: PublicProfile.maxBioLength)
+        record["favoriteVerse"] = PublicProfile.clean(profile.favoriteVerse, max: PublicProfile.maxFavoriteVerseLength)
+        record["avatarSeed"] = PublicProfile.clean(profile.avatarSeed, max: PublicProfile.maxAvatarSeedLength)
+        record["updatedAt"] = Date.now
     }
 
     // MARK: - Accept Share
