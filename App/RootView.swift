@@ -39,6 +39,17 @@ struct RootView: View {
                 Label("Together", systemImage: "person.2")
             }
 
+
+            NavigationStack {
+                PeopleView()
+                    .navigationTitle("People")
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+            .tag(AppShellTab.people)
+            .tabItem {
+                Label("People", systemImage: "person.3")
+            }
+
             NavigationStack {
                 VerseLibraryView()
                     .navigationTitle("Library")
