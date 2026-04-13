@@ -5,7 +5,6 @@ import CloudKit
 struct TogetherView: View {
     @Environment(AppModel.self) private var appModel
     @State private var planManager = SharedPlanManager()
-    @State private var showingShareSheet = false
     @State private var selectedGroup: SharedPlanGroup?
     @State private var sharingGroup: SharedPlanGroup?
     @State private var currentMemberID: String?
@@ -51,10 +50,10 @@ struct TogetherView: View {
         .sheet(item: $sharingGroup) { group in
             PlanCloudSharingSheet(group: group, planManager: planManager)
         }
-        .alert("Leave shared plan?", isPresented: Binding(
+        .confirmationDialog("Leave shared plan?", isPresented: Binding(
             get: { pendingLeaveGroup != nil },
             set: { if !$0 { pendingLeaveGroup = nil } }
-        )) {
+        ), titleVisibility: .visible) {
             Button("Leave", role: .destructive) {
                 guard let group = pendingLeaveGroup else { return }
                 Task {
