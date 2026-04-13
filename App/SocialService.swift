@@ -8,6 +8,7 @@ protocol SocialServicing: AnyObject {
     var isLoading: Bool { get }
     var lastError: String? { get }
     var syncStateByGroupID: [String: SharedPlanSyncState] { get }
+    var profilePersistenceStatus: PublicProfilePersistenceStatus { get }
 
     func fetchGroups() async
     func createSharedPlan(
@@ -47,6 +48,7 @@ final class SocialService: SocialServicing {
     var isLoading = false
     var lastError: String?
     var syncStateByGroupID: [String: SharedPlanSyncState] = [:]
+    var profilePersistenceStatus: PublicProfilePersistenceStatus = .savedLocally
 
     init(manager: SharedPlanManager) {
         self.manager = manager
@@ -135,5 +137,6 @@ final class SocialService: SocialServicing {
         isLoading = manager.isLoading
         lastError = manager.lastError
         syncStateByGroupID = manager.syncStateByGroupID
+        profilePersistenceStatus = manager.profilePersistenceStatus
     }
 }

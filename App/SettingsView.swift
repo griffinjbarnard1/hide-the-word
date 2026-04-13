@@ -167,6 +167,9 @@ struct SettingsView: View {
                 NavigationLink("Edit my profile") {
                     PublicProfileEditorView()
                 }
+                Text("Profile status: \(profileStatusText)")
+                    .font(.caption)
+                    .foregroundStyle(Color.mutedText)
             }
 
             Section("Identity") {
@@ -214,6 +217,7 @@ struct SettingsView: View {
             let snapshot = await socialService.identitySnapshot()
             identityStatus = snapshot.status
             cloudKitIdentity = snapshot.resolvedIdentity
+            _ = await socialService.fetchMyProfile(defaultDisplayName: appModel.userDisplayName)
         }
     }
 
@@ -225,6 +229,15 @@ struct SettingsView: View {
             return "Unavailable"
         case .restricted:
             return "Restricted"
+        }
+    }
+
+    private var profileStatusText: String {
+        switch socialService.profilePersistenceStatus {
+        case .savedLocally:
+            return "Saved locally"
+        case .syncedToSharedPlans:
+            return "Synced to shared plans"
         }
     }
 }
