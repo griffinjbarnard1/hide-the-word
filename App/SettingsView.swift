@@ -160,6 +160,12 @@ struct SettingsView: View {
                     .foregroundStyle(Color.mutedText)
             }
 
+            Section("Profile") {
+                NavigationLink("Edit my profile") {
+                    PublicProfileEditorView()
+                }
+            }
+
             Section("Data") {
                 if let exportURL = appModel.exportDataURL() {
                     ShareLink(item: exportURL) {

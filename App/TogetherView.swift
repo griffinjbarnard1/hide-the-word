@@ -3,26 +3,43 @@ import ScriptureMemory
 import CloudKit
 
 struct TogetherView: View {
+    private enum SectionTab: String, CaseIterable, Identifiable {
+        case plans = "Plans"
+        case people = "People"
+        var id: String { rawValue }
+    }
+
     @Environment(AppModel.self) private var appModel
     @State private var socialService = SocialService.shared
     @State private var showingShareSheet = false
     @State private var selectedGroup: SharedPlanGroup?
     @State private var sharingGroup: SharedPlanGroup?
+    @State private var selectedTab: SectionTab = .plans
+    @State private var selectedPerson: PlanMembership?
+    @State private var showingProfileEditor = false
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 header
+                Picker("Together section", selection: $selectedTab) {
+                    ForEach(SectionTab.allCases) { section in
+                        Text(section.rawValue).tag(section)
+                    }
+                }
+                .pickerStyle(.segmented)
 
-                if socialService.isLoading, socialService.groups.isEmpty {
+                if selectedTab == .plans, socialService.isLoading, socialService.groups.isEmpty {
                     ProgressView()
                         .frame(maxWidth: .infinity, minHeight: 120)
-                } else if socialService.groups.isEmpty {
+                } else if selectedTab == .plans, socialService.groups.isEmpty {
                     emptyState
-                } else {
+                } else if selectedTab == .plans {
                     ForEach(socialService.groups) { group in
                         groupCard(group)
                     }
+                } else {
+                    peopleTab
                 }
 
                 if let error = socialService.lastError {
@@ -44,6 +61,17 @@ struct TogetherView: View {
         }
         .sheet(item: $sharingGroup) { group in
             PlanCloudSharingSheet(group: group)
+        }
+        .sheet(item: $selectedPerson) { person in
+            NavigationStack {
+                PersonDetailView(member: person)
+            }
+        }
+        .sheet(isPresented: $showingProfileEditor) {
+            NavigationStack {
+                PublicProfileEditorView()
+                    .environment(appModel)
+            }
         }
     }
 
@@ -74,6 +102,51 @@ struct TogetherView: View {
     }
 
     // MARK: - Empty State
+
+    private var peopleTab: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Button("Edit my profile") {
+                showingProfileEditor = true
+            }
+            .buttonStyle(PrimaryButtonStyle())
+
+            ForEach(uniquePeople) { member in
+                Button {
+                    selectedPerson = member
+                } label: {
+                    HStack(spacing: 12) {
+                        ProfileAvatarView(member: member, size: 36)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(member.profile?.displayName ?? member.displayName)
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(Color.primaryText)
+                            if let bio = member.profile?.bio, !bio.isEmpty {
+                                Text(bio)
+                                    .font(.caption)
+                                    .foregroundStyle(Color.mutedText)
+                                    .lineLimit(2)
+                            }
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundStyle(Color.mutedText)
+                    }
+                    .cardSurface()
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private var uniquePeople: [PlanMembership] {
+        let merged = socialService.groups.flatMap(\.members)
+        var seen: Set<String> = []
+        return merged.filter { member in
+            if seen.contains(member.id) { return false }
+            seen.insert(member.id)
+            return true
+        }
+    }
 
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -158,17 +231,10 @@ struct TogetherView: View {
     private func memberRow(_ member: PlanMembership, duration: Int) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Circle()
-                    .fill(Color.accentMoss.opacity(0.15))
-                    .frame(width: 30, height: 30)
-                    .overlay {
-                        Text(String(member.displayName.prefix(1)).uppercased())
-                            .font(.caption.weight(.bold))
-                            .foregroundStyle(Color.accentMoss)
-                    }
+                ProfileAvatarView(member: member, size: 30)
 
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(member.displayName)
+                    Text(member.profile?.displayName ?? member.displayName)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Color.primaryText)
 
@@ -195,6 +261,13 @@ struct TogetherView: View {
                                 .foregroundStyle(Color.mutedText)
                         }
                     }
+
+                    if let preview = profilePreviewLine(for: member) {
+                        Text(preview)
+                            .font(.caption2)
+                            .foregroundStyle(Color.mutedText)
+                            .lineLimit(1)
+                    }
                 }
 
                 Spacer()
@@ -207,6 +280,16 @@ struct TogetherView: View {
             // Day dots
             dayDots(member: member, duration: duration)
         }
+    }
+
+    private func profilePreviewLine(for member: PlanMembership) -> String? {
+        if let bio = member.profile?.bio, !bio.isEmpty {
+            return bio
+        }
+        if let verse = member.profile?.favoriteVerse, !verse.isEmpty {
+            return "Loves: \(verse)"
+        }
+        return nil
     }
 
     private func dayDots(member: PlanMembership, duration: Int) -> some View {
@@ -443,18 +526,11 @@ struct SharedPlanDetailView: View {
     private func memberCard(_ member: PlanMembership) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Circle()
-                    .fill(Color.accentMoss.opacity(0.15))
-                    .frame(width: 36, height: 36)
-                    .overlay {
-                        Text(String(member.displayName.prefix(1)).uppercased())
-                            .font(.subheadline.weight(.bold))
-                            .foregroundStyle(Color.accentMoss)
-                    }
+                ProfileAvatarView(member: member, size: 36)
 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack {
-                        Text(member.displayName)
+                        Text(member.profile?.displayName ?? member.displayName)
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(Color.primaryText)
                         if member.displayName == appModel.userDisplayName {
@@ -510,6 +586,12 @@ struct SharedPlanDetailView: View {
             if let lastActive = member.lastActiveAt {
                 let formatter = RelativeDateTimeFormatter()
                 Text("Active \(formatter.localizedString(for: lastActive, relativeTo: .now))")
+                    .font(.caption2)
+                    .foregroundStyle(Color.mutedText)
+            }
+
+            if let verse = member.profile?.favoriteVerse, !verse.isEmpty {
+                Text("Favorite verse: \(verse)")
                     .font(.caption2)
                     .foregroundStyle(Color.mutedText)
             }
@@ -625,6 +707,65 @@ struct SharedPlanDetailView: View {
 }
 
 // MARK: - Cloud Sharing Sheet
+
+struct ProfileAvatarView: View {
+    let member: PlanMembership
+    let size: CGFloat
+
+    var body: some View {
+        Circle()
+            .fill(Color.accentMoss.opacity(0.15))
+            .frame(width: size, height: size)
+            .overlay {
+                Text(String((member.profile?.displayName ?? member.displayName).prefix(1)).uppercased())
+                    .font(.system(size: max(12, size * 0.36), weight: .bold))
+                    .foregroundStyle(Color.accentMoss)
+            }
+    }
+}
+
+struct PersonDetailView: View {
+    let member: PlanMembership
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(spacing: 12) {
+                    ProfileAvatarView(member: member, size: 52)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(member.profile?.displayName ?? member.displayName)
+                            .font(.title3.weight(.semibold))
+                        Text("Day \(member.currentDay) • \(member.streak)-day streak")
+                            .font(.caption)
+                            .foregroundStyle(Color.mutedText)
+                    }
+                }
+                .cardSurface()
+
+                if let bio = member.profile?.bio, !bio.isEmpty {
+                    Text(bio)
+                        .font(.body)
+                        .cardSurface()
+                }
+                if let verse = member.profile?.favoriteVerse, !verse.isEmpty {
+                    Text("Favorite verse: \(verse)")
+                        .font(.subheadline)
+                        .cardSurface()
+                }
+            }
+            .padding(24)
+        }
+        .background(Color.screenBackground.ignoresSafeArea())
+        .navigationTitle("Person")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Done") { dismiss() }
+            }
+        }
+    }
+}
 
 struct PlanCloudSharingSheet: UIViewControllerRepresentable {
     let group: SharedPlanGroup
