@@ -84,7 +84,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
 final class SceneDelegate: NSObject, UIWindowSceneDelegate {
     func windowScene(_ windowScene: UIWindowScene, userDidAcceptCloudKitShareWith cloudKitShareMetadata: CKShare.Metadata) {
         Task { @MainActor in
-            let manager = SharedPlanManager()
+            let manager = SharedPlanManager.shared
             await manager.acceptShare(cloudKitShareMetadata)
             // Notify the app to navigate to Together tab and auto-enroll
             await manager.fetchGroups()
