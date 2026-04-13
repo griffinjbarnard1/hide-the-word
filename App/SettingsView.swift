@@ -3,6 +3,9 @@ import ScriptureMemory
 
 struct SettingsView: View {
     @Environment(AppModel.self) private var appModel
+    private let sharedPlanManager = SharedPlanManager()
+    @State private var identityStatus: SharedPlanManager.IdentityStatus = .unavailable
+    @State private var cloudKitIdentity: String?
 
     var body: some View {
         List {
@@ -160,6 +163,27 @@ struct SettingsView: View {
                     .foregroundStyle(Color.mutedText)
             }
 
+            Section("Identity") {
+                HStack {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Connected account")
+                            .foregroundStyle(Color.primaryText)
+                        Text("iCloud: \(identityStatusLabel)")
+                            .font(.caption)
+                            .foregroundStyle(Color.mutedText)
+                    }
+                    Spacer()
+                    Text(cloudKitIdentity ?? "Not available")
+                        .font(.caption)
+                        .foregroundStyle(Color.mutedText)
+                        .multilineTextAlignment(.trailing)
+                }
+
+                Text("Hide the Word has no separate app login. Sharing and sync use your iCloud account.")
+                    .font(.caption)
+                    .foregroundStyle(Color.mutedText)
+            }
+
             Section("Data") {
                 if let exportURL = appModel.exportDataURL() {
                     ShareLink(item: exportURL) {
@@ -179,6 +203,22 @@ struct SettingsView: View {
                     appModel.dismissActiveRoute()
                 }
             }
+        }
+        .task {
+            let snapshot = await sharedPlanManager.identitySnapshot()
+            identityStatus = snapshot.status
+            cloudKitIdentity = snapshot.resolvedIdentity
+        }
+    }
+
+    private var identityStatusLabel: String {
+        switch identityStatus {
+        case .available:
+            return "Available"
+        case .unavailable:
+            return "Unavailable"
+        case .restricted:
+            return "Restricted"
         }
     }
 }
