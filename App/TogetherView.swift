@@ -67,7 +67,7 @@ struct TogetherView: View {
                 }
             }
 
-            Text("Share a plan with friends. Same plan, your own pace, mutual encouragement.")
+            Text("Share a plan with people in this shared plan. Same plan, your own pace, mutual encouragement.")
                 .font(.body)
                 .foregroundStyle(Color.mutedText)
         }
@@ -85,12 +85,12 @@ struct TogetherView: View {
                 .font(.headline)
                 .foregroundStyle(Color.primaryText)
 
-            Text("Start a plan and share it with a friend. You'll each work at your own pace and see where everyone is day by day.")
+            Text("Start a plan and invite people to this plan. Everyone works at their own pace, and progress is visible only inside this shared plan.")
                 .font(.subheadline)
                 .foregroundStyle(Color.mutedText)
 
             if appModel.activePlan != nil {
-                Button("Share your active plan") {
+                Button("Invite people to this plan") {
                     Task { await shareActivePlan() }
                 }
                 .buttonStyle(PrimaryButtonStyle())
@@ -289,6 +289,7 @@ struct SharedPlanDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 planHeader
+                collaborationScopeCard
                 myProgressSection
                 membersSection
                 actionsSection
@@ -328,6 +329,20 @@ struct SharedPlanDetailView: View {
                 StatusPill(title: "\(group.planDuration) days")
                 StatusPill(title: "\(group.members.count) people", tint: .accentGold)
             }
+        }
+        .cardSurface()
+    }
+
+    @ViewBuilder
+    private var collaborationScopeCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("How collaboration works")
+                .font(.headline)
+                .foregroundStyle(Color.primaryText)
+
+            Text("Membership is per shared plan. There is no global friend list, so only people invited to this plan can view and sync progress here.")
+                .font(.caption)
+                .foregroundStyle(Color.mutedText)
         }
         .cardSurface()
     }
@@ -467,13 +482,13 @@ struct SharedPlanDetailView: View {
                 .buttonStyle(SecondaryButtonStyle(fullWidth: true))
                 .disabled(isSyncing)
 
-                Button("Invite") {
+                Button("Invite to plan") {
                     sharingGroup = group
                 }
                 .buttonStyle(FilledSoftButtonStyle())
             }
 
-            Text("Each person keeps their own progress. Syncing shares your current day so friends can see where you are.")
+            Text("Each person keeps their own progress. Syncing shares your current day with people in this shared plan.")
                 .font(.caption)
                 .foregroundStyle(Color.mutedText)
         }
