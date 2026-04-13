@@ -169,6 +169,7 @@ struct TogetherView: View {
 
         for group in planManager.groups {
             for member in group.members {
+                guard member.displayName != appModel.userDisplayName else { continue }
                 var existing = byID[member.id] ?? PersonRollup(
                     id: member.id,
                     displayName: member.displayName,
