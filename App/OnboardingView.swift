@@ -73,11 +73,6 @@ struct OnboardingView: View {
                 .foregroundStyle(Color.mutedText)
                 .multilineTextAlignment(.center)
 
-            Text("No separate app login required. If you share plans with others, Hide the Word uses your iCloud account.")
-                .font(.caption)
-                .foregroundStyle(Color.mutedText)
-                .multilineTextAlignment(.center)
-
             Spacer()
 
             Button("Next") {
@@ -180,7 +175,7 @@ struct OnboardingView: View {
                 Button {
                     withAnimation { currentPage = 3 }
                 } label: {
-                    Text("Start with free study instead")
+                    Text("Explore on my own")
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(Color.accentGold)
                 }

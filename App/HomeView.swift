@@ -182,7 +182,7 @@ struct HomeView: View {
                         .font(.caption)
                         .foregroundStyle(Color.mutedText)
                 } else if appModel.isActivePlanComplete {
-                    Text("This plan is complete. You can keep reviewing the passage, leave the plan, or start another one.")
+                    Text("Plan complete! Your verses stay in daily review. Start another plan or keep reviewing at your own pace.")
                         .font(.caption)
                         .foregroundStyle(Color.mutedText)
                 }

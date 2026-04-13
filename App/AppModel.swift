@@ -8,7 +8,6 @@ enum AppShellTab: String, Hashable, Sendable {
     case home
     case journey
     case together
-    case people
     case library
 }
 

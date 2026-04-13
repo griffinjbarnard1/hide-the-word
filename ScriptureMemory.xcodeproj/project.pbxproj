@@ -22,6 +22,7 @@
 		8A71E1405F4E7E97F39298CA /* SessionViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C8EC38257689A9D827B218 /* SessionViews.swift */; };
 		9116B5945EE633DEE6DDC317 /* JourneyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D1A82E96DC626DDF5A8C38 /* JourneyView.swift */; };
 		91AF4FA319B9B9B35CAE04F4 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E56BC5E8BC8BE9FC2E59454 /* NotificationManager.swift */; };
+		9A5CD83F0AD03CC55C3F541D /* PeopleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D35D2870BE27AB7F241A4 /* PeopleView.swift */; };
 		9C02ED5FFF0150CDA610CF40 /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE70668B83591B60FAD293A /* HapticManager.swift */; };
 		A8812E6872C51D73BD4916DD /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475387F54DB737C77D2891C4 /* OnboardingView.swift */; };
 		B566B1849A6CF06CC462AF20 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A721ADBAB64A54B79B1E81A /* RootView.swift */; };
@@ -32,17 +33,19 @@
 		D012632E333126497BCD40EC /* ScriptureMemory in Frameworks */ = {isa = PBXBuildFile; productRef = CFE1CEA73D418DFCB53660EC /* ScriptureMemory */; };
 		D402744931127C08FF9543D9 /* VerseCardRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC7EC20F225ABE3FEC48831 /* VerseCardRenderer.swift */; };
 		D485F0F56C42CFAE3CE367F4 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D7093A76639DFA0AF734CD /* AppModel.swift */; };
+		D8D1BCE6D913095726CB91D7 /* SocialService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C292460622A247A91776FF6 /* SocialService.swift */; };
 		E1B39523AA68C49F52EBB077 /* WeeklyProgressCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE7DD203D4AF2835514D7F1A /* WeeklyProgressCard.swift */; };
 		E5F11C742A0A123DDCAE5CB3 /* TogetherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B6FA947F3C2B1C4E9258204 /* TogetherView.swift */; };
 		EA07A9D5CE139664BD03AA4A /* VerseSetListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC9C25EC2550465E039AD69 /* VerseSetListView.swift */; };
+		F80EC175059BCF2A17F197B4 /* PublicProfileEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C395C47B848174CE0F898A92 /* PublicProfileEditorView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		01BEBD8C917A08EF920B1555 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
-		02CD1A157CF9B74F26527A96 /* New project */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "New project"; path = .; sourceTree = SOURCE_ROOT; };
 		156B10B30F93DCDA9CE1B84C /* SharedJourneyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedJourneyManager.swift; sourceTree = "<group>"; };
 		1B6FA947F3C2B1C4E9258204 /* TogetherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TogetherView.swift; sourceTree = "<group>"; };
 		1B8AF0C9DA76E40A1C3196CB /* PlanLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanLibraryView.swift; sourceTree = "<group>"; };
+		1C292460622A247A91776FF6 /* SocialService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialService.swift; sourceTree = "<group>"; };
 		1EF5D60B721297CFD339B875 /* VerseLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseLibraryView.swift; sourceTree = "<group>"; };
 		2BACCDEC8A35F4455BA851F8 /* PlanShareCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanShareCard.swift; sourceTree = "<group>"; };
 		2BD8F6F4FEA972B5F61A2DB5 /* SessionDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDraft.swift; sourceTree = "<group>"; };
@@ -60,10 +63,13 @@
 		9E17C1AD40468628BB3495C1 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		A11DAFD98894F97FAA86E6A9 /* ScriptureMemoryApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptureMemoryApp.swift; sourceTree = "<group>"; };
 		C14BCBDE7BFCB600A7F4EE30 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		C395C47B848174CE0F898A92 /* PublicProfileEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicProfileEditorView.swift; sourceTree = "<group>"; };
 		C5A18709362365931C722372 /* CreatePlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePlanView.swift; sourceTree = "<group>"; };
 		CCF600C5F8E5ABCD2DDFF913 /* PassageBreakdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassageBreakdown.swift; sourceTree = "<group>"; };
 		CFE70668B83591B60FAD293A /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
 		D304FB9EE1A7ED109EA4257A /* ReviewProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewProgressStore.swift; sourceTree = "<group>"; };
+		D5C7E8CFDC5EE157138EDBBB /* hide-the-word */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "hide-the-word"; path = .; sourceTree = SOURCE_ROOT; };
+		DA1D35D2870BE27AB7F241A4 /* PeopleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeopleView.swift; sourceTree = "<group>"; };
 		DE7DD203D4AF2835514D7F1A /* WeeklyProgressCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyProgressCard.swift; sourceTree = "<group>"; };
 		EE27DDFD39459B7124DE1ACD /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		F0C8EC38257689A9D827B218 /* SessionViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionViews.swift; sourceTree = "<group>"; };
@@ -85,7 +91,7 @@
 		79F1D21DA241AD6F561B4124 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				02CD1A157CF9B74F26527A96 /* New project */,
+				D5C7E8CFDC5EE157138EDBBB /* hide-the-word */,
 			);
 			name = Packages;
 			sourceTree = "<group>";
@@ -103,8 +109,10 @@
 				2E56BC5E8BC8BE9FC2E59454 /* NotificationManager.swift */,
 				475387F54DB737C77D2891C4 /* OnboardingView.swift */,
 				CCF600C5F8E5ABCD2DDFF913 /* PassageBreakdown.swift */,
+				DA1D35D2870BE27AB7F241A4 /* PeopleView.swift */,
 				1B8AF0C9DA76E40A1C3196CB /* PlanLibraryView.swift */,
 				2BACCDEC8A35F4455BA851F8 /* PlanShareCard.swift */,
+				C395C47B848174CE0F898A92 /* PublicProfileEditorView.swift */,
 				D304FB9EE1A7ED109EA4257A /* ReviewProgressStore.swift */,
 				3A721ADBAB64A54B79B1E81A /* RootView.swift */,
 				A11DAFD98894F97FAA86E6A9 /* ScriptureMemoryApp.swift */,
@@ -113,6 +121,7 @@
 				F0C8EC38257689A9D827B218 /* SessionViews.swift */,
 				C14BCBDE7BFCB600A7F4EE30 /* SettingsView.swift */,
 				156B10B30F93DCDA9CE1B84C /* SharedJourneyManager.swift */,
+				1C292460622A247A91776FF6 /* SocialService.swift */,
 				8854C313D21C874CF630DBEE /* SpeechManager.swift */,
 				EE27DDFD39459B7124DE1ACD /* Theme.swift */,
 				1B6FA947F3C2B1C4E9258204 /* TogetherView.swift */,
@@ -215,8 +224,10 @@
 				91AF4FA319B9B9B35CAE04F4 /* NotificationManager.swift in Sources */,
 				A8812E6872C51D73BD4916DD /* OnboardingView.swift in Sources */,
 				BE2834A60D3FFFDD025AD7A9 /* PassageBreakdown.swift in Sources */,
+				9A5CD83F0AD03CC55C3F541D /* PeopleView.swift in Sources */,
 				3DB338436C6F158961480B2A /* PlanLibraryView.swift in Sources */,
 				49D7135CB3A9C14EDFAC953D /* PlanShareCard.swift in Sources */,
+				F80EC175059BCF2A17F197B4 /* PublicProfileEditorView.swift in Sources */,
 				C44DE0A45851919297CD5A49 /* ReviewProgressStore.swift in Sources */,
 				B566B1849A6CF06CC462AF20 /* RootView.swift in Sources */,
 				2F68A1CD371DDFA0EED23C55 /* ScriptureMemoryApp.swift in Sources */,
@@ -225,6 +236,7 @@
 				8A71E1405F4E7E97F39298CA /* SessionViews.swift in Sources */,
 				0A23C384B4AD2CF287A50B06 /* SettingsView.swift in Sources */,
 				1DAA90B642E722235136CF08 /* SharedJourneyManager.swift in Sources */,
+				D8D1BCE6D913095726CB91D7 /* SocialService.swift in Sources */,
 				6479D4C2ABA2769722612A0A /* SpeechManager.swift in Sources */,
 				C03A8622E093E4615933DC9E /* Theme.swift in Sources */,
 				E5F11C742A0A123DDCAE5CB3 /* TogetherView.swift in Sources */,
