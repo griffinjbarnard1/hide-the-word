@@ -73,6 +73,11 @@ struct OnboardingView: View {
                 .foregroundStyle(Color.mutedText)
                 .multilineTextAlignment(.center)
 
+            Text("No separate app login required. If you share plans with others, Hide the Word uses your iCloud account.")
+                .font(.caption)
+                .foregroundStyle(Color.mutedText)
+                .multilineTextAlignment(.center)
+
             Spacer()
 
             Button("Next") {
