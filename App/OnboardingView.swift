@@ -60,12 +60,14 @@ struct OnboardingView: View {
             Spacer()
 
             Image(systemName: "book.closed.fill")
-                .font(.system(size: 56))
+                .font(.system(.largeTitle, design: .default, weight: .regular))
                 .foregroundStyle(Color.accentMoss)
 
             Text("Hide the Word\nin your heart.")
-                .font(.system(size: 40, weight: .semibold, design: .serif))
+                .font(.system(.largeTitle, design: .serif, weight: .semibold))
                 .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.75)
                 .foregroundStyle(Color.primaryText)
 
             Text("A calm daily system for retaining Scripture through recall, review, and return.")
@@ -88,7 +90,9 @@ struct OnboardingView: View {
             Spacer()
 
             Text("How it works")
-                .font(.system(size: 34, weight: .semibold, design: .serif))
+                .font(.system(.title, design: .serif, weight: .semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
                 .foregroundStyle(Color.primaryText)
 
             ViewThatFits(in: .horizontal) {
@@ -124,8 +128,10 @@ struct OnboardingView: View {
         ScrollView {
             VStack(spacing: 24) {
                 Text("Pick a plan\nto begin")
-                    .font(.system(size: 34, weight: .semibold, design: .serif))
+                    .font(.system(.title, design: .serif, weight: .semibold))
                     .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
                     .foregroundStyle(Color.primaryText)
                     .padding(.top, 32)
 
@@ -203,12 +209,14 @@ struct OnboardingView: View {
             Spacer()
 
             Image(systemName: "bell.badge.fill")
-                .font(.system(size: 56))
+                .font(.system(.largeTitle, design: .default, weight: .regular))
                 .foregroundStyle(Color.accentGold)
 
             Text("Stay in rhythm")
-                .font(.system(size: 34, weight: .semibold, design: .serif))
+                .font(.system(.title, design: .serif, weight: .semibold))
                 .multilineTextAlignment(.center)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
                 .foregroundStyle(Color.primaryText)
 
             Text("A gentle daily reminder helps you build a lasting habit. You can change the time or turn it off in Settings.")
@@ -276,4 +284,22 @@ struct OnboardingView: View {
         }
         .frame(maxWidth: .infinity)
     }
+}
+
+#Preview("Onboarding · XXXL") {
+    OnboardingView()
+        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .dynamicTypeSize(.xxxLarge)
+}
+
+#Preview("Onboarding · AX Medium") {
+    OnboardingView()
+        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .dynamicTypeSize(.accessibility2)
+}
+
+#Preview("Onboarding · AX XL") {
+    OnboardingView()
+        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .dynamicTypeSize(.accessibility3)
 }
