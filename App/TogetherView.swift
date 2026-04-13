@@ -8,6 +8,9 @@ struct TogetherView: View {
     @State private var showingShareSheet = false
     @State private var selectedGroup: SharedPlanGroup?
     @State private var sharingGroup: SharedPlanGroup?
+    @State private var currentMemberID: String?
+    @State private var pendingLeaveGroup: SharedPlanGroup?
+    @State private var actionMessage: String?
 
     var body: some View {
         ScrollView {
@@ -36,6 +39,9 @@ struct TogetherView: View {
         }
         .background(Color.screenBackground.ignoresSafeArea())
         .task { await planManager.fetchGroups() }
+        .task {
+            currentMemberID = await planManager.stableMemberID()
+        }
         .refreshable { await planManager.fetchGroups() }
         .sheet(item: $selectedGroup) { group in
             NavigationStack {
@@ -44,6 +50,32 @@ struct TogetherView: View {
         }
         .sheet(item: $sharingGroup) { group in
             PlanCloudSharingSheet(group: group, planManager: planManager)
+        }
+        .alert("Leave shared plan?", isPresented: Binding(
+            get: { pendingLeaveGroup != nil },
+            set: { if !$0 { pendingLeaveGroup = nil } }
+        )) {
+            Button("Leave", role: .destructive) {
+                guard let group = pendingLeaveGroup else { return }
+                Task {
+                    let feedback = await planManager.leaveGroup(group, isOwner: false)
+                    actionMessage = feedback.message
+                    pendingLeaveGroup = nil
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                pendingLeaveGroup = nil
+            }
+        } message: {
+            Text("You'll stop seeing this plan and your progress updates will no longer sync to the group.")
+        }
+        .alert("Shared Plan", isPresented: Binding(
+            get: { actionMessage != nil },
+            set: { if !$0 { actionMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(actionMessage ?? "")
         }
     }
 
@@ -120,15 +152,17 @@ struct TogetherView: View {
                         .foregroundStyle(Color.mutedText)
                 }
                 Spacer()
-                Button {
-                    sharingGroup = group
-                } label: {
-                    Image(systemName: "person.badge.plus")
-                        .foregroundStyle(Color.accentMoss)
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
+                if isOwner(group) {
+                    Button {
+                        sharingGroup = group
+                    } label: {
+                        Image(systemName: "person.badge.plus")
+                            .foregroundStyle(Color.accentMoss)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
 
             ForEach(group.members) { member in
@@ -145,6 +179,16 @@ struct TogetherView: View {
                     Task { await syncProgress(for: group) }
                 }
                 .buttonStyle(FilledSoftButtonStyle())
+            }
+
+            if !isOwner(group) {
+                Button(role: .destructive) {
+                    pendingLeaveGroup = group
+                } label: {
+                    Text("Leave plan")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(SecondaryButtonStyle(fullWidth: true))
             }
         }
         .cardSurface()
@@ -256,7 +300,7 @@ struct TogetherView: View {
 
         guard let enrollment = appModel.activePlanEnrollment, enrollment.planID == group.planID else { return }
 
-        let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: CKCurrentUserDefaultName)
+        let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: group.zoneOwnerName)
         await planManager.syncMyProgress(
             groupZoneID: zoneID,
             memberName: appModel.userDisplayName,
@@ -265,6 +309,16 @@ struct TogetherView: View {
             streak: appModel.currentStreak
         )
         await planManager.fetchGroups()
+    }
+
+    private func isOwner(_ group: SharedPlanGroup) -> Bool {
+        if let currentMemberID {
+            if let ownerMemberID = group.ownerMemberID {
+                return ownerMemberID == currentMemberID
+            }
+            return group.members.contains(where: { $0.id == "member-\(currentMemberID)" && $0.displayName == group.ownerName })
+        }
+        return group.ownerName == appModel.userDisplayName
     }
 
     private func relativeDate(_ date: Date) -> String {
@@ -284,6 +338,10 @@ struct SharedPlanDetailView: View {
 
     @State private var isSyncing = false
     @State private var sharingGroup: SharedPlanGroup?
+    @State private var currentMemberID: String?
+    @State private var showLeaveConfirm = false
+    @State private var showArchiveConfirm = false
+    @State private var actionMessage: String?
 
     var body: some View {
         ScrollView {
@@ -305,6 +363,41 @@ struct SharedPlanDetailView: View {
         }
         .sheet(item: $sharingGroup) { group in
             PlanCloudSharingSheet(group: group, planManager: planManager)
+        }
+        .task {
+            currentMemberID = await planManager.stableMemberID()
+        }
+        .confirmationDialog("Leave shared plan?", isPresented: $showLeaveConfirm, titleVisibility: .visible) {
+            Button("Leave Plan", role: .destructive) {
+                Task {
+                    let feedback = await planManager.leaveGroup(group, isOwner: false)
+                    actionMessage = feedback.message
+                    if feedback.success { dismiss() }
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("You'll stop receiving progress updates for this group.")
+        }
+        .confirmationDialog("Archive and stop sharing?", isPresented: $showArchiveConfirm, titleVisibility: .visible) {
+            Button("Archive Group", role: .destructive) {
+                Task {
+                    let feedback = await planManager.leaveGroup(group, isOwner: true)
+                    actionMessage = feedback.message
+                    if feedback.success { dismiss() }
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This removes the shared group for everyone and stops future syncing.")
+        }
+        .alert("Shared Plan", isPresented: Binding(
+            get: { actionMessage != nil },
+            set: { if !$0 { actionMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(actionMessage ?? "")
         }
     }
 
@@ -467,10 +560,30 @@ struct SharedPlanDetailView: View {
                 .buttonStyle(SecondaryButtonStyle(fullWidth: true))
                 .disabled(isSyncing)
 
-                Button("Invite") {
-                    sharingGroup = group
+                if isOwner {
+                    Button("Manage members") {
+                        sharingGroup = group
+                    }
+                    .buttonStyle(FilledSoftButtonStyle())
                 }
-                .buttonStyle(FilledSoftButtonStyle())
+            }
+
+            if isOwner {
+                Button(role: .destructive) {
+                    showArchiveConfirm = true
+                } label: {
+                    Text("Archive / Stop sharing")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(SecondaryButtonStyle(fullWidth: true))
+            } else {
+                Button(role: .destructive) {
+                    showLeaveConfirm = true
+                } label: {
+                    Text("Leave plan")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(SecondaryButtonStyle(fullWidth: true))
             }
 
             Text("Each person keeps their own progress. Syncing shares your current day so friends can see where you are.")
@@ -481,7 +594,7 @@ struct SharedPlanDetailView: View {
 
     private func syncProgress() async {
         guard let enrollment = appModel.activePlanEnrollment, enrollment.planID == group.planID else { return }
-        let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: CKCurrentUserDefaultName)
+        let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: group.zoneOwnerName)
         await planManager.syncMyProgress(
             groupZoneID: zoneID,
             memberName: appModel.userDisplayName,
@@ -490,6 +603,16 @@ struct SharedPlanDetailView: View {
             streak: appModel.currentStreak
         )
         await planManager.fetchGroups()
+    }
+
+    private var isOwner: Bool {
+        if let currentMemberID {
+            if let ownerMemberID = group.ownerMemberID {
+                return ownerMemberID == currentMemberID
+            }
+            return group.members.contains(where: { $0.id == "member-\(currentMemberID)" && $0.displayName == group.ownerName })
+        }
+        return group.ownerName == appModel.userDisplayName
     }
 }
 

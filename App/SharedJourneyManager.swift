@@ -6,12 +6,14 @@ import ScriptureMemory
 
 struct SharedPlanGroup: Identifiable, Codable, Hashable, Sendable {
     let id: String // CKRecordZone name
+    let zoneOwnerName: String
     let planID: UUID
     let planTitle: String
     let planDuration: Int
     let planSystemImage: String
     let createdAt: Date
     let ownerName: String
+    let ownerMemberID: String?
     var members: [SharedPlanMember]
 }
 
@@ -39,6 +41,11 @@ final class SharedPlanManager {
     static let containerID = "iCloud.com.griffinbarnard.ScriptureMemory"
     private static let groupRecordType = "SharedPlan"
     private static let memberRecordType = "PlanMember"
+
+    struct ActionFeedback: Sendable {
+        let success: Bool
+        let message: String
+    }
 
     init() {
         container = CKContainer(identifier: Self.containerID)
@@ -84,6 +91,7 @@ final class SharedPlanManager {
             planRecord["planDuration"] = planDuration
             planRecord["planSystemImage"] = planSystemImage
             planRecord["ownerName"] = ownerName
+            planRecord["ownerMemberID"] = memberID
             planRecord["createdAt"] = Date.now
 
             try await privateDB.save(planRecord)
@@ -214,6 +222,7 @@ final class SharedPlanManager {
         let planDuration = planRecord["planDuration"] as? Int ?? 0
         let planSystemImage = planRecord["planSystemImage"] as? String ?? "calendar"
         let ownerName = planRecord["ownerName"] as? String ?? "Unknown"
+        let ownerMemberID = planRecord["ownerMemberID"] as? String
         let createdAt = planRecord["createdAt"] as? Date ?? .now
 
         let query = CKQuery(recordType: Self.memberRecordType, predicate: NSPredicate(value: true))
@@ -252,12 +261,14 @@ final class SharedPlanManager {
 
         return SharedPlanGroup(
             id: zoneID.zoneName,
+            zoneOwnerName: zoneID.ownerName,
             planID: planID,
             planTitle: planTitle,
             planDuration: planDuration,
             planSystemImage: planSystemImage,
             createdAt: createdAt,
             ownerName: ownerName,
+            ownerMemberID: ownerMemberID,
             members: members.sorted { $0.currentDay > $1.currentDay }
         )
     }
@@ -275,16 +286,37 @@ final class SharedPlanManager {
 
     // MARK: - Leave Group
 
-    func leaveGroup(_ group: SharedPlanGroup, memberName: String) async {
+    func leaveGroup(_ group: SharedPlanGroup, isOwner: Bool) async -> ActionFeedback {
         let memberID = await stableMemberID()
-        let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: CKCurrentUserDefaultName)
+        let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: group.zoneOwnerName)
         let recordID = CKRecord.ID(recordName: "member-\(memberID)", zoneID: zoneID)
+        let isPrivatelyOwnedZone = group.zoneOwnerName == CKCurrentUserDefaultName
 
         do {
-            try await privateDB.deleteRecord(withID: recordID)
+            if isOwner && isPrivatelyOwnedZone {
+                try await privateDB.deleteRecordZone(withID: zoneID)
+                await fetchGroups()
+                return ActionFeedback(success: true, message: "Sharing stopped. The group was archived for everyone.")
+            }
+
+            if isPrivatelyOwnedZone {
+                try await privateDB.deleteRecord(withID: recordID)
+                await fetchGroups()
+                return ActionFeedback(success: true, message: "You left the shared plan.")
+            }
+
+            do {
+                try await container.sharedCloudDatabase.deleteRecordZone(withID: zoneID)
+                await fetchGroups()
+                return ActionFeedback(success: true, message: "You left the shared plan.")
+            } catch {
+                try await container.sharedCloudDatabase.deleteRecord(withID: recordID)
+            }
             await fetchGroups()
+            return ActionFeedback(success: true, message: "You left the shared plan.")
         } catch {
             lastError = error.localizedDescription
+            return ActionFeedback(success: false, message: "Couldn't complete that action right now. Please try again.")
         }
     }
 }
