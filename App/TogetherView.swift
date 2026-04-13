@@ -4,7 +4,7 @@ import CloudKit
 
 struct TogetherView: View {
     @Environment(AppModel.self) private var appModel
-    @State private var planManager = SharedPlanManager()
+    @State private var planManager = SharedPlanManager.shared
     @State private var showingShareSheet = false
     @State private var selectedGroup: SharedPlanGroup?
     @State private var sharingGroup: SharedPlanGroup?
@@ -118,6 +118,7 @@ struct TogetherView: View {
                     Text("\(group.members.count) \(group.members.count == 1 ? "person" : "people") • \(group.planDuration) days")
                         .font(.caption)
                         .foregroundStyle(Color.mutedText)
+                    syncMetaText(for: group.id)
                 }
                 Spacer()
                 Button {
@@ -146,6 +147,8 @@ struct TogetherView: View {
                 }
                 .buttonStyle(FilledSoftButtonStyle())
             }
+
+            syncStateRow(for: group)
         }
         .cardSurface()
     }
@@ -257,7 +260,7 @@ struct TogetherView: View {
         guard let enrollment = appModel.activePlanEnrollment, enrollment.planID == group.planID else { return }
 
         let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: CKCurrentUserDefaultName)
-        await planManager.syncMyProgress(
+        _ = await planManager.syncMyProgress(
             groupZoneID: zoneID,
             memberName: appModel.userDisplayName,
             currentDay: enrollment.currentDay,
@@ -272,6 +275,52 @@ struct TogetherView: View {
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: date, relativeTo: .now)
     }
+
+    @ViewBuilder
+    private func syncMetaText(for groupID: String) -> some View {
+        if let syncedAt = latestSyncedAt(for: groupID) {
+            Text("Last synced \(relativeDate(syncedAt))")
+                .font(.caption2)
+                .foregroundStyle(Color.mutedText)
+        } else {
+            Text("Last synced: not yet")
+                .font(.caption2)
+                .foregroundStyle(Color.mutedText)
+        }
+    }
+
+    @ViewBuilder
+    private func syncStateRow(for group: SharedPlanGroup) -> some View {
+        let state = planManager.syncStateByGroupID[group.id] ?? .idle
+        switch state {
+        case .idle:
+            EmptyView()
+        case .syncing:
+            Label("Syncing now…", systemImage: "arrow.triangle.2.circlepath")
+                .font(.caption)
+                .foregroundStyle(Color.mutedText)
+        case .success(let syncedAt):
+            Label("Synced \(relativeDate(syncedAt))", systemImage: "checkmark.circle.fill")
+                .font(.caption)
+                .foregroundStyle(Color.accentMoss)
+        case .failure(let reason):
+            HStack(spacing: 8) {
+                Label(reason, systemImage: "exclamationmark.triangle.fill")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                Button("Retry") { Task { await syncProgress(for: group) } }
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color.accentMoss)
+            }
+        }
+    }
+
+    private func latestSyncedAt(for groupID: String) -> Date? {
+        if case .success(let date) = planManager.syncStateByGroupID[groupID] {
+            return date
+        }
+        return nil
+    }
 }
 
 // MARK: - Shared Plan Detail
@@ -282,7 +331,6 @@ struct SharedPlanDetailView: View {
     let group: SharedPlanGroup
     let planManager: SharedPlanManager
 
-    @State private var isSyncing = false
     @State private var sharingGroup: SharedPlanGroup?
 
     var body: some View {
@@ -472,12 +520,8 @@ struct SharedPlanDetailView: View {
     private var actionsSection: some View {
         VStack(spacing: 12) {
             HStack(spacing: 12) {
-                Button(isSyncing ? "Syncing..." : "Sync my progress") {
-                    Task {
-                        isSyncing = true
-                        await syncProgress()
-                        isSyncing = false
-                    }
+                Button(syncButtonTitle) {
+                    Task { await syncProgress() }
                 }
                 .buttonStyle(SecondaryButtonStyle(fullWidth: true))
                 .disabled(isSyncing)
@@ -491,13 +535,15 @@ struct SharedPlanDetailView: View {
             Text("Each person keeps their own progress. Syncing shares your current day with people in this shared plan.")
                 .font(.caption)
                 .foregroundStyle(Color.mutedText)
+
+            syncStateFooter
         }
     }
 
     private func syncProgress() async {
         guard let enrollment = appModel.activePlanEnrollment, enrollment.planID == group.planID else { return }
         let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: CKCurrentUserDefaultName)
-        await planManager.syncMyProgress(
+        _ = await planManager.syncMyProgress(
             groupZoneID: zoneID,
             memberName: appModel.userDisplayName,
             currentDay: enrollment.currentDay,
@@ -505,6 +551,71 @@ struct SharedPlanDetailView: View {
             streak: appModel.currentStreak
         )
         await planManager.fetchGroups()
+    }
+
+    private var syncButtonTitle: String {
+        switch planManager.syncStateByGroupID[group.id] ?? .idle {
+        case .syncing:
+            return "Syncing..."
+        default:
+            return "Sync my progress"
+        }
+    }
+
+    private var isSyncing: Bool {
+        if case .syncing = planManager.syncStateByGroupID[group.id] ?? .idle {
+            return true
+        }
+        return false
+    }
+
+    @ViewBuilder
+    private var syncStateFooter: some View {
+        let state = planManager.syncStateByGroupID[group.id] ?? .idle
+        switch state {
+        case .idle:
+            if let date = latestSyncedAt {
+                Text("Last synced \(relativeDate(date)).")
+                    .font(.caption2)
+                    .foregroundStyle(Color.mutedText)
+            } else {
+                Text("Last synced: not yet.")
+                    .font(.caption2)
+                    .foregroundStyle(Color.mutedText)
+            }
+        case .syncing:
+            Label("Syncing in progress…", systemImage: "arrow.triangle.2.circlepath")
+                .font(.caption2)
+                .foregroundStyle(Color.mutedText)
+        case .success(let date):
+            Label("Sync complete \(relativeDate(date)).", systemImage: "checkmark.circle.fill")
+                .font(.caption2)
+                .foregroundStyle(Color.accentMoss)
+        case .failure(let message):
+            VStack(alignment: .leading, spacing: 4) {
+                Label(message, systemImage: "xmark.octagon.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.red)
+                Button("Retry sync") {
+                    Task { await syncProgress() }
+                }
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(Color.accentMoss)
+            }
+        }
+    }
+
+    private var latestSyncedAt: Date? {
+        if case .success(let date) = planManager.syncStateByGroupID[group.id] {
+            return date
+        }
+        return nil
+    }
+
+    private func relativeDate(_ date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: date, relativeTo: .now)
     }
 }
 

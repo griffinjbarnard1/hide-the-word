@@ -1342,14 +1342,14 @@ final class AppModel {
         // Auto-sync progress to shared plans
         if let enrollment = activePlanEnrollment {
             Task {
-                let manager = SharedPlanManager()
+                let manager = SharedPlanManager.shared
                 let groups = await {
                     await manager.fetchGroups()
                     return manager.groups
                 }()
                 for group in groups where group.planID == enrollment.planID {
                     let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: CKCurrentUserDefaultName)
-                    await manager.syncMyProgress(
+                    _ = await manager.syncMyProgress(
                         groupZoneID: zoneID,
                         memberName: userDisplayName,
                         currentDay: enrollment.currentDay,
@@ -1357,6 +1357,7 @@ final class AppModel {
                         streak: currentStreak
                     )
                 }
+                await manager.fetchGroups()
             }
         }
     }

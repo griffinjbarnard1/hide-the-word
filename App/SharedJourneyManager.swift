@@ -24,6 +24,23 @@ struct SharedPlanMember: Identifiable, Codable, Hashable, Sendable {
     var lastActiveAt: Date?
 }
 
+enum SharedPlanSyncFailureReason: Sendable, Equatable {
+    case cloudKitUnavailable(String)
+    case saveFailed(String)
+}
+
+enum SharedPlanSyncResult: Sendable, Equatable {
+    case success(syncedAt: Date)
+    case failure(SharedPlanSyncFailureReason)
+}
+
+enum SharedPlanSyncState: Sendable, Equatable {
+    case idle
+    case syncing
+    case success(Date)
+    case failure(String)
+}
+
 // MARK: - Manager
 
 @MainActor
@@ -35,8 +52,10 @@ final class SharedPlanManager {
     var groups: [SharedPlanGroup] = []
     var isLoading = false
     var lastError: String?
+    var syncStateByGroupID: [String: SharedPlanSyncState] = [:]
 
     static let containerID = "iCloud.com.griffinbarnard.ScriptureMemory"
+    static let shared = SharedPlanManager()
     private static let groupRecordType = "SharedPlan"
     private static let memberRecordType = "PlanMember"
 
@@ -138,37 +157,69 @@ final class SharedPlanManager {
         currentDay: Int,
         completedDays: Set<Int>,
         streak: Int
-    ) async {
+    ) async -> SharedPlanSyncResult {
+        // Conflict-safe merge rules (deterministic):
+        // 1) Member identity is the record name `member-<stableMemberID>`, never display name.
+        // 2) completedDays is treated as a set union across devices; never remove remote completions.
+        // 3) currentDay/streak/lastActiveAt are monotonic: keep the max value, and newest timestamp.
+        syncStateByGroupID[groupZoneID.zoneName] = .syncing
         let memberID = await stableMemberID()
         let recordID = CKRecord.ID(recordName: "member-\(memberID)", zoneID: groupZoneID)
 
         do {
             let record: CKRecord
+            let targetDatabase: CKDatabase
             do {
                 // Try shared DB first (for plans shared with us), then private
                 record = try await container.sharedCloudDatabase.record(for: recordID)
+                targetDatabase = container.sharedCloudDatabase
             } catch {
                 do {
                     record = try await privateDB.record(for: recordID)
+                    targetDatabase = privateDB
                 } catch {
                     record = CKRecord(recordType: Self.memberRecordType, recordID: recordID)
+                    do {
+                        _ = try await container.sharedCloudDatabase.allRecordZones()
+                        targetDatabase = container.sharedCloudDatabase
+                    } catch {
+                        targetDatabase = privateDB
+                    }
                 }
             }
 
             record["memberName"] = memberName
-            record["currentDay"] = currentDay
-            record["streak"] = streak
-            record["lastActiveAt"] = Date.now
+            let mergedCurrentDay = max(record["currentDay"] as? Int ?? 1, currentDay)
+            let mergedStreak = max(record["streak"] as? Int ?? 0, streak)
+            let now = Date.now
+            let mergedLastActive = max(record["lastActiveAt"] as? Date ?? .distantPast, now)
+
+            record["currentDay"] = mergedCurrentDay
+            record["streak"] = mergedStreak
+            record["lastActiveAt"] = mergedLastActive
 
             let encoder = JSONEncoder()
-            if let data = try? encoder.encode(Array(completedDays)),
+            var mergedCompletedDays = completedDays
+            let decoder = JSONDecoder()
+            if let existingJSON = record["completedDaysJSON"] as? String,
+               let existingData = existingJSON.data(using: .utf8),
+               let existingDays = try? decoder.decode([Int].self, from: existingData) {
+                mergedCompletedDays.formUnion(existingDays)
+            }
+            if let data = try? encoder.encode(Array(mergedCompletedDays).sorted()),
                let json = String(data: data, encoding: .utf8) {
                 record["completedDaysJSON"] = json
             }
 
-            try await privateDB.save(record)
+            try await targetDatabase.save(record)
+            syncStateByGroupID[groupZoneID.zoneName] = .success(now)
+            return .success(syncedAt: now)
         } catch {
-            lastError = error.localizedDescription
+            let reason: SharedPlanSyncFailureReason = .saveFailed(error.localizedDescription)
+            let message = error.localizedDescription
+            lastError = message
+            syncStateByGroupID[groupZoneID.zoneName] = .failure(message)
+            return .failure(reason)
         }
     }
 
@@ -206,6 +257,10 @@ final class SharedPlanManager {
     }
 
     private func fetchGroup(in zoneID: CKRecordZone.ID, database: CKDatabase) async -> SharedPlanGroup? {
+        // Conflict-safe merge rules (deterministic):
+        // - Member rows are keyed by CloudKit record ID and sorted by currentDay descending.
+        // - completedDaysJSON is decoded into a Set to remove duplicates from out-of-order writes.
+        // - Missing/corrupt fields fall back to stable defaults so rendering is deterministic.
         let planRecordID = CKRecord.ID(recordName: "plan", zoneID: zoneID)
         guard let planRecord = try? await database.record(for: planRecordID) else { return nil }
 
