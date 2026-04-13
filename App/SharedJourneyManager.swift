@@ -114,6 +114,17 @@ final class SharedPlanManager {
     /// Extension points for global social features:
     /// - Keep plan progress in `PlanMembership` records for deterministic plan sync semantics.
     /// - Introduce global friend state using `Connection` records/services, then join that data in UI.
+
+    enum IdentityStatus: String, Sendable {
+        case available
+        case unavailable
+        case restricted
+    }
+
+    struct IdentitySnapshot: Sendable {
+        let status: IdentityStatus
+        let resolvedIdentity: String?
+    }
     private let container: CKContainer
     private let privateDB: CKDatabase
 
@@ -139,6 +150,44 @@ final class SharedPlanManager {
     init() {
         container = CKContainer(identifier: Self.containerID)
         privateDB = container.privateCloudDatabase
+    }
+
+    // MARK: - Identity
+
+    func identitySnapshot() async -> IdentitySnapshot {
+        let status = await identityStatus()
+        guard status == .available else {
+            return IdentitySnapshot(status: status, resolvedIdentity: nil)
+        }
+
+        do {
+            let recordID = try await container.userRecordID()
+            return IdentitySnapshot(status: status, resolvedIdentity: recordID.recordName)
+        } catch {
+            return IdentitySnapshot(status: status, resolvedIdentity: nil)
+        }
+    }
+
+    func identityStatus() async -> IdentityStatus {
+        do {
+            let accountStatus = try await container.accountStatus()
+            switch accountStatus {
+            case .available:
+                return .available
+            case .restricted:
+                return .restricted
+            case .noAccount, .temporarilyUnavailable, .couldNotDetermine:
+                return .unavailable
+            @unknown default:
+                return .unavailable
+            }
+        } catch {
+            return .unavailable
+        }
+    }
+
+    func resolvedCloudKitIdentity() async -> String? {
+        await identitySnapshot().resolvedIdentity
     }
 
     // MARK: - Stable Member ID
