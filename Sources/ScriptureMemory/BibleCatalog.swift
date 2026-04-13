@@ -338,7 +338,7 @@ struct BibleStore: Decodable {
     }
 }
 
-private struct VerseLookup: Hashable {
+struct VerseLookup: Hashable {
     let bookID: String
     let chapter: Int
     let verse: Int

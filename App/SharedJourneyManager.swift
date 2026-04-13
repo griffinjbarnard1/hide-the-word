@@ -1,5 +1,6 @@
 import CloudKit
 import Foundation
+import OSLog
 import ScriptureMemory
 
 // MARK: - Models
@@ -137,6 +138,8 @@ final class SharedPlanManager {
         let status: IdentityStatus
         let resolvedIdentity: String?
     }
+    private static let logger = Logger(subsystem: "com.griffinbarnard.ScriptureMemory", category: "SharedPlan")
+
     private let container: CKContainer
     private let privateDB: CKDatabase
 
@@ -369,9 +372,12 @@ final class SharedPlanManager {
             let decoder = JSONDecoder()
             var existingCompletedDays: Set<Int> = []
             if let existingJSON = record["completedDaysJSON"] as? String,
-               let existingData = existingJSON.data(using: .utf8),
-               let existingDays = try? decoder.decode([Int].self, from: existingData) {
-                existingCompletedDays = Set(existingDays)
+               let existingData = existingJSON.data(using: .utf8) {
+                do {
+                    existingCompletedDays = Set(try decoder.decode([Int].self, from: existingData))
+                } catch {
+                    Self.logger.error("Corrupt completedDaysJSON during sync in zone \(groupZoneID.zoneName): \(error.localizedDescription, privacy: .public)")
+                }
             }
 
             let merged = Self.mergeProgress(
@@ -522,7 +528,9 @@ final class SharedPlanManager {
                 else { continue }
                 profilesByMemberID[memberID] = profile
             }
-        } catch {}
+        } catch {
+            Self.logger.error("Failed to fetch profiles in zone \(zoneID.zoneName): \(error.localizedDescription, privacy: .public)")
+        }
 
         do {
             let (results, _) = try await database.records(matching: query, inZoneWith: zoneID)
@@ -537,9 +545,12 @@ final class SharedPlanManager {
 
                 var completedDays: Set<Int> = []
                 if let json = record["completedDaysJSON"] as? String,
-                   let data = json.data(using: .utf8),
-                   let days = try? decoder.decode([Int].self, from: data) {
-                    completedDays = Set(days)
+                   let data = json.data(using: .utf8) {
+                    do {
+                        completedDays = Set(try decoder.decode([Int].self, from: data))
+                    } catch {
+                        Self.logger.error("Corrupt completedDaysJSON for member in zone \(zoneID.zoneName): \(error.localizedDescription, privacy: .public)")
+                    }
                 }
 
                 members.append(PlanMembership(

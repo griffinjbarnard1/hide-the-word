@@ -207,7 +207,11 @@ final class ReviewProgressStore {
             context.insert(target)
         }
 
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            Self.logger.error("Failed to save verse progress: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     func loadSelectedCollectionID(default defaultValue: UUID) -> UUID {
@@ -379,7 +383,11 @@ final class ReviewProgressStore {
             context.insert(StoredCustomVerseSelection(verseID: verseID))
         }
 
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            Self.logger.error("Failed to save custom verse IDs: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     func loadReviewEvents(limit: Int? = nil) -> [ReviewEvent] {
@@ -419,7 +427,11 @@ final class ReviewProgressStore {
         )
         context.insert(record)
         trimReviewEventsIfNeeded(maxEvents: 250)
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            Self.logger.error("Failed to save review event: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     func loadCodableValue<T: Decodable>(forKey key: String) -> T? {
@@ -460,7 +472,11 @@ final class ReviewProgressStore {
 
         if let record = try? context.fetch(descriptor).first {
             context.delete(record)
-            try? context.save()
+            do {
+                try context.save()
+            } catch {
+                Self.logger.error("Failed to remove preference '\(key)': \(error.localizedDescription, privacy: .public)")
+            }
         }
     }
 
@@ -478,7 +494,11 @@ final class ReviewProgressStore {
             context.insert(target)
         }
 
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            Self.logger.error("Failed to save preference '\(key)': \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     private func trimReviewEventsIfNeeded(maxEvents: Int) {

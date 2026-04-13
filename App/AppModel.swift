@@ -56,6 +56,8 @@ final class AppModel {
     private var esvVerseCountByReference: [String: Int]
     private var esvReferenceOrder: [String]
     private var esvInFlightReferences: Set<String>
+    private var cachedActiveVerses: [ScriptureVerse]?
+    private var cachedActiveVersesKey: UUID?
 
     init(
         progressStore: ReviewProgressStore,
@@ -169,6 +171,10 @@ final class AppModel {
     }
 
     var activeVerses: [ScriptureVerse] {
+        if let cached = cachedActiveVerses, cachedActiveVersesKey == selectedCollectionID {
+            return cached
+        }
+
         var resolvedVerses: [UUID: ScriptureVerse] = [:]
         for unit in activeStudyUnits {
             for verseID in unit.verseIDs {
@@ -178,7 +184,10 @@ final class AppModel {
             }
         }
 
-        return resolvedVerses.values.sorted(by: BuiltInContent.sortVerses)
+        let result = resolvedVerses.values.sorted(by: BuiltInContent.sortVerses)
+        cachedActiveVerses = result
+        cachedActiveVersesKey = selectedCollectionID
+        return result
     }
 
     var hasDraftSession: Bool {
@@ -1703,6 +1712,7 @@ final class AppModel {
     }
 
     private func persistCustomStudyUnits() {
+        cachedActiveVerses = nil
         progressStore.saveCustomStudyUnits(customStudyUnits)
         progressStore.saveCustomVerseIDs(Set(customStudyUnits.compactMap { unit in
             unit.kind == .singleVerse ? unit.verseIDs.first : nil

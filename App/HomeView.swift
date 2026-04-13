@@ -583,18 +583,18 @@ struct HomeView: View {
 
 #Preview("Home · XXXL") {
     HomeView()
-        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .environment(AppModel(progressStore: try! ReviewProgressStore(inMemory: true)))
         .dynamicTypeSize(.xxxLarge)
 }
 
 #Preview("Home · AX Medium") {
     HomeView()
-        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .environment(AppModel(progressStore: try! ReviewProgressStore(inMemory: true)))
         .dynamicTypeSize(.accessibility2)
 }
 
 #Preview("Home · AX XL") {
     HomeView()
-        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .environment(AppModel(progressStore: try! ReviewProgressStore(inMemory: true)))
         .dynamicTypeSize(.accessibility3)
 }

@@ -509,18 +509,18 @@ private struct DetailLine: View {
 
 #Preview("Journey · XXXL") {
     JourneyView()
-        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .environment(AppModel(progressStore: try! ReviewProgressStore(inMemory: true)))
         .dynamicTypeSize(.xxxLarge)
 }
 
 #Preview("Journey · AX Medium") {
     JourneyView()
-        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .environment(AppModel(progressStore: try! ReviewProgressStore(inMemory: true)))
         .dynamicTypeSize(.accessibility2)
 }
 
 #Preview("Journey · AX XL") {
     JourneyView()
-        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .environment(AppModel(progressStore: try! ReviewProgressStore(inMemory: true)))
         .dynamicTypeSize(.accessibility3)
 }

@@ -456,8 +456,10 @@ public enum PlanDayGenerator {
             let title: String
             if chunk.count == 1 {
                 title = chunk[0].displayReference
+            } else if let first = chunk.first, let last = chunk.last {
+                title = "\(first.displayReference)-\(last.verse)"
             } else {
-                title = "\(chunk.first!.displayReference)-\(chunk.last!.verse)"
+                continue
             }
 
             days.append(PlanDay(

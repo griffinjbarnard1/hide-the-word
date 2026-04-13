@@ -288,18 +288,18 @@ struct OnboardingView: View {
 
 #Preview("Onboarding · XXXL") {
     OnboardingView()
-        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .environment(AppModel(progressStore: try! ReviewProgressStore(inMemory: true)))
         .dynamicTypeSize(.xxxLarge)
 }
 
 #Preview("Onboarding · AX Medium") {
     OnboardingView()
-        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .environment(AppModel(progressStore: try! ReviewProgressStore(inMemory: true)))
         .dynamicTypeSize(.accessibility2)
 }
 
 #Preview("Onboarding · AX XL") {
     OnboardingView()
-        .environment(AppModel(progressStore: ReviewProgressStore(inMemory: true)))
+        .environment(AppModel(progressStore: try! ReviewProgressStore(inMemory: true)))
         .dynamicTypeSize(.accessibility3)
 }
