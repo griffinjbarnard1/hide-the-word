@@ -5,6 +5,8 @@ struct WidgetEntry: TimelineEntry {
     let date: Date
     let dueCount: Int
     let nextReference: String?
+    let nextPreviewMasked: String?
+    let nextPreviewBlotted: String?
     let collectionName: String
     let fallbackRoute: String
 
@@ -22,6 +24,8 @@ struct Provider: TimelineProvider {
             date: .now,
             dueCount: 3,
             nextReference: "Romans 8:28",
+            nextPreviewMasked: "And we know that ____ things ____ together for ____ to those who ____ God…",
+            nextPreviewBlotted: "████ ████ ████ ████ ████ ████ ████ ████",
             collectionName: "Anxiety & Peace",
             fallbackRoute: "library"
         )
@@ -41,12 +45,16 @@ struct Provider: TimelineProvider {
         let defaults = UserDefaults(suiteName: Self.appGroupID)
         let dueCount = defaults?.integer(forKey: "widget_due_count") ?? 0
         let nextRef = defaults?.string(forKey: "widget_next_reference")
+        let nextPreviewMasked = defaults?.string(forKey: "widget_next_preview_masked")
+        let nextPreviewBlotted = defaults?.string(forKey: "widget_next_preview_blotted")
         let collection = defaults?.string(forKey: "widget_collection_name") ?? String(localized: "widget.collection.default", defaultValue: "Hide the Word", table: "Localizable")
         let fallbackRoute = defaults?.string(forKey: "widget_fallback_route") ?? "library"
         return WidgetEntry(
             date: .now,
             dueCount: dueCount,
             nextReference: nextRef,
+            nextPreviewMasked: nextPreviewMasked,
+            nextPreviewBlotted: nextPreviewBlotted,
             collectionName: collection,
             fallbackRoute: fallbackRoute
         )
@@ -120,6 +128,12 @@ struct MediumWidgetView: View {
                     Text(nextRef)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Color(red: 0.12, green: 0.11, blue: 0.09))
+                    if let preview = entry.nextPreviewMasked {
+                        Text(preview)
+                            .font(.caption2)
+                            .foregroundStyle(Color(red: 0.54, green: 0.51, blue: 0.47))
+                            .lineLimit(3)
+                    }
                 } else {
                     Text(String(localized: "widget.all_caught_up", defaultValue: "All caught up", table: "Localizable"))
                         .font(.subheadline.weight(.medium))
@@ -174,6 +188,13 @@ struct LargeWidgetView: View {
                         .font(.title3.weight(.semibold))
                         .foregroundStyle(Color(red: 0.12, green: 0.11, blue: 0.09))
                         .lineLimit(2)
+                    if let preview = entry.nextPreviewBlotted ?? entry.nextPreviewMasked {
+                        Text(preview)
+                            .font(.caption)
+                            .foregroundStyle(Color(red: 0.54, green: 0.51, blue: 0.47))
+                            .lineLimit(4)
+                            .padding(.top, 2)
+                    }
                 } else {
                     Text(String(localized: "widget.all_caught_up", defaultValue: "All caught up", table: "Localizable"))
                         .font(.title3.weight(.medium))

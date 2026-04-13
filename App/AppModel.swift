@@ -1274,13 +1274,17 @@ final class AppModel {
     }
 
     private func updateWidgetData() {
-        let nextRef = activeStudyUnits
-            .compactMap { unit -> (String, Date)? in
+        let nextDueUnit = activeStudyUnits
+            .compactMap { unit -> (StudyUnit, Date)? in
                 guard let next = progressByVerseID[unit.id]?.nextReviewAt else { return nil }
-                return (unit.reference, next)
+                return (unit, next)
             }
             .sorted { $0.1 < $1.1 }
             .first?.0
+        let nextRef = nextDueUnit?.reference
+        let nextText = nextDueUnit?.text(in: preferredTranslation)
+        let nextPreviewMasked = nextText.map(Self.maskedWidgetPreview(from:))
+        let nextPreviewBlotted = nextText.map(Self.blottedWidgetPreview(from:))
         let fallbackRoute: AppRoute? = if dueReviewCount == 0 {
             activePlanEnrollment == nil ? .library : .journey
         } else {
@@ -1289,9 +1293,28 @@ final class AppModel {
         WidgetData.write(
             dueCount: dueReviewCount,
             nextReference: nextRef,
+            nextPreviewMasked: nextPreviewMasked,
+            nextPreviewBlotted: nextPreviewBlotted,
             collectionName: selectedCollection.title,
             fallbackRoute: fallbackRoute
         )
+    }
+
+    private static func maskedWidgetPreview(from text: String) -> String {
+        let words = text.split(separator: " ").map(String.init)
+        guard !words.isEmpty else { return text }
+        return words.prefix(18).enumerated().map { offset, word in
+            let cleaned = word.trimmingCharacters(in: CharacterSet.punctuationCharacters.union(.symbols))
+            guard cleaned.count >= 3, !offset.isMultiple(of: 3) else { return word }
+            let placeholder = String(repeating: "_", count: max(cleaned.count, 4))
+            return word.replacingOccurrences(of: cleaned, with: placeholder)
+        }.joined(separator: " ")
+    }
+
+    private static func blottedWidgetPreview(from text: String) -> String {
+        let words = text.split(separator: " ").map(String.init)
+        guard !words.isEmpty else { return text }
+        return words.prefix(18).map { _ in "████" }.joined(separator: " ")
     }
 
     func exportDataURL() -> URL? {

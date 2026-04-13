@@ -18,6 +18,8 @@ struct WidgetDataWriterTests {
         WidgetData.write(
             dueCount: 6,
             nextReference: "John 3:16",
+            nextPreviewMasked: "For God so ____ the world",
+            nextPreviewBlotted: "████ ████ ████ ████",
             collectionName: "Daily Verses",
             fallbackRoute: .plans,
             defaults: defaults,
@@ -27,6 +29,8 @@ struct WidgetDataWriterTests {
 
         #expect(defaults.integer(forKey: WidgetData.Keys.dueCount) == 6)
         #expect(defaults.string(forKey: WidgetData.Keys.nextReference) == "John 3:16")
+        #expect(defaults.string(forKey: WidgetData.Keys.nextPreviewMasked) == "For God so ____ the world")
+        #expect(defaults.string(forKey: WidgetData.Keys.nextPreviewBlotted) == "████ ████ ████ ████")
         #expect(defaults.string(forKey: WidgetData.Keys.collectionName) == "Daily Verses")
         #expect(defaults.string(forKey: WidgetData.Keys.fallbackRoute) == AppRoute.plans.rawValue)
         #expect(defaults.double(forKey: WidgetData.Keys.updatedAt) == timestamp.timeIntervalSince1970)
