@@ -108,6 +108,20 @@ final class SocialService: SocialServicing {
         return didSave
     }
 
+    func stableMemberID() async -> String {
+        await manager.stableMemberID()
+    }
+
+    func isOwner(of group: SharedPlanGroup, currentMemberID: String?, currentDisplayName: String) -> Bool {
+        manager.isOwner(of: group, currentMemberID: currentMemberID, currentDisplayName: currentDisplayName)
+    }
+
+    func leaveGroup(_ group: SharedPlanGroup, currentDisplayName: String) async -> SharedPlanManager.ActionFeedback {
+        let feedback = await manager.leaveGroup(group, currentDisplayName: currentDisplayName)
+        refreshSnapshot()
+        return feedback
+    }
+
     private func refreshSnapshot() {
         groups = manager.groups
         isLoading = manager.isLoading
