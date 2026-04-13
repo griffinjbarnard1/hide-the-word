@@ -67,7 +67,7 @@ struct TogetherView: View {
                 }
             }
 
-            Text("Share a plan with people in this shared plan. Same plan, your own pace, mutual encouragement.")
+            Text("Share a plan with shared plan members. You collaborate per plan; there is no global friend list yet.")
                 .font(.body)
                 .foregroundStyle(Color.mutedText)
         }
@@ -85,7 +85,7 @@ struct TogetherView: View {
                 .font(.headline)
                 .foregroundStyle(Color.primaryText)
 
-            Text("Start a plan and invite people to this plan. Everyone works at their own pace, and progress is visible only inside this shared plan.")
+            Text("Start a plan and invite people in this plan. You collaborate per plan; there is no global friend list yet. Everyone works at their own pace, and progress is visible only to shared plan members.")
                 .font(.subheadline)
                 .foregroundStyle(Color.mutedText)
 
@@ -531,6 +531,11 @@ struct SharedPlanDetailView: View {
                 }
                 .buttonStyle(FilledSoftButtonStyle())
             }
+
+            Label("Shared plan members only: membership and progress visibility are scoped to this plan.", systemImage: "person.3.sequence.fill")
+                .font(.caption)
+                .foregroundStyle(Color.mutedText)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             Text("Each person keeps their own progress. Syncing shares your current day with people in this shared plan.")
                 .font(.caption)
