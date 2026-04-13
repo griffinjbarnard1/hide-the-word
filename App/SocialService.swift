@@ -122,6 +122,14 @@ final class SocialService: SocialServicing {
         return feedback
     }
 
+    func identitySnapshot() async -> SharedPlanManager.IdentitySnapshot {
+        await manager.identitySnapshot()
+    }
+
+    func identityStatus() async -> SharedPlanManager.IdentityStatus {
+        await manager.identityStatus()
+    }
+
     private func refreshSnapshot() {
         groups = manager.groups
         isLoading = manager.isLoading

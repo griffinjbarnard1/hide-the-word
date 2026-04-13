@@ -20,6 +20,8 @@ struct TogetherView: View {
     @State private var currentMemberID: String?
     @State private var pendingLeaveGroup: SharedPlanGroup?
     @State private var actionMessage: String?
+    @State private var identityStatus: SharedPlanManager.IdentityStatus = .unavailable
+    @State private var cloudActionError: String?
 
     var body: some View {
         ScrollView {
@@ -45,7 +47,7 @@ struct TogetherView: View {
                     peopleTab
                 }
 
-                if let error = socialService.lastError {
+                if let error = presentableError {
                     Text(error)
                         .font(.caption)
                         .foregroundStyle(.red)
@@ -55,11 +57,15 @@ struct TogetherView: View {
             .padding(24)
         }
         .background(Color.screenBackground.ignoresSafeArea())
-        .task { await socialService.fetchGroups() }
         .task {
+            await refreshIdentity()
+            await socialService.fetchGroups()
             currentMemberID = await socialService.stableMemberID()
         }
-        .refreshable { await socialService.fetchGroups() }
+        .refreshable {
+            await refreshIdentity()
+            await socialService.fetchGroups()
+        }
         .sheet(item: $selectedGroup) { group in
             NavigationStack {
                 SharedPlanDetailView(group: group, socialService: socialService)
@@ -228,7 +234,10 @@ struct TogetherView: View {
                 Spacer()
                 if isOwner(group) {
                     Button {
-                        sharingGroup = group
+                        Task {
+                            guard await checkIdentityForCloudAction("send invite") else { return }
+                            sharingGroup = group
+                        }
                     } label: {
                         Image(systemName: "person.badge.plus")
                             .foregroundStyle(Color.accentMoss)
@@ -361,6 +370,7 @@ struct TogetherView: View {
     // MARK: - Actions
 
     private func shareActivePlan() async {
+        guard await checkIdentityForCloudAction("share this plan") else { return }
         guard let plan = appModel.activePlan else { return }
         let share = await socialService.createSharedPlan(
             planID: plan.id,
@@ -373,10 +383,12 @@ struct TogetherView: View {
         )
         if share != nil, let group = socialService.groups.first {
             sharingGroup = group
+            cloudActionError = nil
         }
     }
 
     private func syncProgress(for group: SharedPlanGroup) async {
+        guard await checkIdentityForCloudAction("sync progress") else { return }
         // If not enrolled, enroll first
         if appModel.activePlanEnrollment?.planID != group.planID {
             if let plan = BuiltInPlans.plan(withID: group.planID) ?? appModel.customPlans.first(where: { $0.id == group.planID }) {
@@ -395,10 +407,59 @@ struct TogetherView: View {
             streak: appModel.currentStreak
         )
         await socialService.fetchGroups()
+        cloudActionError = nil
     }
 
     private func isOwner(_ group: SharedPlanGroup) -> Bool {
         socialService.isOwner(of: group, currentMemberID: currentMemberID, currentDisplayName: appModel.userDisplayName)
+    }
+
+    private var presentableError: String? {
+        if let cloudActionError {
+            return cloudActionError
+        }
+
+        if let error = socialService.lastError {
+            if errorIndicatesIdentityIssue(error) {
+                return iCloudUnavailableMessage
+            }
+            return error
+        }
+        return nil
+    }
+
+    private var iCloudUnavailableMessage: String {
+        switch identityStatus {
+        case .available:
+            return "iCloud is required for invites and sync. Please try again."
+        case .unavailable:
+            return "iCloud is unavailable. Sign in to iCloud in Settings to invite friends and sync shared plans."
+        case .restricted:
+            return "iCloud access is restricted on this device. Invites and sync are unavailable until iCloud is enabled."
+        }
+    }
+
+    private func checkIdentityForCloudAction(_ action: String) async -> Bool {
+        await refreshIdentity()
+        guard identityStatus == .available else {
+            cloudActionError = "Can't \(action) right now. \(iCloudUnavailableMessage)"
+            return false
+        }
+        cloudActionError = nil
+        return true
+    }
+
+    private func refreshIdentity() async {
+        identityStatus = await socialService.identityStatus()
+    }
+
+    private func errorIndicatesIdentityIssue(_ message: String) -> Bool {
+        let lowercased = message.lowercased()
+        return lowercased.contains("not authenticated")
+            || lowercased.contains("icloud")
+            || lowercased.contains("no account")
+            || lowercased.contains("permission")
+            || lowercased.contains("restricted")
     }
 
     private func relativeDate(_ date: Date) -> String {
@@ -467,6 +528,8 @@ struct SharedPlanDetailView: View {
     @State private var showLeaveConfirm = false
     @State private var showArchiveConfirm = false
     @State private var actionMessage: String?
+    @State private var identityStatus: SharedPlanManager.IdentityStatus = .unavailable
+    @State private var cloudActionError: String?
 
     var body: some View {
         ScrollView {
@@ -524,6 +587,9 @@ struct SharedPlanDetailView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(actionMessage ?? "")
+        }
+        .task {
+            identityStatus = await planManager.identityStatus()
         }
     }
 
@@ -697,7 +763,15 @@ struct SharedPlanDetailView: View {
 
                 if isOwner {
                     Button("Manage members") {
-                        sharingGroup = group
+                        Task {
+                            await refreshIdentity()
+                            guard identityStatus == .available else {
+                                cloudActionError = "Can't send invite right now. \(unavailableMessage)"
+                                return
+                            }
+                            sharingGroup = group
+                            cloudActionError = nil
+                        }
                     }
                     .buttonStyle(FilledSoftButtonStyle())
                 }
@@ -731,10 +805,21 @@ struct SharedPlanDetailView: View {
                 .foregroundStyle(Color.mutedText)
 
             syncStateFooter
+
+            if let cloudActionError {
+                Text(cloudActionError)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+            }
         }
     }
 
     private func syncProgress() async {
+        await refreshIdentity()
+        guard identityStatus == .available else {
+            cloudActionError = "Can't sync progress right now. \(unavailableMessage)"
+            return
+        }
         guard let enrollment = appModel.activePlanEnrollment, enrollment.planID == group.planID else { return }
         let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: group.zoneOwnerName)
         _ = await socialService.syncMyProgress(
@@ -745,6 +830,7 @@ struct SharedPlanDetailView: View {
             streak: appModel.currentStreak
         )
         await socialService.fetchGroups()
+        cloudActionError = nil
     }
 
     private var syncButtonTitle: String {
@@ -814,6 +900,21 @@ struct SharedPlanDetailView: View {
 
     private var isOwner: Bool {
         socialService.isOwner(of: group, currentMemberID: currentMemberID, currentDisplayName: appModel.userDisplayName)
+    }
+
+    private var unavailableMessage: String {
+        switch identityStatus {
+        case .available:
+            return "iCloud is required for shared plan sync."
+        case .unavailable:
+            return "Sign in to iCloud to use invite and sync for shared plans."
+        case .restricted:
+            return "iCloud access is restricted on this device, so invite and sync are unavailable."
+        }
+    }
+
+    private func refreshIdentity() async {
+        identityStatus = await socialService.identityStatus()
     }
 }
 
