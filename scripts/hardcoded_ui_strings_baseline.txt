@@ -1,0 +1,254 @@
+App/CreatePlanView.swift:109:Text("\(chapter)")
+App/CreatePlanView.swift:134:Text("\(verse)")
+App/CreatePlanView.swift:147:Button("Select all") {
+App/CreatePlanView.swift:157:Button("Clear chapter") {
+App/CreatePlanView.swift:171:Text("Selected")
+App/CreatePlanView.swift:207:Text("Day Breakdown")
+App/CreatePlanView.swift:211:Text("\(generatedDays.count) days")
+App/CreatePlanView.swift:216:Text("Auto-generated: ~2 verses per day with review days every 3rd day and a full recall day at the end.")
+App/CreatePlanView.swift:226:Text("\(day.dayNumber)")
+App/CreatePlanView.swift:33:Button("Cancel") { dismiss() }
+App/CreatePlanView.swift:36:Button("Save") { savePlan() }
+App/CreatePlanView.swift:50:Text("Plan Details")
+App/CreatePlanView.swift:72:Text("Add Verses")
+App/HomeView.swift:189:Text("Plan complete! Your verses stay in daily review. Start another plan or keep reviewing at your own pace.")
+App/HomeView.swift:196:Button("Browse plans") {
+App/HomeView.swift:201:Button("Leave plan") {
+App/HomeView.swift:208:Button("View plan") {
+App/HomeView.swift:307:Text("Mastery")
+App/HomeView.swift:315:Label("Share week", systemImage: "square.and.arrow.up")
+App/HomeView.swift:328:Text("\(count)")
+App/HomeView.swift:345:Text("\(appModel.currentStreak)-day streak")
+App/HomeView.swift:383:Label("Practice now", systemImage: "arrow.trianglehead.2.counterclockwise")
+App/JourneyView.swift:100:Text("Your rhythm")
+App/JourneyView.swift:103:Text("The last 30 days")
+App/JourneyView.swift:115:Text("\(activeCount) of 30 days active")
+App/JourneyView.swift:124:Text("Recent activity")
+App/JourneyView.swift:152:Text("Held longest")
+App/JourneyView.swift:163:Text("Gentle return")
+App/JourneyView.swift:166:Text("These are started units you have not seen in a bit. They may be worth touching again soon.")
+App/JourneyView.swift:178:Text("Practice shelf")
+App/JourneyView.swift:181:Text("These units are kept close without affecting the daily queue.")
+App/JourneyView.swift:287:Label("Practice now", systemImage: "arrow.trianglehead.2.counterclockwise")
+App/JourneyView.swift:293:Label("View progress", systemImage: "chart.bar")
+App/JourneyView.swift:373:Label("Share verse card", systemImage: "square.and.arrow.up")
+App/JourneyView.swift:380:Text("Progress")
+App/JourneyView.swift:394:Text("Recent passes")
+App/JourneyView.swift:412:Text("Placement")
+App/JourneyView.swift:416:Button("Practice full section plan") {
+App/JourneyView.swift:422:ShareLink(item: shareURL, message: Text("Memorize \(unit.title) with me in Hide the Word")) {
+App/JourneyView.swift:423:Label("Share this plan", systemImage: "person.2")
+App/JourneyView.swift:430:Button("Move to practice only") {
+App/JourneyView.swift:435:Button("Move to daily queue") {
+App/JourneyView.swift:442:Button("Practice this now") {
+App/JourneyView.swift:447:Button("Practice this now") {
+App/JourneyView.swift:455:Button("Practice this now") {
+App/JourneyView.swift:55:Text("See what has stayed with you, what you have touched recently, and what may need a gentle return.")
+App/OnboardingView.swift:112:Text("The app brings verses back at the right time based on your ratings. No penalties for missing a day.")
+App/OnboardingView.swift:119:Button("Next") {
+App/OnboardingView.swift:130:Text("Pick a plan\nto begin")
+App/OnboardingView.swift:138:Text("Follow a structured plan or study at your own pace. You can change this anytime.")
+App/OnboardingView.swift:144:Text("Popular Plans")
+App/OnboardingView.swift:163:Text("\(plan.duration) days • \(plan.totalVerseCount) verses")
+App/OnboardingView.swift:184:Text("Explore on my own")
+App/OnboardingView.swift:190:Button("Browse all plans") {
+App/OnboardingView.swift:215:Text("Stay in rhythm")
+App/OnboardingView.swift:222:Text("A gentle daily reminder helps you build a lasting habit. You can change the time or turn it off in Settings.")
+App/OnboardingView.swift:228:Button("Turn on reminders") {
+App/OnboardingView.swift:239:Button("Not now") {
+App/OnboardingView.swift:256:Button("Let's go") {
+App/OnboardingView.swift:37:Label("Back", systemImage: "chevron.left")
+App/OnboardingView.swift:47:Button("Skip") {
+App/OnboardingView.swift:66:Text("Hide the Word\nin your heart.")
+App/OnboardingView.swift:73:Text("A calm daily system for retaining Scripture through recall, review, and return.")
+App/OnboardingView.swift:80:Button("Next") {
+App/OnboardingView.swift:92:Text("How it works")
+App/PeopleView.swift:104:Text("Last active")
+App/PeopleView.swift:62:Text("No people yet")
+App/PeopleView.swift:66:Text("People appear when you share a plan.")
+App/PeopleView.swift:86:Label("\(person.highestStreak)", systemImage: "flame.fill")
+App/PeopleView.swift:95:Text("Most progress")
+App/PeopleView.swift:98:Text("Day \(person.mostAdvancedDay)")
+App/PlanLibraryView.swift:138:Text("Active Plan")
+App/PlanLibraryView.swift:157:Text("Plan completed. Keep the passage in review or move on to another plan.")
+App/PlanLibraryView.swift:165:Text("\(enrollment.completedDays.count) of \(plan.duration) days completed")
+App/PlanLibraryView.swift:171:Button("Leave plan") {
+App/PlanLibraryView.swift:176:Button("Start another") {
+App/PlanLibraryView.swift:200:Text("\(plan.duration) days • \(plan.totalVerseCount) verses")
+App/PlanLibraryView.swift:253:Button("Leave this plan") {
+App/PlanLibraryView.swift:258:Button("Start this plan") {
+App/PlanLibraryView.swift:273:Label("Share this plan", systemImage: "person.2")
+App/PlanLibraryView.swift:280:Text("Day-by-day breakdown")
+App/PlanLibraryView.swift:295:Button("Done") { dismiss() }
+App/PlanLibraryView.swift:298:.confirmationDialog("Leave this plan?", isPresented: $showLeavePlanConfirmation, titleVisibility: .visible) {
+App/PlanLibraryView.swift:299:Button("Leave plan", role: .destructive) {
+App/PlanLibraryView.swift:303:Button("Cancel", role: .cancel) {}
+App/PlanLibraryView.swift:305:Text("Leaving stops day tracking for this plan, but verses you've added stay in My Verses and keep their progress.")
+App/PlanLibraryView.swift:325:Text("\(day.dayNumber)")
+App/PlanLibraryView.swift:35:Text("Custom")
+App/PlanLibraryView.swift:61:Button("Done") { dismiss() }
+App/PlanLibraryView.swift:74:.confirmationDialog("Leave this plan?", isPresented: $showLeavePlanConfirmation, titleVisibility: .visible) {
+App/PlanLibraryView.swift:75:Button("Leave plan", role: .destructive) { appModel.leavePlan() }
+App/PlanLibraryView.swift:76:Button("Cancel", role: .cancel) {}
+App/PlanLibraryView.swift:78:Text("Leaving stops day tracking for this plan, but verses you've added stay in My Verses and keep their progress.")
+App/PlanLibraryView.swift:84:Text("Free Study")
+App/PlanLibraryView.swift:88:Text("Study at your own pace with spaced repetition. Pick a collection and the app handles scheduling.")
+App/PlanShareCard.swift:19:Text("Hide the Word")
+App/PlanShareCard.swift:56:Text("+\(plan.days.count - 20)")
+App/PublicProfileEditorView.swift:132:Text("\(count)/\(max)")
+App/PublicProfileEditorView.swift:46:Text("Visible to collaborators in your shared plans.")
+App/PublicProfileEditorView.swift:55:Button("Cancel") { dismiss() }
+App/RootView.swift:19:Label("Home", systemImage: "house")
+App/RootView.swift:29:Label("Journey", systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+App/RootView.swift:39:Label("Together", systemImage: "person.2")
+App/RootView.swift:50:Label("Library", systemImage: "books.vertical")
+App/ScriptureMemoryApp.swift:83:Text("Unable to Start Scripture Memory")
+App/ScriptureMemoryApp.swift:87:Text("A required local resource failed to load.")
+App/ScriptureMemoryApp.swift:96:Text("Please reinstall the app or contact support if this persists.")
+App/SessionFlowView.swift:72:Text("My Verses is empty")
+App/SessionFlowView.swift:74:Text("Add a few verses from the library before starting a custom memorization session.")
+App/SessionFlowView.swift:78:Button("Open Bible Library") {
+App/SessionFlowView.swift:83:Button("Back to home", action: appModel.leaveSession)
+App/SessionViews.swift:109:Text("\(section.title) • \(section.reference)")
+App/SessionViews.swift:20:Button("Continue", action: continueTapped)
+App/SessionViews.swift:261:Text("Passage flow")
+App/SessionViews.swift:277:Text("\(section.title) • \(section.reference)")
+App/SessionViews.swift:459:Text("Type from memory here.")
+App/SessionViews.swift:485:Text("Answer")
+App/SessionViews.swift:543:Text("ESV text used by permission.")
+App/SessionViews.swift:568:Text("Session check-in")
+App/SessionViews.swift:575:Text("How did that feel?")
+App/SessionViews.swift:579:Text("A simple check-in helps the app bring this verse back at the right time.")
+App/SessionViews.swift:589:Button("Easy") { HapticManager.ratingSubmitted(); submit(.easy) }
+App/SessionViews.swift:595:Button("Medium") { HapticManager.ratingSubmitted(); submit(.medium) }
+App/SessionViews.swift:601:Button("Hard") { HapticManager.ratingSubmitted(); submit(.hard) }
+App/SessionViews.swift:610:Text("No penalties for missing a day.")
+App/SessionViews.swift:612:Text("Your review schedule adjusts naturally when you return.")
+App/SessionViews.swift:648:Text("Amen")
+App/SessionViews.swift:656:Text("You’re done for today.")
+App/SessionViews.swift:674:Text("\(streak)-day streak")
+App/SessionViews.swift:67:Label("Share", systemImage: "square.and.arrow.up")
+App/SessionViews.swift:721:Text("Tomorrow: day \(ctx.dayNumber + 1)")
+App/SessionViews.swift:732:Text("No penalties for missing a day. Your review schedule adjusts naturally when you return.")
+App/SessionViews.swift:738:Button("Done", action: done)
+App/SessionViews.swift:790:Button("Save and close", action: exitTapped)
+App/SessionViews.swift:799:Text("Your place is saved if you leave.")
+App/SessionViews.swift:94:Text("Move through it in sections")
+App/SettingsView.swift:14:Text("Settings")
+App/SettingsView.swift:150:Text("Recall screens switch from progressive masking to typed recall with light prompts.")
+App/SettingsView.swift:161:Text("Shown to people in shared plans.")
+App/SettingsView.swift:16:Text("Keep preferences simple and local. These choices shape what you see throughout the app.")
+App/SettingsView.swift:170:Text("Profile status: \(profileStatusText)")
+App/SettingsView.swift:178:Text("Connected account")
+App/SettingsView.swift:180:Text("iCloud: \(identityStatusLabel)")
+App/SettingsView.swift:191:Text("Hide the Word has no separate app login. Sharing and sync use your iCloud account.")
+App/SettingsView.swift:199:Label("Export all data", systemImage: "square.and.arrow.up")
+App/SettingsView.swift:201:Text("Exports your progress, custom verses, and preferences as a JSON file.")
+App/SettingsView.swift:211:Button("Done") {
+App/TogetherView.swift:1000:Button("Retry sync") {
+App/TogetherView.swift:103:Text("You'll stop seeing this plan and your progress updates will no longer sync to the group.")
+App/TogetherView.swift:1072:Text("Day \(member.currentDay) • \(member.streak)-day streak")
+App/TogetherView.swift:1085:Text("Favorite verse: \(verse)")
+App/TogetherView.swift:1097:Button("Done") { dismiss() }
+App/TogetherView.swift:109:Button("OK", role: .cancel) {}
+App/TogetherView.swift:120:Text("Together")
+App/TogetherView.swift:135:Text("Memorize together. Invite others to a plan and track each other's progress.")
+App/TogetherView.swift:145:Button("Edit my profile") {
+App/TogetherView.swift:150:Text("People appear from shared plans you are part of. There is no global friend list yet.")
+App/TogetherView.swift:156:Text("No people yet — share a plan to start memorizing together.")
+App/TogetherView.swift:186:Label("\(person.summary.highestStreak)", systemImage: "flame.fill")
+App/TogetherView.swift:195:Text("Most progress")
+App/TogetherView.swift:198:Text("Day \(person.summary.mostAdvancedDay)")
+App/TogetherView.swift:204:Text("Last active")
+App/TogetherView.swift:309:Text("No shared plans yet")
+App/TogetherView.swift:313:Text("Start a plan and invite others to memorize together. Everyone works at their own pace, and you can see each other's progress.")
+App/TogetherView.swift:318:Button("Invite people to this plan") {
+App/TogetherView.swift:323:Button("Pick a plan first") {
+App/TogetherView.swift:370:Button("View") {
+App/TogetherView.swift:375:Button("Sync") {
+App/TogetherView.swift:387:Text("Leave plan")
+App/TogetherView.swift:419:Text("\(member.streak)")
+App/TogetherView.swift:442:Text("\(member.completedDays.count)/\(duration)")
+App/TogetherView.swift:477:Text("+\(duration - 30)")
+App/TogetherView.swift:589:Text("Last synced \(relativeDate(syncedAt))")
+App/TogetherView.swift:593:Text("Last synced: not yet")
+App/TogetherView.swift:606:Label("Syncing now…", systemImage: "arrow.triangle.2.circlepath")
+App/TogetherView.swift:610:Label("Synced \(relativeDate(syncedAt))", systemImage: "checkmark.circle.fill")
+App/TogetherView.swift:618:Button("Retry") { Task { await syncProgress(for: group) } }
+App/TogetherView.swift:676:Button("Done") { dismiss() }
+App/TogetherView.swift:685:.confirmationDialog("Leave shared plan?", isPresented: $showLeaveConfirm, titleVisibility: .visible) {
+App/TogetherView.swift:686:Button("Leave Plan", role: .destructive) {
+App/TogetherView.swift:693:Button("Cancel", role: .cancel) {}
+App/TogetherView.swift:695:Text("You'll stop receiving progress updates for this group.")
+App/TogetherView.swift:697:.confirmationDialog("Archive and stop sharing?", isPresented: $showArchiveConfirm, titleVisibility: .visible) {
+App/TogetherView.swift:698:Button("Archive Group", role: .destructive) {
+App/TogetherView.swift:705:Button("Cancel", role: .cancel) {}
+App/TogetherView.swift:707:Text("This removes the shared group for everyone and stops future syncing.")
+App/TogetherView.swift:713:Button("OK", role: .cancel) {}
+App/TogetherView.swift:729:Text("Started by \(group.ownerName)")
+App/TogetherView.swift:749:Text("How collaboration works")
+App/TogetherView.swift:753:Text("Only people invited to this plan can see each other's progress.")
+App/TogetherView.swift:764:Text("Your progress")
+App/TogetherView.swift:771:Text("Day \(enrollment.currentDay) of \(group.planDuration) • \(enrollment.completedDays.count) days complete")
+App/TogetherView.swift:778:Text("You're not on this plan yet")
+App/TogetherView.swift:783:Button("Join \(plan.title)") {
+App/TogetherView.swift:795:Text("People")
+App/TogetherView.swift:816:Text("(you)")
+App/TogetherView.swift:835:Text("\(member.streak)-day")
+App/TogetherView.swift:859:Text("+\(group.planDuration - 30)")
+App/TogetherView.swift:867:Text("Active \(formatter.localizedString(for: lastActive, relativeTo: .now))")
+App/TogetherView.swift:873:Text("Favorite verse: \(verse)")
+App/TogetherView.swift:87:.confirmationDialog("Leave shared plan?", isPresented: Binding(
+App/TogetherView.swift:891:Button("Manage members") {
+App/TogetherView.swift:910:Text("Archive / Stop sharing")
+App/TogetherView.swift:918:Text("Leave plan")
+App/TogetherView.swift:91:Button("Leave", role: .destructive) {
+App/TogetherView.swift:924:Text("Syncing shares your current day and streak with everyone in this plan.")
+App/TogetherView.swift:979:Text("Last synced \(relativeDate(date)).")
+App/TogetherView.swift:983:Text("Last synced: not yet.")
+App/TogetherView.swift:988:Label("Syncing in progress…", systemImage: "arrow.triangle.2.circlepath")
+App/TogetherView.swift:992:Label("Sync complete \(relativeDate(date)).", systemImage: "checkmark.circle.fill")
+App/TogetherView.swift:99:Button("Cancel", role: .cancel) {
+App/VerseCardRenderer.swift:15:Text("— \(reference)")
+App/VerseLibraryView.swift:147:Text("Bible Library")
+App/VerseLibraryView.swift:149:Text("Pick a reference range, decide how it should be studied, and add it into `My Verses` without breaking your flow.")
+App/VerseLibraryView.swift:158:Text("Long passages are automatically broken into manageable sections before they ask for full recall.")
+App/VerseLibraryView.swift:254:Text("•")
+App/VerseLibraryView.swift:271:Button("Practice full section plan") {
+App/VerseLibraryView.swift:276:Button("Practice this now") {
+App/VerseLibraryView.swift:281:Button("Move to practice only") {
+App/VerseLibraryView.swift:285:Button("Move to daily queue") {
+App/VerseLibraryView.swift:290:Button("Remove", role: .destructive) {
+App/VerseLibraryView.swift:336:Button("Practice") {
+App/VerseLibraryView.swift:352:Text("\(bundle.summary.firstReference) to \(bundle.summary.lastReference)")
+App/VerseLibraryView.swift:360:Text("•")
+App/VerseLibraryView.swift:372:Button("Practice full section plan") {
+App/VerseLibraryView.swift:377:Button("Move full plan to daily queue") {
+App/VerseLibraryView.swift:381:Button("Move full plan to practice only") {
+App/VerseLibraryView.swift:386:Button("Remove full plan", role: .destructive) {
+App/VerseLibraryView.swift:410:Text("Start")
+App/VerseLibraryView.swift:417:Text("Chapter \(chapter)").tag(chapter)
+App/VerseLibraryView.swift:423:Text("Verse \(verse)").tag(verse)
+App/VerseLibraryView.swift:432:Text("End")
+App/VerseLibraryView.swift:439:Text("Chapter \(chapter)").tag(chapter)
+App/VerseLibraryView.swift:445:Text("Verse \(verse)").tag(verse)
+App/VerseLibraryView.swift:454:Button("Single verse") {
+App/VerseLibraryView.swift:462:Button("Whole chapter") {
+App/VerseLibraryView.swift:509:Text("In context")
+App/VerseLibraryView.swift:527:Text("\(saveMode.summary) \(trackMode.summary)")
+App/VerseLibraryView.swift:543:Text("Break it down")
+App/VerseLibraryView.swift:549:Text("\(section.title) • \(section.reference)")
+App/VerseLibraryView.swift:625:Text("\(saveMode.summary) \(trackMode.summary)")
+App/VerseLibraryView.swift:856:Button("Practice now") {
+App/VerseLibraryView.swift:868:Button("Keep browsing") {
+App/VerseSetListView.swift:53:Button("Open Bible Library") {
+App/VerseSetListView.swift:64:Button("Done") {
+App/VerseSetListView.swift:73:Text("Collections")
+App/VerseSetListView.swift:75:Text("Choose the group that should drive your next session.")
+App/WeeklyProgressCard.swift:19:Text("Hide the Word")
+App/WeeklyProgressCard.swift:23:Text("Weekly Summary")
+App/WeeklyProgressCard.swift:33:Text("\(data.streak)-day streak")
+App/WeeklyProgressCard.swift:39:Text("\(data.reviewCount) reviews this week")
+App/WeeklyProgressCard.swift:54:Text("\(count)")
+Widget/ScriptureMemoryWidget.swift:50:Text("\(entry.dueCount)")
+Widget/ScriptureMemoryWidget.swift:78:Text("\(entry.dueCount)")

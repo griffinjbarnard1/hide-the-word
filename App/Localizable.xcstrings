@@ -1,0 +1,271 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "common.cancel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "home.actions.browse_plans" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Browse plans"
+          }
+        }
+      }
+    },
+    "home.actions.open_bible_library" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Bible Library"
+          }
+        }
+      }
+    },
+    "home.actions.open_journey" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open journey"
+          }
+        }
+      }
+    },
+    "home.actions.skip_next_day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip to next day"
+          }
+        }
+      }
+    },
+    "home.actions.start_fresh" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start fresh"
+          }
+        }
+      }
+    },
+    "home.dialog.leave.confirm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave plan"
+          }
+        }
+      }
+    },
+    "home.dialog.leave.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leaving stops day tracking for this plan, but verses you've added stay in My Verses and keep their progress."
+          }
+        }
+      }
+    },
+    "home.dialog.leave.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave this plan?"
+          }
+        }
+      }
+    },
+    "home.dialog.skip.confirm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip"
+          }
+        }
+      }
+    },
+    "home.dialog.skip.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This rest day will be marked complete."
+          }
+        }
+      }
+    },
+    "home.dialog.skip.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip to the next day?"
+          }
+        }
+      }
+    },
+    "home.empty.reviews.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete your first session and your activity will appear here."
+          }
+        }
+      }
+    },
+    "home.empty.reviews.cta" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start today's session"
+          }
+        }
+      }
+    },
+    "home.empty.reviews.headline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No reviews yet"
+          }
+        }
+      }
+    },
+    "home.free_study.subtitle" : {
+      "extractionState" : "manual"
+    },
+    "home.free_study.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Free Study"
+          }
+        }
+      }
+    },
+    "home.pill.due.many" : {
+      "extractionState" : "manual"
+    },
+    "home.pill.due.none" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No reviews due"
+          }
+        }
+      }
+    },
+    "home.pill.due.one" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 review due"
+          }
+        }
+      }
+    },
+    "home.pill.new_units.many" : {
+      "extractionState" : "manual"
+    },
+    "home.pill.new_units.none" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No new unit queued"
+          }
+        }
+      }
+    },
+    "home.pill.new_units.one" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 new unit queued"
+          }
+        }
+      }
+    },
+    "home.practice.many" : {
+      "extractionState" : "manual"
+    },
+    "home.practice.none" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No practice-only units"
+          }
+        }
+      }
+    },
+    "home.practice.one" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 kept outside the daily queue"
+          }
+        }
+      }
+    },
+    "home.recent_activity.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recent activity"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
