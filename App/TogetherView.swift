@@ -4,7 +4,7 @@ import CloudKit
 
 struct TogetherView: View {
     @Environment(AppModel.self) private var appModel
-    @State private var planManager = SharedPlanManager.shared
+    @State private var socialService = SocialService.shared
     @State private var showingShareSheet = false
     @State private var selectedGroup: SharedPlanGroup?
     @State private var sharingGroup: SharedPlanGroup?
@@ -14,18 +14,18 @@ struct TogetherView: View {
             VStack(alignment: .leading, spacing: 24) {
                 header
 
-                if planManager.isLoading, planManager.groups.isEmpty {
+                if socialService.isLoading, socialService.groups.isEmpty {
                     ProgressView()
                         .frame(maxWidth: .infinity, minHeight: 120)
-                } else if planManager.groups.isEmpty {
+                } else if socialService.groups.isEmpty {
                     emptyState
                 } else {
-                    ForEach(planManager.groups) { group in
+                    ForEach(socialService.groups) { group in
                         groupCard(group)
                     }
                 }
 
-                if let error = planManager.lastError {
+                if let error = socialService.lastError {
                     Text(error)
                         .font(.caption)
                         .foregroundStyle(.red)
@@ -35,15 +35,15 @@ struct TogetherView: View {
             .padding(24)
         }
         .background(Color.screenBackground.ignoresSafeArea())
-        .task { await planManager.fetchGroups() }
-        .refreshable { await planManager.fetchGroups() }
+        .task { await socialService.fetchGroups() }
+        .refreshable { await socialService.fetchGroups() }
         .sheet(item: $selectedGroup) { group in
             NavigationStack {
-                SharedPlanDetailView(group: group, planManager: planManager)
+                SharedPlanDetailView(group: group, socialService: socialService)
             }
         }
         .sheet(item: $sharingGroup) { group in
-            PlanCloudSharingSheet(group: group, planManager: planManager)
+            PlanCloudSharingSheet(group: group)
         }
     }
 
@@ -155,7 +155,7 @@ struct TogetherView: View {
 
     // MARK: - Member Row
 
-    private func memberRow(_ member: SharedPlanMember, duration: Int) -> some View {
+    private func memberRow(_ member: PlanMembership, duration: Int) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Circle()
@@ -209,7 +209,7 @@ struct TogetherView: View {
         }
     }
 
-    private func dayDots(member: SharedPlanMember, duration: Int) -> some View {
+    private func dayDots(member: PlanMembership, duration: Int) -> some View {
         let maxDots = min(duration, 30)
         return HStack(spacing: 2) {
             ForEach(1...maxDots, id: \.self) { day in
@@ -235,7 +235,7 @@ struct TogetherView: View {
 
     private func shareActivePlan() async {
         guard let plan = appModel.activePlan else { return }
-        let share = await planManager.createSharedPlan(
+        let share = await socialService.createSharedPlan(
             planID: plan.id,
             planTitle: plan.title,
             planDuration: plan.duration,
@@ -244,7 +244,7 @@ struct TogetherView: View {
             ownerEnrollment: appModel.activePlanEnrollment,
             ownerStreak: appModel.currentStreak
         )
-        if share != nil, let group = planManager.groups.first {
+        if share != nil, let group = socialService.groups.first {
             sharingGroup = group
         }
     }
@@ -260,14 +260,14 @@ struct TogetherView: View {
         guard let enrollment = appModel.activePlanEnrollment, enrollment.planID == group.planID else { return }
 
         let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: CKCurrentUserDefaultName)
-        _ = await planManager.syncMyProgress(
+        _ = await socialService.syncMyProgress(
             groupZoneID: zoneID,
             memberName: appModel.userDisplayName,
             currentDay: enrollment.currentDay,
             completedDays: enrollment.completedDays,
             streak: appModel.currentStreak
         )
-        await planManager.fetchGroups()
+        await socialService.fetchGroups()
     }
 
     private func relativeDate(_ date: Date) -> String {
@@ -291,7 +291,7 @@ struct TogetherView: View {
 
     @ViewBuilder
     private func syncStateRow(for group: SharedPlanGroup) -> some View {
-        let state = planManager.syncStateByGroupID[group.id] ?? .idle
+        let state = socialService.syncStateByGroupID[group.id] ?? .idle
         switch state {
         case .idle:
             EmptyView()
@@ -316,7 +316,7 @@ struct TogetherView: View {
     }
 
     private func latestSyncedAt(for groupID: String) -> Date? {
-        if case .success(let date) = planManager.syncStateByGroupID[groupID] {
+        if case .success(let date) = socialService.syncStateByGroupID[groupID] {
             return date
         }
         return nil
@@ -329,7 +329,7 @@ struct SharedPlanDetailView: View {
     @Environment(AppModel.self) private var appModel
     @Environment(\.dismiss) private var dismiss
     let group: SharedPlanGroup
-    let planManager: SharedPlanManager
+    let socialService: SocialService
 
     @State private var sharingGroup: SharedPlanGroup?
 
@@ -353,7 +353,7 @@ struct SharedPlanDetailView: View {
             }
         }
         .sheet(item: $sharingGroup) { group in
-            PlanCloudSharingSheet(group: group, planManager: planManager)
+            PlanCloudSharingSheet(group: group)
         }
     }
 
@@ -440,7 +440,7 @@ struct SharedPlanDetailView: View {
         }
     }
 
-    private func memberCard(_ member: SharedPlanMember) -> some View {
+    private func memberCard(_ member: PlanMembership) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Circle()
@@ -543,18 +543,18 @@ struct SharedPlanDetailView: View {
     private func syncProgress() async {
         guard let enrollment = appModel.activePlanEnrollment, enrollment.planID == group.planID else { return }
         let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: CKCurrentUserDefaultName)
-        _ = await planManager.syncMyProgress(
+        _ = await socialService.syncMyProgress(
             groupZoneID: zoneID,
             memberName: appModel.userDisplayName,
             currentDay: enrollment.currentDay,
             completedDays: enrollment.completedDays,
             streak: appModel.currentStreak
         )
-        await planManager.fetchGroups()
+        await socialService.fetchGroups()
     }
 
     private var syncButtonTitle: String {
-        switch planManager.syncStateByGroupID[group.id] ?? .idle {
+        switch socialService.syncStateByGroupID[group.id] ?? .idle {
         case .syncing:
             return "Syncing..."
         default:
@@ -563,7 +563,7 @@ struct SharedPlanDetailView: View {
     }
 
     private var isSyncing: Bool {
-        if case .syncing = planManager.syncStateByGroupID[group.id] ?? .idle {
+        if case .syncing = socialService.syncStateByGroupID[group.id] ?? .idle {
             return true
         }
         return false
@@ -571,7 +571,7 @@ struct SharedPlanDetailView: View {
 
     @ViewBuilder
     private var syncStateFooter: some View {
-        let state = planManager.syncStateByGroupID[group.id] ?? .idle
+        let state = socialService.syncStateByGroupID[group.id] ?? .idle
         switch state {
         case .idle:
             if let date = latestSyncedAt {
@@ -606,7 +606,7 @@ struct SharedPlanDetailView: View {
     }
 
     private var latestSyncedAt: Date? {
-        if case .success(let date) = planManager.syncStateByGroupID[group.id] {
+        if case .success(let date) = socialService.syncStateByGroupID[group.id] {
             return date
         }
         return nil
@@ -623,7 +623,6 @@ struct SharedPlanDetailView: View {
 
 struct PlanCloudSharingSheet: UIViewControllerRepresentable {
     let group: SharedPlanGroup
-    let planManager: SharedPlanManager
 
     func makeUIViewController(context: Context) -> UICloudSharingController {
         let container = CKContainer(identifier: SharedPlanManager.containerID)

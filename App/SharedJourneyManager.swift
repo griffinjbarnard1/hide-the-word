@@ -12,16 +12,36 @@ struct SharedPlanGroup: Identifiable, Codable, Hashable, Sendable {
     let planSystemImage: String
     let createdAt: Date
     let ownerName: String
-    var members: [SharedPlanMember]
+    var members: [PlanMembership]
 }
 
-struct SharedPlanMember: Identifiable, Codable, Hashable, Sendable {
+/// Membership scoped to a single shared plan zone.
+///
+/// This is intentionally plan-local data (not a global relationship model).
+/// A person can appear with different progress/streak values in different plans.
+struct PlanMembership: Identifiable, Codable, Hashable, Sendable {
     let id: String
     let displayName: String
     var currentDay: Int
     var completedDays: Set<Int>
     var streak: Int
     var lastActiveAt: Date?
+}
+
+/// Future global social relationship model.
+///
+/// Not yet persisted/read by `SharedPlanManager`; kept separate so friend-level
+/// states can evolve independently from plan membership syncing.
+struct Connection: Identifiable, Codable, Hashable, Sendable {
+    enum Status: String, Codable, Hashable, Sendable {
+        case invited
+        case connected
+        case blocked
+    }
+
+    let id: String
+    let displayName: String
+    let status: Status
 }
 
 enum SharedPlanSyncFailureReason: Sendable, Equatable {
@@ -46,6 +66,13 @@ enum SharedPlanSyncState: Sendable, Equatable {
 @MainActor
 @Observable
 final class SharedPlanManager {
+    /// Current collaboration constraints:
+    /// - Social identity is derived from CloudKit user/member records inside each shared plan zone.
+    /// - Membership and progress are scoped to plan zones; there is no cross-plan friend graph.
+    ///
+    /// Extension points for global social features:
+    /// - Keep plan progress in `PlanMembership` records for deterministic plan sync semantics.
+    /// - Introduce global friend state using `Connection` records/services, then join that data in UI.
     private let container: CKContainer
     private let privateDB: CKDatabase
 
@@ -57,6 +84,9 @@ final class SharedPlanManager {
     static let containerID = "iCloud.com.griffinbarnard.ScriptureMemory"
     static let shared = SharedPlanManager()
     private static let groupRecordType = "SharedPlan"
+    /// Current storage model: one membership record per person per shared-plan zone.
+    /// Extension point: keep this plan-local while introducing a separate `Connection`
+    /// record type for global friend status in the future.
     private static let memberRecordType = "PlanMember"
 
     init() {
@@ -272,7 +302,7 @@ final class SharedPlanManager {
         let createdAt = planRecord["createdAt"] as? Date ?? .now
 
         let query = CKQuery(recordType: Self.memberRecordType, predicate: NSPredicate(value: true))
-        var members: [SharedPlanMember] = []
+        var members: [PlanMembership] = []
 
         do {
             let (results, _) = try await database.records(matching: query, inZoneWith: zoneID)
@@ -292,7 +322,7 @@ final class SharedPlanManager {
                     completedDays = Set(days)
                 }
 
-                members.append(SharedPlanMember(
+                members.append(PlanMembership(
                     id: record.recordID.recordName,
                     displayName: name,
                     currentDay: currentDay,
