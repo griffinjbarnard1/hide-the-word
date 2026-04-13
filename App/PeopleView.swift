@@ -7,17 +7,20 @@ struct PeopleView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            LazyVStack(alignment: .leading, spacing: 20) {
                 sortingControls
 
                 if socialService.isLoading, viewModel.people.isEmpty {
                     ProgressView()
                         .frame(maxWidth: .infinity, minHeight: 120)
+                        .transition(.opacity)
                 } else if viewModel.people.isEmpty {
                     emptyState
+                        .transition(.opacity.combined(with: .move(edge: .bottom)))
                 } else {
                     ForEach(viewModel.sortedPeople) { person in
                         personCard(for: person)
+                            .transition(.opacity.combined(with: .move(edge: .bottom)))
                     }
                 }
 
@@ -31,6 +34,9 @@ struct PeopleView: View {
             .padding(24)
         }
         .background(Color.screenBackground.ignoresSafeArea())
+        .animation(.snappy(duration: 0.28), value: viewModel.sortOption)
+        .animation(.snappy(duration: 0.28), value: viewModel.sortedPeople)
+        .animation(.easeInOut(duration: 0.2), value: socialService.isLoading)
         .task {
             await socialService.fetchGroups()
             viewModel.groups = socialService.groups
@@ -51,6 +57,7 @@ struct PeopleView: View {
             }
         }
         .pickerStyle(.segmented)
+        .animation(.snappy(duration: 0.22), value: viewModel.sortOption)
     }
 
     private var emptyState: some View {
@@ -68,6 +75,7 @@ struct PeopleView: View {
                 .foregroundStyle(Color.mutedText)
         }
         .cardSurface()
+        .contentTransition(.numericText())
     }
 
     private func personCard(for person: PersonSummary) -> some View {

@@ -24,7 +24,9 @@ struct SettingsView: View {
             Section("Preferred Translation") {
                 ForEach(BibleTranslation.allCases) { translation in
                     Button {
-                        appModel.setPreferredTranslation(translation)
+                        withAnimation(.snappy(duration: 0.24)) {
+                            appModel.setPreferredTranslation(translation)
+                        }
                     } label: {
                         HStack {
                             VStack(alignment: .leading, spacing: 3) {
@@ -43,6 +45,7 @@ struct SettingsView: View {
                             if appModel.preferredTranslation == translation {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundStyle(Color.accentMoss)
+                                    .transition(.scale.combined(with: .opacity))
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -68,7 +71,9 @@ struct SettingsView: View {
             Section("Appearance") {
                 ForEach(AppAppearance.allCases) { appearance in
                     Button {
-                        appModel.setAppearance(appearance)
+                        withAnimation(.snappy(duration: 0.24)) {
+                            appModel.setAppearance(appearance)
+                        }
                     } label: {
                         HStack {
                             Text(appearance.title)
@@ -77,6 +82,7 @@ struct SettingsView: View {
                             if appModel.appearance == appearance {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundStyle(Color.accentMoss)
+                                    .transition(.scale.combined(with: .opacity))
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -89,7 +95,9 @@ struct SettingsView: View {
             Section("Session Size") {
                 ForEach(SessionSizePreset.allCases) { preset in
                     Button {
-                        appModel.setSessionSizePreset(preset)
+                        withAnimation(.snappy(duration: 0.24)) {
+                            appModel.setSessionSizePreset(preset)
+                        }
                     } label: {
                         HStack {
                             VStack(alignment: .leading, spacing: 3) {
@@ -103,6 +111,7 @@ struct SettingsView: View {
                             if appModel.sessionSizePreset == preset {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundStyle(Color.accentMoss)
+                                    .transition(.scale.combined(with: .opacity))
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -136,6 +145,7 @@ struct SettingsView: View {
                         ),
                         displayedComponents: .hourAndMinute
                     )
+                    .transition(.move(edge: .top).combined(with: .opacity))
                 }
             }
 
@@ -150,6 +160,7 @@ struct SettingsView: View {
                     Text("Recall screens switch from progressive masking to typed recall with light prompts.")
                         .font(.caption)
                         .foregroundStyle(Color.mutedText)
+                        .transition(.move(edge: .top).combined(with: .opacity))
                 }
             }
 
@@ -206,6 +217,11 @@ struct SettingsView: View {
         }
         .scrollContentBackground(.hidden)
         .background(Color.screenBackground.ignoresSafeArea())
+        .animation(.snappy(duration: 0.24), value: appModel.preferredTranslation)
+        .animation(.snappy(duration: 0.24), value: appModel.appearance)
+        .animation(.snappy(duration: 0.24), value: appModel.sessionSizePreset)
+        .animation(.snappy(duration: 0.24), value: appModel.reminderEnabled)
+        .animation(.snappy(duration: 0.24), value: appModel.typeRecallEnabled)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Done") {
