@@ -16,6 +16,7 @@
 		52C3CE18CED92BDEFBDBF21C /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B9E4A32787CAC916160910E /* EmptyStateView.swift */; };
 		60C2F744F092C4A9BA99BA99 /* SessionDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD8F6F4FEA972B5F61A2DB5 /* SessionDraft.swift */; };
 		6479D4C2ABA2769722612A0A /* SpeechManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8854C313D21C874CF630DBEE /* SpeechManager.swift */; };
+		69BF529F4CB9454A803A4D0B /* AppShortcutsBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37B6A904B604B9DA63A3D0F /* AppShortcutsBridge.swift */; };
 		6A72B3B0ADD37E401A1AADAF /* SessionFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FDCDDBCAD423CDB6DE9A6C /* SessionFlowView.swift */; };
 		73508AF874272E5EC7EE1995 /* CreatePlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A18709362365931C722372 /* CreatePlanView.swift */; };
 		831B2D9F89DF5452BEFFACE3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E17C1AD40468628BB3495C1 /* HomeView.swift */; };
@@ -72,6 +73,7 @@
 		DA1D35D2870BE27AB7F241A4 /* PeopleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeopleView.swift; sourceTree = "<group>"; };
 		DE7DD203D4AF2835514D7F1A /* WeeklyProgressCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyProgressCard.swift; sourceTree = "<group>"; };
 		EE27DDFD39459B7124DE1ACD /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		F37B6A904B604B9DA63A3D0F /* AppShortcutsBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShortcutsBridge.swift; sourceTree = "<group>"; };
 		F0C8EC38257689A9D827B218 /* SessionViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionViews.swift; sourceTree = "<group>"; };
 		F4D1A82E96DC626DDF5A8C38 /* JourneyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JourneyView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -100,6 +102,7 @@
 			isa = PBXGroup;
 			children = (
 				01BEBD8C917A08EF920B1555 /* App.entitlements */,
+				F37B6A904B604B9DA63A3D0F /* AppShortcutsBridge.swift */,
 				77D7093A76639DFA0AF734CD /* AppModel.swift */,
 				C5A18709362365931C722372 /* CreatePlanView.swift */,
 				4B9E4A32787CAC916160910E /* EmptyStateView.swift */,
@@ -219,6 +222,7 @@
 				73508AF874272E5EC7EE1995 /* CreatePlanView.swift in Sources */,
 				52C3CE18CED92BDEFBDBF21C /* EmptyStateView.swift in Sources */,
 				9C02ED5FFF0150CDA610CF40 /* HapticManager.swift in Sources */,
+				69BF529F4CB9454A803A4D0B /* AppShortcutsBridge.swift in Sources */,
 				831B2D9F89DF5452BEFFACE3 /* HomeView.swift in Sources */,
 				9116B5945EE633DEE6DDC317 /* JourneyView.swift in Sources */,
 				91AF4FA319B9B9B35CAE04F4 /* NotificationManager.swift in Sources */,
