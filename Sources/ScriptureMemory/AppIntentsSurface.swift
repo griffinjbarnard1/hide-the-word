@@ -34,7 +34,7 @@ public enum ScriptureSetOption: String, AppEnum {
 @available(iOS 18.0, macOS 15.0, *)
 public struct StartTodaysSessionIntent: AppIntent {
     public static let title: LocalizedStringResource = "Start Today's Session"
-    public static let description = IntentDescription("Open the app directly to today's Scripture memory session.")
+    public static let description = IntentDescription("Open Hide the Word directly to today's review session.")
     public static let openAppWhenRun = true
 
     public init() {}
@@ -48,7 +48,7 @@ public struct StartTodaysSessionIntent: AppIntent {
 @available(iOS 18.0, macOS 15.0, *)
 public struct StartFocusedSessionIntent: AppIntent {
     public static let title: LocalizedStringResource = "Start Focused Session"
-    public static let description = IntentDescription("Open today's session with a specific collection selected.")
+    public static let description = IntentDescription("Open Hide the Word to today's review session with a specific collection selected.")
     public static let openAppWhenRun = true
 
     @Parameter(title: "Collection")
@@ -74,7 +74,7 @@ public struct ScriptureMemoryShortcuts: AppShortcutsProvider {
                 intent: StartTodaysSessionIntent(),
                 phrases: [
                     "Start today's session in \(.applicationName)",
-                    "Open today's Scripture review in \(.applicationName)"
+                    "Open today's review in \(.applicationName)"
                 ],
                 shortTitle: "Start Session",
                 systemImageName: "book.closed"
@@ -83,7 +83,7 @@ public struct ScriptureMemoryShortcuts: AppShortcutsProvider {
                 intent: StartFocusedSessionIntent(),
                 phrases: [
                     "Start a \(\.$set) session in \(.applicationName)",
-                    "Open \(\.$set) verses in \(.applicationName)"
+                    "Open \(\.$set) in \(.applicationName)"
                 ],
                 shortTitle: "Open Verse Set",
                 systemImageName: "text.book.closed"

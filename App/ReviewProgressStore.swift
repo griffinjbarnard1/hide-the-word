@@ -145,10 +145,11 @@ final class ReviewProgressStore {
     init(inMemory: Bool = false) throws {
         let configuration = ModelConfiguration(
             schema: Schema([StoredVerseProgress.self, StoredAppPreference.self, StoredCustomVerseSelection.self, StoredReviewEvent.self]),
-            isStoredInMemoryOnly: inMemory
+            isStoredInMemoryOnly: inMemory,
+            cloudKitDatabase: .none
         )
         do {
-            let container = try ModelContainer(
+            let modelContainer = try ModelContainer(
                 for: StoredVerseProgress.self,
                 StoredAppPreference.self,
                 StoredCustomVerseSelection.self,
@@ -156,9 +157,27 @@ final class ReviewProgressStore {
                 configurations: configuration
             )
             mode = .readWrite
-            context = ModelContext(container)
+            context = ModelContext(modelContainer)
         } catch {
-            throw PersistenceInitError.modelContainerCreationFailed(underlyingDescription: String(describing: error))
+            let fallbackConfiguration = ModelConfiguration(
+                schema: Schema([StoredVerseProgress.self, StoredAppPreference.self, StoredCustomVerseSelection.self, StoredReviewEvent.self]),
+                isStoredInMemoryOnly: true,
+                cloudKitDatabase: .none
+            )
+            do {
+                let modelContainer = try ModelContainer(
+                    for: StoredVerseProgress.self,
+                    StoredAppPreference.self,
+                    StoredCustomVerseSelection.self,
+                    StoredReviewEvent.self,
+                    configurations: fallbackConfiguration
+                )
+                mode = .readWrite
+                context = ModelContext(modelContainer)
+                Self.logger.error("Falling back to in-memory persistence after model container setup failed: \(String(describing: error), privacy: .public)")
+            } catch {
+                throw PersistenceInitError.modelContainerCreationFailed(underlyingDescription: String(describing: error))
+            }
         }
     }
 
