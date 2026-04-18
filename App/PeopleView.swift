@@ -66,11 +66,11 @@ struct PeopleView: View {
                 .font(.largeTitle)
                 .foregroundStyle(Color.accentMoss)
 
-            Text("No people yet")
+            Text(String(localized: "people.empty.title", defaultValue: "No people yet", table: "Localizable"))
                 .font(.headline)
                 .foregroundStyle(Color.primaryText)
 
-            Text("People appear when you share a plan.")
+            Text(String(localized: "people.empty.body", defaultValue: "People appear when you share a plan.", table: "Localizable"))
                 .font(.subheadline)
                 .foregroundStyle(Color.mutedText)
         }
@@ -86,32 +86,32 @@ struct PeopleView: View {
                         .font(.headline)
                         .foregroundStyle(Color.primaryText)
 
-                    Text("\(person.plansInCommonCount) \(person.plansInCommonCount == 1 ? "plan" : "plans") in common")
-                        .font(.caption)
-                        .foregroundStyle(Color.mutedText)
-                }
-                Spacer()
-                Label("\(person.highestStreak)", systemImage: "flame.fill")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(Color.accentGold)
+                Text(plansInCommonText(for: person.plansInCommonCount))
+                    .font(.caption)
+                    .foregroundStyle(Color.mutedText)
+            }
+            Spacer()
+            Label(String(person.highestStreak), systemImage: "flame.fill")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Color.accentGold)
             }
 
             Divider()
 
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Most progress")
-                        .font(.caption2)
-                        .foregroundStyle(Color.mutedText)
-                    Text("Day \(person.mostAdvancedDay)")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Color.primaryText)
-                }
-                Spacer()
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text("Last active")
-                        .font(.caption2)
-                        .foregroundStyle(Color.mutedText)
+                Text(String(localized: "people.card.most_progress", defaultValue: "Most progress", table: "Localizable"))
+                    .font(.caption2)
+                    .foregroundStyle(Color.mutedText)
+                Text(String(format: String(localized: "people.card.day_format", defaultValue: "Day %d", table: "Localizable"), person.mostAdvancedDay))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.primaryText)
+            }
+            Spacer()
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(String(localized: "people.card.last_active", defaultValue: "Last active", table: "Localizable"))
+                    .font(.caption2)
+                    .foregroundStyle(Color.mutedText)
                     Text(relativeDate(person.lastActiveAt))
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Color.primaryText)
@@ -122,10 +122,19 @@ struct PeopleView: View {
     }
 
     private func relativeDate(_ date: Date?) -> String {
-        guard let date else { return "No activity yet" }
+        guard let date else {
+            return String(localized: "people.card.no_activity", defaultValue: "No activity yet", table: "Localizable")
+        }
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: date, relativeTo: .now)
+    }
+
+    private func plansInCommonText(for count: Int) -> String {
+        let format = count == 1
+            ? String(localized: "people.card.plans_in_common.one", defaultValue: "%d plan in common", table: "Localizable")
+            : String(localized: "people.card.plans_in_common.many", defaultValue: "%d plans in common", table: "Localizable")
+        return String(format: format, count)
     }
 }
 

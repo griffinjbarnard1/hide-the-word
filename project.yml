@@ -10,13 +10,49 @@ settings:
     MARKETING_VERSION: "1.0"
     CURRENT_PROJECT_VERSION: "1"
 targets:
+  ScriptureMemoryWidget:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: Widget
+        includes:
+          - "**/*.swift"
+      - path: Widget/Localizable.xcstrings
+        buildPhase: resources
+      - path: Widget/PrivacyInfo.xcprivacy
+        buildPhase: resources
+    entitlements:
+      path: Widget/Widget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.griffinbarnard.ScriptureMemory
+    settings:
+      base:
+        PRODUCT_NAME: ScriptureMemoryWidget
+        PRODUCT_BUNDLE_IDENTIFIER: com.griffinbarnard.ScriptureMemory.Widget
+        INFOPLIST_FILE: Widget/Info.plist
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ""
+        TARGETED_DEVICE_FAMILY: "1"
+
   ScriptureMemoryApp:
     type: application
     platform: iOS
     deploymentTarget: "18.0"
     sources:
       - path: App
+        includes:
+          - "**/*.swift"
+      - path: App/Assets.xcassets
+        buildPhase: resources
+      - path: App/Localizable.xcstrings
+        buildPhase: resources
+      - path: App/PrivacyInfo.xcprivacy
+        buildPhase: resources
     dependencies:
+      - target: ScriptureMemoryWidget
+        embed: true
       - package: ScriptureMemory
         product: ScriptureMemory
     entitlements:
@@ -33,20 +69,7 @@ targets:
         PRODUCT_NAME: ScriptureMemoryApp
         PRODUCT_BUNDLE_IDENTIFIER: com.griffinbarnard.ScriptureMemory
         ESV_API_KEY: ""
-        GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: Hide the Word
-        INFOPLIST_KEY_ESV_API_KEY: $(ESV_API_KEY)
-        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
-        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone:
-          - UIInterfaceOrientationPortrait
-        INFOPLIST_KEY_LSApplicationQueriesSchemes:
-          - scripturememory
-        INFOPLIST_KEY_CFBundleURLTypes:
-          - CFBundleURLName: com.griffinbarnard.ScriptureMemory
-            CFBundleURLSchemes:
-              - scripturememory
+        INFOPLIST_FILE: App/Info.plist
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: ""
         TARGETED_DEVICE_FAMILY: "1"
@@ -62,3 +85,9 @@ targets:
       - path: Tests/ScriptureMemoryAppTests
     dependencies:
       - target: ScriptureMemoryApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.griffinbarnard.ScriptureMemory.Tests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/ScriptureMemoryApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ScriptureMemoryApp"
+        BUNDLE_LOADER: "$(TEST_HOST)"

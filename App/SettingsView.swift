@@ -12,9 +12,9 @@ struct SettingsView: View {
         List {
             Section {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Settings")
+                    Text(String(localized: "settings.title", defaultValue: "Settings", table: "Localizable"))
                         .font(.title.weight(.semibold))
-                    Text("Keep preferences simple and local. These choices shape what you see throughout the app.")
+                    Text(String(localized: "settings.subtitle", defaultValue: "Keep preferences simple and local. These choices shape what you see throughout the app.", table: "Localizable"))
                         .font(.subheadline)
                         .foregroundStyle(Color.mutedText)
                 }
@@ -158,7 +158,7 @@ struct SettingsView: View {
                 .tint(Color.accentMoss)
 
                 if appModel.typeRecallEnabled {
-                    Text("Recall screens switch from progressive masking to typed recall with light prompts.")
+                    Text(String(localized: "settings.recall_mode.body", defaultValue: "Recall screens switch from progressive masking to typed recall with light prompts.", table: "Localizable"))
                         .font(.caption)
                         .foregroundStyle(Color.mutedText)
                         .transition(.move(edge: .top).combined(with: .opacity))
@@ -170,7 +170,7 @@ struct SettingsView: View {
                     get: { appModel.userDisplayName },
                     set: { appModel.userDisplayName = $0 }
                 ))
-                Text("Shown to people in shared plans.")
+                Text(String(localized: "settings.display_name.body", defaultValue: "Shown to people in shared plans.", table: "Localizable"))
                     .font(.caption)
                     .foregroundStyle(Color.mutedText)
             }
@@ -179,7 +179,7 @@ struct SettingsView: View {
                 NavigationLink("Edit my profile") {
                     PublicProfileEditorView()
                 }
-                Text("Profile status: \(profileStatusText)")
+                Text(String(format: String(localized: "settings.profile.status_format", defaultValue: "Profile status: %@", table: "Localizable"), profileStatusText))
                     .font(.caption)
                     .foregroundStyle(Color.mutedText)
             }
@@ -187,9 +187,9 @@ struct SettingsView: View {
             Section("Identity") {
                 HStack {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Connected account")
+                        Text(String(localized: "settings.identity.connected_account", defaultValue: "Connected account", table: "Localizable"))
                             .foregroundStyle(Color.primaryText)
-                        Text("iCloud: \(identityStatusLabel)")
+                        Text(String(format: String(localized: "settings.identity.icloud_status_format", defaultValue: "iCloud: %@", table: "Localizable"), identityStatusLabel))
                             .font(.caption)
                             .foregroundStyle(Color.mutedText)
                     }
@@ -200,7 +200,7 @@ struct SettingsView: View {
                         .multilineTextAlignment(.trailing)
                 }
 
-                Text("Hide the Word has no separate app login. Sharing and sync use your iCloud account.")
+                Text(String(localized: "settings.identity.body", defaultValue: "Hide the Word has no separate app login. Sharing and sync use your iCloud account.", table: "Localizable"))
                     .font(.caption)
                     .foregroundStyle(Color.mutedText)
             }
@@ -208,9 +208,9 @@ struct SettingsView: View {
             Section("Data") {
                 if let exportURL = appModel.exportDataURL() {
                     ShareLink(item: exportURL) {
-                        Label("Export all data", systemImage: "square.and.arrow.up")
+                        Label(String(localized: "settings.data.export", defaultValue: "Export all data", table: "Localizable"), systemImage: "square.and.arrow.up")
                     }
-                    Text("Exports your progress, custom verses, and preferences as a JSON file.")
+                    Text(String(localized: "settings.data.export_body", defaultValue: "Exports your progress, custom verses, and preferences as a JSON file.", table: "Localizable"))
                         .font(.caption)
                         .foregroundStyle(Color.mutedText)
                 }
@@ -220,9 +220,9 @@ struct SettingsView: View {
                 Button {
                     showingWidgetGuide = true
                 } label: {
-                    Label("Add Home Screen Widget", systemImage: "square.grid.2x2")
+                    Label(String(localized: "settings.widget.add", defaultValue: "Add Home Screen Widget", table: "Localizable"), systemImage: "square.grid.2x2")
                 }
-                Text("Show due verses and your next prompt at a glance from the Home Screen.")
+                Text(String(localized: "settings.widget.body", defaultValue: "Show due verses and your next prompt at a glance from the Home Screen.", table: "Localizable"))
                     .font(.caption)
                     .foregroundStyle(Color.mutedText)
             }
@@ -236,7 +236,7 @@ struct SettingsView: View {
         .animation(.snappy(duration: 0.24), value: appModel.typeRecallEnabled)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Done") {
+                Button(String(localized: "common.done", defaultValue: "Done", table: "Localizable")) {
                     appModel.dismissActiveRoute()
                 }
             }
@@ -286,9 +286,9 @@ struct WidgetEducationSheet: View {
             List {
                 Section {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Keep review in view")
+                        Text(String(localized: "widget.prompt.title", defaultValue: "Keep review in view", table: "Localizable"))
                             .font(.title3.weight(.semibold))
-                        Text("See how many verses are due right from your Home Screen.")
+                        Text(String(localized: "widget.prompt.body", defaultValue: "See how many verses are due right from your Home Screen.", table: "Localizable"))
                             .font(.body)
                             .foregroundStyle(Color.mutedText)
                     }
@@ -304,7 +304,7 @@ struct WidgetEducationSheet: View {
                 }
 
                 Section {
-                    Text("iOS does not support one-tap widget install, so this quick flow is the fastest path.")
+                    Text(String(localized: "settings.widget.guide.footer", defaultValue: "iOS does not support one-tap widget install, so this quick flow is the fastest path.", table: "Localizable"))
                         .font(.caption)
                         .foregroundStyle(Color.mutedText)
                 }
@@ -313,7 +313,7 @@ struct WidgetEducationSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
+                    Button(String(localized: "common.done", defaultValue: "Done", table: "Localizable")) { dismiss() }
                 }
             }
         }
@@ -321,7 +321,7 @@ struct WidgetEducationSheet: View {
 
     private func step(number: Int, text: String) -> some View {
         HStack(alignment: .top, spacing: 10) {
-            Text("\(number).")
+            Text(verbatim: "\(number).")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Color.accentMoss)
                 .frame(width: 20, alignment: .leading)

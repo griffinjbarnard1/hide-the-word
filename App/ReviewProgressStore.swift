@@ -123,6 +123,7 @@ final class ReviewProgressStore {
     }
 
     private static let logger = Logger(subsystem: "com.griffinbarnard.ScriptureMemory", category: "Persistence")
+    private static let appGroupID = "group.com.griffinbarnard.ScriptureMemory"
 
     private let mode: Mode
     private let context: ModelContext?
@@ -143,6 +144,10 @@ final class ReviewProgressStore {
     }
 
     init(inMemory: Bool = false) throws {
+        if !inMemory {
+            try Self.ensurePersistentStoreDirectoryExists()
+        }
+
         let configuration = ModelConfiguration(
             schema: Schema([StoredVerseProgress.self, StoredAppPreference.self, StoredCustomVerseSelection.self, StoredReviewEvent.self]),
             isStoredInMemoryOnly: inMemory,
@@ -184,6 +189,17 @@ final class ReviewProgressStore {
     private init(readOnly: Void) {
         mode = .readOnly
         context = nil
+    }
+
+    private static func ensurePersistentStoreDirectoryExists() throws {
+        guard let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) else {
+            return
+        }
+
+        let supportURL = groupURL
+            .appendingPathComponent("Library", isDirectory: true)
+            .appendingPathComponent("Application Support", isDirectory: true)
+        try FileManager.default.createDirectory(at: supportURL, withIntermediateDirectories: true)
     }
 
     func loadProgress() -> [UUID: VerseProgress] {

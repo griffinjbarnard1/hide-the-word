@@ -74,7 +74,7 @@ struct SmallWidgetView: View {
 
             Spacer()
 
-            Text("\(entry.dueCount)")
+            Text(verbatim: "\(entry.dueCount)")
                 .font(.system(size: 36, weight: .bold, design: .serif))
                 .foregroundStyle(Color(red: 0.12, green: 0.11, blue: 0.09))
 
@@ -103,7 +103,7 @@ struct MediumWidgetView: View {
 
                 Spacer()
 
-                Text("\(entry.dueCount)")
+                Text(verbatim: "\(entry.dueCount)")
                     .font(.system(size: 36, weight: .bold, design: .serif))
                     .foregroundStyle(Color(red: 0.12, green: 0.11, blue: 0.09))
 
@@ -165,7 +165,7 @@ struct LargeWidgetView: View {
             }
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("\(entry.dueCount)")
+                Text(verbatim: "\(entry.dueCount)")
                     .font(.system(size: 52, weight: .bold, design: .serif))
                     .foregroundStyle(Color(red: 0.12, green: 0.11, blue: 0.09))
 

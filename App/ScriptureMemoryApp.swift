@@ -137,10 +137,16 @@ final class SceneDelegate: NSObject, UIWindowSceneDelegate {
     func windowScene(_ windowScene: UIWindowScene, userDidAcceptCloudKitShareWith cloudKitShareMetadata: CKShare.Metadata) {
         Task { @MainActor in
             let manager = SharedPlanManager.shared
+            let acceptedZoneID = cloudKitShareMetadata.share.recordID.zoneID
             await manager.acceptShare(cloudKitShareMetadata)
-            // Notify the app to navigate to Together tab and auto-enroll
             await manager.fetchGroups()
-            if let group = manager.groups.first {
+            let acceptedGroup = manager.groups.first {
+                $0.id == acceptedZoneID.zoneName && $0.zoneOwnerName == acceptedZoneID.ownerName
+            } ?? manager.groups.first {
+                $0.id == acceptedZoneID.zoneName
+            }
+
+            if let group = acceptedGroup {
                 NotificationCenter.default.post(
                     name: .didAcceptSharedPlan,
                     object: nil,

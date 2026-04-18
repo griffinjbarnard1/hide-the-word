@@ -648,7 +648,7 @@ struct CompletionView: View {
                     .fill(Color.accentMoss.opacity(0.12))
                     .frame(width: 110, height: 110)
                     .overlay {
-                        Text("Amen")
+                        Text(String(localized: "session.completion.amen", defaultValue: "Amen", table: "Localizable"))
                             .font(.system(size: 28, weight: .semibold, design: .serif))
                             .foregroundStyle(Color.accentMoss)
                     }
@@ -656,7 +656,7 @@ struct CompletionView: View {
                     .scaleEffect(didAppear ? (reviewedCount + newVerseCount > 0 ? 1.02 : 1.0) : 0.94)
                     .animation(.spring(duration: 0.55, bounce: 0.35), value: didAppear)
 
-                Text("You’re done for today.")
+                Text(String(localized: "session.completion.title", defaultValue: "You're done for today.", table: "Localizable"))
                     .font(.system(size: 40, weight: .semibold, design: .serif))
                     .multilineTextAlignment(.center)
                     .offset(y: didAppear ? 0 : 8)
@@ -674,7 +674,7 @@ struct CompletionView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "flame.fill")
                             .foregroundStyle(Color.accentGold)
-                        Text("\(streak)-day streak")
+                        Text(String(format: String(localized: "session.completion.streak_format", defaultValue: "%d-day streak", table: "Localizable"), streak))
                             .font(.headline)
                             .foregroundStyle(Color.primaryText)
                     }
@@ -703,20 +703,20 @@ struct CompletionView: View {
 
                 if showWidgetPrompt {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Keep review in view")
+                        Text(String(localized: "widget.prompt.title", defaultValue: "Keep review in view", table: "Localizable"))
                             .font(.headline)
                             .foregroundStyle(Color.primaryText)
-                        Text("See how many verses are due right from your Home Screen.")
+                        Text(String(localized: "widget.prompt.body", defaultValue: "See how many verses are due right from your Home Screen.", table: "Localizable"))
                             .font(.subheadline)
                             .foregroundStyle(Color.mutedText)
 
                         HStack(spacing: 10) {
-                            Button("How to add widget") {
+                            Button(String(localized: "widget.prompt.how_to_add", defaultValue: "How to add widget", table: "Localizable")) {
                                 showingWidgetGuide = true
                             }
                             .buttonStyle(SecondaryButtonStyle(fullWidth: false))
 
-                            Button("Not now") {
+                            Button(String(localized: "widget.prompt.not_now", defaultValue: "Not now", table: "Localizable")) {
                                 withAnimation(.snappy(duration: 0.2)) {
                                     showWidgetPrompt = false
                                 }
@@ -752,7 +752,7 @@ struct CompletionView: View {
                             .foregroundStyle(Color.mutedText)
 
                         if ctx.dayNumber < duration {
-                            Text("Tomorrow: day \(ctx.dayNumber + 1)")
+                            Text(String(format: String(localized: "session.completion.tomorrow_format", defaultValue: "Tomorrow: day %d", table: "Localizable"), ctx.dayNumber + 1))
                                 .font(.caption)
                                 .foregroundStyle(Color.accentGold)
                         }
@@ -763,13 +763,13 @@ struct CompletionView: View {
                     .animation(.easeOut(duration: 0.32).delay(0.14), value: didAppear)
                 }
 
-                Text("No penalties for missing a day. Your review schedule adjusts naturally when you return.")
+                Text(String(localized: "session.completion.no_penalties", defaultValue: "No penalties for missing a day. Your review schedule adjusts naturally when you return.", table: "Localizable"))
                     .font(.body)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity)
                     .cardSurface()
 
-                Button("Done", action: done)
+                Button(String(localized: "common.done", defaultValue: "Done", table: "Localizable"), action: done)
                     .buttonStyle(PrimaryButtonStyle())
                     .opacity(didAppear ? 1 : 0)
                     .offset(y: didAppear ? 0 : 10)
@@ -828,7 +828,7 @@ private struct SessionScaffold<Content: View, Bottom: View>: View {
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Button("Save and close", action: exitTapped)
+                Button(String(localized: "session.actions.save_and_close", defaultValue: "Save and close", table: "Localizable"), action: exitTapped)
                     .font(.subheadline.weight(.medium))
             }
 
@@ -837,7 +837,7 @@ private struct SessionScaffold<Content: View, Bottom: View>: View {
                     .font(.headline)
                 ProgressView(value: progress)
                     .tint(Color.accentMoss)
-                Text("Your place is saved if you leave.")
+                Text(String(localized: "session.place_saved", defaultValue: "Your place is saved if you leave.", table: "Localizable"))
                     .font(.caption)
                     .foregroundStyle(Color.mutedText)
             }

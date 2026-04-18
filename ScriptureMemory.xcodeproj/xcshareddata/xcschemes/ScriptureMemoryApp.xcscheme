@@ -39,6 +39,17 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FEADE663D8DE81CC6FACE754"
+               BuildableName = "ScriptureMemoryAppTests.xctest"
+               BlueprintName = "ScriptureMemoryAppTests"
+               ReferencedContainer = "container:ScriptureMemory.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <CommandLineArguments>
       </CommandLineArguments>
