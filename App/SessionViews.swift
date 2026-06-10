@@ -41,40 +41,6 @@ struct VerseDisplayView: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(Color.mutedText)
 
-                Button {
-                    if speechManager.isSpeaking {
-                        speechManager.stop()
-                    } else {
-                        speechManager.speak(appModel.displayText(for: item.unit))
-                    }
-                } label: {
-                    Label(
-                        speechManager.isSpeaking ? "Stop" : "Listen",
-                        systemImage: speechManager.isSpeaking ? "stop.circle" : "speaker.wave.2"
-                    )
-                }
-                .buttonStyle(SecondaryButtonStyle())
-
-                if let shareImage = renderVerseImage(
-                    reference: item.unit.reference,
-                    text: appModel.displayText(for: item.unit),
-                    translation: appModel.preferredTranslation.displayName
-                ) {
-                    ShareLink(
-                        item: Image(uiImage: shareImage),
-                        preview: SharePreview(item.unit.reference, image: Image(uiImage: shareImage))
-                    ) {
-                        Label("Share", systemImage: "square.and.arrow.up")
-                    }
-                    .buttonStyle(SecondaryButtonStyle())
-                }
-
-                if appModel.shouldShowESVAttribution(for: item.unit.reference) {
-                    ESVAttributionView()
-                } else if let translationSupportText = appModel.translationSupportText(for: item.unit.reference) {
-                    TranslationSupportView(message: translationSupportText)
-                }
-
                 HStack(spacing: 8) {
                     StatusPill(title: item.kind == .newVerse ? "New" : item.kind == .restudy ? "Restudy" : "Review")
                     StatusPill(title: "\(stepIndex + 1) of \(totalCount)", tint: .accentGold)
@@ -88,6 +54,42 @@ struct VerseDisplayView: View {
                     .foregroundStyle(Color.mutedText)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .cardSurface()
+
+                HStack(spacing: 12) {
+                    Button {
+                        if speechManager.isSpeaking {
+                            speechManager.stop()
+                        } else {
+                            speechManager.speak(appModel.displayText(for: item.unit))
+                        }
+                    } label: {
+                        Label(
+                            speechManager.isSpeaking ? "Stop" : "Listen",
+                            systemImage: speechManager.isSpeaking ? "stop.circle" : "speaker.wave.2"
+                        )
+                    }
+                    .buttonStyle(SecondaryButtonStyle())
+
+                    if let shareImage = renderVerseImage(
+                        reference: item.unit.reference,
+                        text: appModel.displayText(for: item.unit),
+                        translation: appModel.preferredTranslation.displayName
+                    ) {
+                        ShareLink(
+                            item: Image(uiImage: shareImage),
+                            preview: SharePreview(item.unit.reference, image: Image(uiImage: shareImage))
+                        ) {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                        .buttonStyle(SecondaryButtonStyle())
+                    }
+                }
+
+                if appModel.shouldShowESVAttribution(for: item.unit.reference) {
+                    ESVAttributionView()
+                } else if let translationSupportText = appModel.translationSupportText(for: item.unit.reference) {
+                    TranslationSupportView(message: translationSupportText)
+                }
 
                 if passageSections.count > 1 {
                     VStack(alignment: .leading, spacing: 12) {
@@ -138,7 +140,7 @@ struct VerseDisplayView: View {
         case .review:
             return "Read it slowly once, then move into recall."
         case .newVerse:
-            return "This is today’s new verse. Take in the wording before recall starts."
+            return "This is today’s new verse. Read it out loud two or three times — hearing the rhythm helps it stick."
         case .restudy:
             return "This one came back for another pass while it is still fresh."
         }
@@ -224,6 +226,10 @@ struct RecallView: View {
                 Text(item.unit.reference)
                     .font(.headline)
                     .foregroundStyle(Color.accentMoss)
+
+                if !appModel.hasSeenRecallCoach {
+                    recallCoachCard
+                }
 
                 if appModel.typeRecallEnabled {
                     TypedRecallComposer(
@@ -328,6 +334,53 @@ struct RecallView: View {
 
     private var primaryActionTitle: String {
         recallLevel < 3 ? "Make it harder" : "Rate this verse"
+    }
+
+    private var recallCoachCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("First recall? Here’s the rhythm.")
+                .font(.headline)
+                .foregroundStyle(Color.primaryText)
+
+            coachRow(
+                icon: "waveform",
+                text: "Say the verse out loud, filling in the hidden words. Speaking it helps it stick."
+            )
+            coachRow(
+                icon: "arrow.up.circle",
+                text: "When a round feels comfortable, tap “Make it harder” — more words hide each time."
+            )
+            coachRow(
+                icon: "hand.tap",
+                text: appModel.typeRecallEnabled
+                    ? "Stuck? Tap “Show answer” to check yourself. There’s no penalty — honest effort is what builds memory."
+                    : "Stuck? Tap any hidden word to peek. There’s no penalty for peeking — honest effort is what builds memory."
+            )
+
+            Button("Got it") {
+                withAnimation(.snappy(duration: 0.25)) {
+                    appModel.markRecallCoachSeen()
+                }
+            }
+            .buttonStyle(SecondaryButtonStyle())
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .cardSurface()
+        .transition(.opacity.combined(with: .move(edge: .top)))
+    }
+
+    private func coachRow(icon: String, text: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: icon)
+                .font(.subheadline)
+                .foregroundStyle(Color.accentMoss)
+                .frame(width: 22)
+                .padding(.top, 1)
+
+            Text(text)
+                .font(.subheadline)
+                .foregroundStyle(Color.mutedText)
+        }
     }
 
     private var typedPromptText: String {

@@ -51,6 +51,7 @@ final class AppModel {
     var sessionMilestones: [String]
     var widgetPromptDisplayCount: Int
     var widgetPromptLastShownAt: Date?
+    var hasSeenRecallCoach: Bool
     var activePlanEnrollment: PlanEnrollment?
     var esvTextByReference: [String: String]
     private var esvVerseCountByReference: [String: Int]
@@ -115,6 +116,7 @@ final class AppModel {
         self.sessionMilestones = []
         self.widgetPromptDisplayCount = progressStore.loadIntPreference("widget_prompt_display_count", default: 0)
         self.widgetPromptLastShownAt = progressStore.loadDatePreference("widget_prompt_last_shown_at")
+        self.hasSeenRecallCoach = progressStore.loadIntPreference("recall_coach_seen", default: 0) == 1
         self.activePlanEnrollment = progressStore.loadCodableValue(forKey: "active_plan_enrollment")
         self.esvTextByReference = [:]
         self.esvVerseCountByReference = [:]
@@ -1343,6 +1345,12 @@ final class AppModel {
         widgetPromptLastShownAt = now
         progressStore.saveIntPreference(widgetPromptDisplayCount, forKey: "widget_prompt_display_count")
         progressStore.saveDatePreference(now, forKey: "widget_prompt_last_shown_at")
+    }
+
+    func markRecallCoachSeen() {
+        guard !hasSeenRecallCoach else { return }
+        hasSeenRecallCoach = true
+        progressStore.saveIntPreference(1, forKey: "recall_coach_seen")
     }
 
     private static func maskedWidgetPreview(from text: String) -> String {
