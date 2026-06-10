@@ -93,10 +93,17 @@ struct VerseLibraryView: View {
     @State private var didAppear = false
     @State private var searchText = ""
     @State private var expandedBundleTitles: Set<String> = []
+    @State private var suppressBookReset = false
 
     var body: some View {
         List {
             headerSection
+
+            jumpSection
+
+            if appModel.customStudyUnits.isEmpty, searchText.isEmpty {
+                starterSection
+            }
 
             if !filteredScheduledBundles.isEmpty || !filteredScheduledLooseUnits.isEmpty {
                 customUnitsSection(
@@ -122,10 +129,15 @@ struct VerseLibraryView: View {
         .background(Color.screenBackground.ignoresSafeArea())
         .animation(.snappy(duration: 0.28), value: selectedRangeReference)
         .animation(.snappy(duration: 0.28), value: appModel.customStudyUnits.count)
-        .searchable(text: $searchText, prompt: "Search by reference")
+        .searchable(text: $searchText, prompt: "Try “John 3:16”")
         .onAppear { didAppear = true }
         .onChange(of: selectedBookID, initial: true) { _, _ in
-            resetSelectionForBook()
+            if suppressBookReset {
+                suppressBookReset = false
+                normalizeSelection()
+            } else {
+                resetSelectionForBook()
+            }
         }
         .onChange(of: startChapter, initial: false) { _, _ in
             normalizeSelection()
@@ -146,7 +158,7 @@ struct VerseLibraryView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Bible Library")
                     .font(.title.weight(.semibold))
-                Text("Pick a reference range, decide how it should be studied, and add it into `My Verses` without breaking your flow.")
+                Text("Find any verse or passage, decide how you want to study it, and add it to My Verses.")
                     .font(.subheadline)
                     .foregroundStyle(Color.mutedText)
 
@@ -165,6 +177,156 @@ struct VerseLibraryView: View {
             .listRowBackground(Color.screenBackground)
             .listRowSeparator(.hidden)
         }
+    }
+
+    private var referenceMatch: ReferenceSearchMatch? {
+        guard !searchText.isEmpty else { return nil }
+        return ReferenceSearch.match(searchText)
+    }
+
+    @ViewBuilder
+    private var jumpSection: some View {
+        if let match = referenceMatch {
+            Section {
+                Button {
+                    jump(to: match)
+                    searchText = ""
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "arrow.turn.down.right")
+                            .font(.headline)
+                            .foregroundStyle(Color.accentMoss)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Go to \(match.displayReference)")
+                                .font(.headline)
+                                .foregroundStyle(Color.primaryText)
+                            Text("Loads this reference below, ready to preview and add.")
+                                .font(.caption)
+                                .foregroundStyle(Color.mutedText)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(Color.mutedText)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .listRowBackground(Color.paper)
+            }
+        }
+    }
+
+    private struct StarterVerse: Identifiable {
+        let bookID: String
+        let chapter: Int
+        let verse: Int
+        let theme: String
+
+        var id: String { "\(bookID)-\(chapter)-\(verse)" }
+    }
+
+    private struct StarterEntry: Identifiable {
+        let starter: StarterVerse
+        let verse: ScriptureVerse
+
+        var id: String { starter.id }
+    }
+
+    private static let starterVerses: [StarterVerse] = [
+        StarterVerse(bookID: "john", chapter: 3, verse: 16, theme: "God’s love"),
+        StarterVerse(bookID: "psalms", chapter: 23, verse: 1, theme: "Comfort"),
+        StarterVerse(bookID: "philippians", chapter: 4, verse: 13, theme: "Strength"),
+        StarterVerse(bookID: "proverbs", chapter: 3, verse: 5, theme: "Trust"),
+        StarterVerse(bookID: "joshua", chapter: 1, verse: 9, theme: "Courage"),
+        StarterVerse(bookID: "romans", chapter: 8, verse: 28, theme: "Hope"),
+    ]
+
+    private var starterSection: some View {
+        Section("Good first verses") {
+            Text("Short, well-loved verses that make easy wins for your first week. Tap one to load it below.")
+                .font(.caption)
+                .foregroundStyle(Color.mutedText)
+                .listRowBackground(Color.screenBackground)
+                .listRowSeparator(.hidden)
+
+            ForEach(starterEntries) { entry in
+                Button {
+                    jump(to: ReferenceSearchMatch(
+                        bookID: entry.starter.bookID,
+                        bookName: entry.verse.book,
+                        chapter: entry.starter.chapter,
+                        startVerse: entry.starter.verse,
+                        endVerse: nil
+                    ))
+                } label: {
+                    HStack(alignment: .top, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack(spacing: 8) {
+                                Text(entry.verse.reference)
+                                    .font(.headline)
+                                    .foregroundStyle(Color.primaryText)
+                                StatusPill(title: entry.starter.theme, tint: .accentGold)
+                            }
+
+                            Text(appModel.displayText(for: entry.verse))
+                                .font(.subheadline)
+                                .foregroundStyle(Color.mutedText)
+                                .lineLimit(2)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(Color.mutedText)
+                            .padding(.top, 4)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .padding(.vertical, 4)
+                .listRowBackground(Color.paper)
+            }
+        }
+    }
+
+    private var starterEntries: [StarterEntry] {
+        Self.starterVerses.compactMap { starter -> StarterEntry? in
+            guard let verse = BibleCatalog.verse(
+                bookID: starter.bookID,
+                chapter: starter.chapter,
+                verse: starter.verse,
+                setID: BuiltInContent.myVersesSetID
+            ) else { return nil }
+            return StarterEntry(starter: starter, verse: verse)
+        }
+    }
+
+    private func jump(to match: ReferenceSearchMatch) {
+        if selectedBookID != match.bookID {
+            suppressBookReset = true
+            selectedBookID = match.bookID
+        }
+
+        startChapter = match.chapter
+        endChapter = match.chapter
+
+        if let firstVerse = match.startVerse {
+            startVerse = firstVerse
+            endVerse = match.endVerse ?? firstVerse
+            saveMode = match.endVerse == nil ? .singleVerses : .passage
+        } else {
+            // A bare book or chapter search selects the whole chapter.
+            startVerse = 1
+            endVerse = BibleCatalog.lastVerseNumber(in: match.bookID, chapter: match.chapter)
+            saveMode = .sectionBundle
+        }
+
+        normalizeSelection()
     }
 
     private func matchesSearch(_ text: String) -> Bool {
