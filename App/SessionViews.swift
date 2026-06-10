@@ -41,40 +41,6 @@ struct VerseDisplayView: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(Color.mutedText)
 
-                Button {
-                    if speechManager.isSpeaking {
-                        speechManager.stop()
-                    } else {
-                        speechManager.speak(appModel.displayText(for: item.unit))
-                    }
-                } label: {
-                    Label(
-                        speechManager.isSpeaking ? "Stop" : "Listen",
-                        systemImage: speechManager.isSpeaking ? "stop.circle" : "speaker.wave.2"
-                    )
-                }
-                .buttonStyle(SecondaryButtonStyle())
-
-                if let shareImage = renderVerseImage(
-                    reference: item.unit.reference,
-                    text: appModel.displayText(for: item.unit),
-                    translation: appModel.preferredTranslation.displayName
-                ) {
-                    ShareLink(
-                        item: Image(uiImage: shareImage),
-                        preview: SharePreview(item.unit.reference, image: Image(uiImage: shareImage))
-                    ) {
-                        Label("Share", systemImage: "square.and.arrow.up")
-                    }
-                    .buttonStyle(SecondaryButtonStyle())
-                }
-
-                if appModel.shouldShowESVAttribution(for: item.unit.reference) {
-                    ESVAttributionView()
-                } else if let translationSupportText = appModel.translationSupportText(for: item.unit.reference) {
-                    TranslationSupportView(message: translationSupportText)
-                }
-
                 HStack(spacing: 8) {
                     StatusPill(title: item.kind == .newVerse ? "New" : item.kind == .restudy ? "Restudy" : "Review")
                     StatusPill(title: "\(stepIndex + 1) of \(totalCount)", tint: .accentGold)
@@ -88,6 +54,42 @@ struct VerseDisplayView: View {
                     .foregroundStyle(Color.mutedText)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .cardSurface()
+
+                HStack(spacing: 12) {
+                    Button {
+                        if speechManager.isSpeaking {
+                            speechManager.stop()
+                        } else {
+                            speechManager.speak(appModel.displayText(for: item.unit))
+                        }
+                    } label: {
+                        Label(
+                            speechManager.isSpeaking ? "Stop" : "Listen",
+                            systemImage: speechManager.isSpeaking ? "stop.circle" : "speaker.wave.2"
+                        )
+                    }
+                    .buttonStyle(SecondaryButtonStyle())
+
+                    if let shareImage = renderVerseImage(
+                        reference: item.unit.reference,
+                        text: appModel.displayText(for: item.unit),
+                        translation: appModel.preferredTranslation.displayName
+                    ) {
+                        ShareLink(
+                            item: Image(uiImage: shareImage),
+                            preview: SharePreview(item.unit.reference, image: Image(uiImage: shareImage))
+                        ) {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                        .buttonStyle(SecondaryButtonStyle())
+                    }
+                }
+
+                if appModel.shouldShowESVAttribution(for: item.unit.reference) {
+                    ESVAttributionView()
+                } else if let translationSupportText = appModel.translationSupportText(for: item.unit.reference) {
+                    TranslationSupportView(message: translationSupportText)
+                }
 
                 if passageSections.count > 1 {
                     VStack(alignment: .leading, spacing: 12) {

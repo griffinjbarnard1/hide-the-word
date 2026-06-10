@@ -107,7 +107,7 @@ struct VerseLibraryView: View {
 
             if !filteredScheduledBundles.isEmpty || !filteredScheduledLooseUnits.isEmpty {
                 customUnitsSection(
-                    title: "Scheduled Units",
+                    title: "Daily Queue",
                     bundles: filteredScheduledBundles,
                     looseUnits: filteredScheduledLooseUnits
                 )
