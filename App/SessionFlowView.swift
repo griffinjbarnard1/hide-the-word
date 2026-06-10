@@ -26,6 +26,7 @@ struct SessionFlowView: View {
         }
         .background(Color.screenBackground.ignoresSafeArea())
         .animation(.easeInOut(duration: 0.3), value: appModel.currentSessionPhase)
+        .animation(.easeInOut(duration: 0.3), value: appModel.currentSessionIndex)
     }
 
     @ViewBuilder
@@ -40,6 +41,7 @@ struct SessionFlowView: View {
                     continueTapped: { appModel.setSessionPhase(.recall) },
                     exitTapped: appModel.leaveSession
                 )
+                .id(activeItem.unit.id)
             case .recall:
                 RecallView(
                     item: activeItem,
@@ -51,6 +53,7 @@ struct SessionFlowView: View {
                 .id(activeItem.unit.id)
             case .rating:
                 RatingView(
+                    item: activeItem,
                     submit: { rating in
                         appModel.completeCurrentReview(rating: rating)
                     }

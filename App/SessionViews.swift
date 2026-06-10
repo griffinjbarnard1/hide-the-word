@@ -17,7 +17,7 @@ struct VerseDisplayView: View {
             progressLabel: progressLabel,
             progress: Double(stepIndex + 1) / Double(max(totalCount, 1)),
             bottom: {
-                Button("Continue", action: continueTapped)
+                Button("Begin recall", action: continueTapped)
                     .buttonStyle(PrimaryButtonStyle())
             },
             exitTapped: exitTapped
@@ -190,13 +190,26 @@ struct RecallView: View {
             progressLabel: "Step \(stepIndex + 1) of \(totalCount)",
             progress: Double(stepIndex + 1) / Double(max(totalCount, 1)),
             bottom: {
-                HStack(spacing: 16) {
-                    Button(isAnswerRevealed ? "Hide answer" : "Show answer") {
-                        isAnswerRevealed.toggle()
+                VStack(spacing: 12) {
+                    HStack(spacing: 16) {
+                        Button(isAnswerRevealed ? "Hide answer" : "Show answer") {
+                            isAnswerRevealed.toggle()
+                        }
+                            .buttonStyle(SecondaryButtonStyle())
+                        Button(primaryActionTitle, action: advanceRecall)
+                            .buttonStyle(PrimaryButtonStyle())
                     }
-                        .buttonStyle(SecondaryButtonStyle())
-                    Button(primaryActionTitle, action: advanceRecall)
-                        .buttonStyle(PrimaryButtonStyle())
+
+                    if recallLevel < 3 {
+                        Button("I know this one — rate it now") {
+                            HapticManager.recallAdvanced()
+                            continueTapped()
+                        }
+                        .buttonStyle(.plain)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Color.accentMoss)
+                        .frame(maxWidth: .infinity)
+                    }
                 }
             },
             exitTapped: exitTapped
@@ -223,9 +236,18 @@ struct RecallView: View {
                     RecallText(
                         text: displayText,
                         hiddenWordIndexes: hiddenWordIndexes,
-                        isAnswerRevealed: isAnswerRevealed
+                        isAnswerRevealed: isAnswerRevealed,
+                        recallLevel: recallLevel
                     )
                     .contentTransition(.opacity)
+
+                    if !hiddenWordIndexes.isEmpty, !isAnswerRevealed {
+                        Text(recallLevel < 2
+                             ? "Hidden words keep their first letter. Stuck? Tap one to peek at just that word."
+                             : "Stuck? Tap a hidden word to peek at just that word.")
+                            .font(.caption)
+                            .foregroundStyle(Color.mutedText)
+                    }
                 }
 
                 Text(appModel.preferredTranslation.shortName)
@@ -523,8 +545,24 @@ private struct TypedRecallComposer: View {
         let answerTokens = normalizedTokens(in: answerText)
         let typedTokens = normalizedTokens(in: typedText)
         guard !answerTokens.isEmpty, !typedTokens.isEmpty else { return 0 }
-        let matched = zip(answerTokens, typedTokens).filter(==).count
+        // Longest common subsequence keeps the score fair when a word is
+        // inserted or skipped, instead of collapsing every later match.
+        let matched = longestCommonSubsequenceLength(answerTokens, typedTokens)
         return Double(matched) / Double(max(answerTokens.count, typedTokens.count))
+    }
+
+    private func longestCommonSubsequenceLength(_ a: [String], _ b: [String]) -> Int {
+        guard !a.isEmpty, !b.isEmpty else { return 0 }
+        var previous = [Int](repeating: 0, count: b.count + 1)
+        var current = [Int](repeating: 0, count: b.count + 1)
+        for i in 1...a.count {
+            current[0] = 0
+            for j in 1...b.count {
+                current[j] = a[i - 1] == b[j - 1] ? previous[j - 1] + 1 : max(previous[j], current[j - 1])
+            }
+            swap(&previous, &current)
+        }
+        return previous[b.count]
     }
 
     private func normalizedTokens(in text: String) -> [String] {
@@ -560,7 +598,10 @@ struct TranslationSupportView: View {
 }
 
 struct RatingView: View {
+    @Environment(AppModel.self) private var appModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var animateButtons = false
+    let item: SessionItem
     let submit: (ReviewRating) -> Void
 
     var body: some View {
@@ -572,11 +613,15 @@ struct RatingView: View {
             Spacer(minLength: 16)
 
             VStack(alignment: .center, spacing: 16) {
+                Text(item.unit.reference)
+                    .font(.headline)
+                    .foregroundStyle(Color.accentMoss)
+
                 Text("How did that feel?")
                     .font(.system(size: 40, weight: .semibold, design: .serif))
                     .multilineTextAlignment(.center)
 
-                Text("A simple check-in helps the app bring this verse back at the right time.")
+                Text("Your answer sets when this verse comes back around.")
                     .font(.body)
                     .foregroundStyle(Color.mutedText)
                     .multilineTextAlignment(.center)
@@ -586,24 +631,24 @@ struct RatingView: View {
             Spacer(minLength: 12)
 
             VStack(spacing: 14) {
-                Button("Easy") { HapticManager.ratingSubmitted(); submit(.easy) }
-                    .buttonStyle(SecondaryButtonStyle(fullWidth: true))
-                    .scaleEffect(animateButtons ? 1 : 0.98)
-                    .opacity(animateButtons ? 1 : 0)
-                    .offset(y: animateButtons ? 0 : 12)
-                    .animation(.spring(duration: 0.4, bounce: 0.32), value: animateButtons)
-                Button("Medium") { HapticManager.ratingSubmitted(); submit(.medium) }
-                    .buttonStyle(FilledSoftButtonStyle())
-                    .scaleEffect(animateButtons ? 1 : 0.98)
-                    .opacity(animateButtons ? 1 : 0)
-                    .offset(y: animateButtons ? 0 : 12)
-                    .animation(.spring(duration: 0.4, bounce: 0.32).delay(0.06), value: animateButtons)
-                Button("Hard") { HapticManager.ratingSubmitted(); submit(.hard) }
-                    .buttonStyle(SecondaryButtonStyle(fullWidth: true))
-                    .scaleEffect(animateButtons ? 1 : 0.98)
-                    .opacity(animateButtons ? 1 : 0)
-                    .offset(y: animateButtons ? 0 : 12)
-                    .animation(.spring(duration: 0.4, bounce: 0.32).delay(0.12), value: animateButtons)
+                ratingButton(
+                    title: "Easy",
+                    subtitle: "Knew it cold",
+                    rating: .easy,
+                    delay: 0
+                )
+                ratingButton(
+                    title: "Medium",
+                    subtitle: "Got it with effort",
+                    rating: .medium,
+                    delay: 0.06
+                )
+                ratingButton(
+                    title: "Hard",
+                    subtitle: "Needed help",
+                    rating: .hard,
+                    delay: 0.12
+                )
             }
 
             VStack(alignment: .leading, spacing: 8) {
@@ -622,11 +667,45 @@ struct RatingView: View {
         .background(Color.screenBackground.ignoresSafeArea())
         .onAppear { animateButtons = true }
     }
+
+    @ViewBuilder
+    private func ratingButton(title: String, subtitle: String, rating: ReviewRating, delay: Double) -> some View {
+        let button = Button {
+            HapticManager.ratingSubmitted()
+            submit(rating)
+        } label: {
+            HStack(spacing: 12) {
+                Text(title)
+                    .font(.headline)
+                Text("· \(subtitle)")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mutedText)
+                Spacer()
+                Text("Back \(appModel.nextReviewPreviewLabel(for: rating, unit: item.unit))")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color.accentMoss)
+            }
+        }
+
+        Group {
+            if rating == .medium {
+                button.buttonStyle(FilledSoftButtonStyle())
+            } else {
+                button.buttonStyle(SecondaryButtonStyle(fullWidth: true))
+            }
+        }
+        .scaleEffect(animateButtons || reduceMotion ? 1 : 0.98)
+        .opacity(animateButtons || reduceMotion ? 1 : 0)
+        .offset(y: animateButtons || reduceMotion ? 0 : 12)
+        .animation(reduceMotion ? nil : .spring(duration: 0.4, bounce: 0.32).delay(delay), value: animateButtons)
+        .accessibilityLabel("\(title). \(subtitle). Comes back \(appModel.nextReviewPreviewLabel(for: rating, unit: item.unit)).")
+    }
 }
 
 struct CompletionView: View {
     @Environment(AppModel.self) private var appModel
     @Environment(\.requestReview) private var requestReview
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var didAppear = false
     @State private var pulse = false
     @State private var showWidgetPrompt = false
@@ -784,8 +863,12 @@ struct CompletionView: View {
         .onAppear {
             didAppear = true
             HapticManager.sessionCompleted()
-            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+            if reduceMotion {
                 pulse = true
+            } else {
+                withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+                    pulse = true
+                }
             }
             // Request App Store review at high-emotion milestones
             let isPlanComplete = planContext.map { ctx in planDuration.map { ctx.dayNumber >= $0 } ?? false } ?? false
@@ -837,14 +920,18 @@ private struct SessionScaffold<Content: View, Bottom: View>: View {
                     .font(.headline)
                 ProgressView(value: progress)
                     .tint(Color.accentMoss)
+                    .animation(.easeInOut(duration: 0.35), value: progress)
                 Text(String(localized: "session.place_saved", defaultValue: "Your place is saved if you leave.", table: "Localizable"))
                     .font(.caption)
                     .foregroundStyle(Color.mutedText)
             }
 
-            content
-
-            Spacer()
+            ScrollView {
+                content
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+            .scrollIndicators(.hidden)
 
             bottom
         }
@@ -857,6 +944,8 @@ private struct RecallText: View {
     let text: String
     let hiddenWordIndexes: Set<Int>
     let isAnswerRevealed: Bool
+    let recallLevel: Int
+    @State private var peekedIndexes: Set<Int> = []
 
     var body: some View {
         let words = text.split(separator: " ").map(String.init)
@@ -867,9 +956,18 @@ private struct RecallText: View {
                     word: word,
                     isHidden: hiddenWordIndexes.contains(index) && !RecallMask.normalized(word).isEmpty,
                     isAnswerRevealed: isAnswerRevealed,
-                    staggerDelay: Double(index) * 0.03
+                    isPeeked: peekedIndexes.contains(index),
+                    recallLevel: recallLevel,
+                    staggerDelay: Double(index) * 0.03,
+                    peekTapped: { peekedIndexes.insert(index) }
                 )
             }
+        }
+        .onChange(of: recallLevel) { _, _ in
+            peekedIndexes = []
+        }
+        .onChange(of: text) { _, _ in
+            peekedIndexes = []
         }
     }
 }
@@ -878,18 +976,36 @@ private struct RecallWord: View {
     let word: String
     let isHidden: Bool
     let isAnswerRevealed: Bool
+    let isPeeked: Bool
+    let recallLevel: Int
     let staggerDelay: Double
+    let peekTapped: () -> Void
 
     var body: some View {
-        let displayText = isHidden && !isAnswerRevealed ? RecallMask.placeholder(for: word) : word
+        let isMasked = isHidden && !isAnswerRevealed && !isPeeked
+        let displayText = isMasked ? RecallMask.placeholder(for: word, level: recallLevel) : word
 
         Text(displayText)
             .font(.system(size: 30, weight: .medium, design: .serif))
-            .foregroundStyle(isHidden ? (isAnswerRevealed ? Color.primaryText : Color.mutedText) : Color.primaryText)
-            .underline(isHidden && !isAnswerRevealed)
-            .opacity(isHidden && !isAnswerRevealed ? 0.7 : 1)
+            .foregroundStyle(wordColor(isMasked: isMasked))
+            .underline(isMasked)
+            .opacity(isMasked ? 0.7 : 1)
             .animation(.easeOut(duration: 0.15).delay(staggerDelay), value: isHidden)
             .animation(.easeInOut(duration: 0.18), value: isAnswerRevealed)
+            .animation(.easeOut(duration: 0.15), value: isPeeked)
+            .onTapGesture {
+                if isMasked {
+                    HapticManager.recallAdvanced()
+                    peekTapped()
+                }
+            }
+            .accessibilityLabel(isMasked ? "Hidden word. Tap to peek." : word)
+    }
+
+    private func wordColor(isMasked: Bool) -> Color {
+        if isMasked { return Color.mutedText }
+        if isHidden && isPeeked && !isAnswerRevealed { return Color.accentGold }
+        return Color.primaryText
     }
 }
 
@@ -1001,9 +1117,15 @@ private enum RecallMask {
         word.trimmingCharacters(in: CharacterSet.punctuationCharacters.union(.symbols))
     }
 
-    static func placeholder(for word: String) -> String {
+    static func placeholder(for word: String, level: Int = 3) -> String {
         let cleaned = normalized(word)
         let width = max(cleaned.count, 4)
+
+        // Early recall levels keep the first letter visible — the classic
+        // first-letter memorization prompt. Later levels hide everything.
+        if level < 2, let first = cleaned.first {
+            return String(first) + String(repeating: "_", count: max(width - 1, 2))
+        }
         return String(repeating: "_", count: width)
     }
 

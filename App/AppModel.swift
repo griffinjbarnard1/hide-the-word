@@ -1191,6 +1191,7 @@ final class AppModel {
     func completeCurrentReview(rating: ReviewRating, now: Date = .now) {
         guard var draftSession, draftSession.currentIndex < draftSession.items.count else { return }
         let currentItem = draftSession.items[draftSession.currentIndex]
+        let previousTier = progressByVerseID[currentItem.unit.id]?.masteryTier
         let updatedProgress = ReviewScheduler.apply(
             rating: rating,
             to: currentItem.unit,
@@ -1217,7 +1218,6 @@ final class AppModel {
             draftSession.restudiedUnitIDs.insert(currentItem.unit.id)
         }
 
-        let previousTier = (progressByVerseID[currentItem.unit.id].map { MasteryTier.from(reviewCount: $0.reviewCount - 1, intervalDays: $0.intervalDays) })
         let newTier = updatedProgress.masteryTier
 
         draftSession.currentIndex += 1
@@ -1767,6 +1767,24 @@ final class AppModel {
 
     func progress(for unit: StudyUnit) -> VerseProgress? {
         progressByVerseID[unit.id]
+    }
+
+    /// Human-friendly preview of when a unit would come back if rated this way.
+    func nextReviewPreviewLabel(for rating: ReviewRating, unit: StudyUnit) -> String {
+        let days = ReviewScheduler.previewIntervalDays(after: rating, existing: progressByVerseID[unit.id])
+        switch days {
+        case ..<2:
+            return "tomorrow"
+        case 2...6:
+            return "in \(days) days"
+        case 7...13:
+            return "in about a week"
+        case 14...27:
+            return "in \(days / 7) weeks"
+        default:
+            let months = max(1, Int((Double(days) / 30.0).rounded()))
+            return months == 1 ? "in about a month" : "in about \(months) months"
+        }
     }
 
     func reviewEvents(for unitID: UUID) -> [ReviewEvent] {

@@ -115,6 +115,18 @@ public enum ReviewScheduler {
         )
     }
 
+    /// Previews the interval a rating would produce, without applying it.
+    public static func previewIntervalDays(
+        after rating: ReviewRating,
+        existing progress: VerseProgress?
+    ) -> Int {
+        recommendedIntervalDays(
+            after: rating,
+            currentInterval: progress?.intervalDays ?? 0,
+            reviewCount: progress?.reviewCount ?? 0
+        )
+    }
+
     static func recommendedIntervalDays(
         after rating: ReviewRating,
         currentInterval: Int,
