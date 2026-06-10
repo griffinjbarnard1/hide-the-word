@@ -226,48 +226,7 @@ struct TogetherView: View {
     }
 
     private var peopleSummaries: [PersonSummaryEntry] {
-        var membersByID: [String: [TogetherMemberContext]] = [:]
-
-        for group in socialService.groups {
-            for member in group.members {
-                membersByID[member.id, default: []].append(TogetherMemberContext(member: member, groupID: group.id))
-            }
-        }
-
-        let entries = membersByID.compactMap { memberID, contexts -> PersonSummaryEntry? in
-            guard let representative = contexts.sorted(by: {
-                ($0.member.lastActiveAt ?? .distantPast) > ($1.member.lastActiveAt ?? .distantPast)
-            }).first?.member else {
-                return nil
-            }
-
-            let summary = PersonSummary(
-                id: memberID,
-                displayName: representative.profile?.displayName ?? representative.displayName,
-                highestStreak: contexts.map(\.member.streak).max() ?? 0,
-                lastActiveAt: contexts.compactMap(\.member.lastActiveAt).max(),
-                plansInCommonCount: Set(contexts.map(\.groupID)).count,
-                mostAdvancedDay: contexts.map(\.member.currentDay).max() ?? 1
-            )
-            return PersonSummaryEntry(summary: summary, representativeMember: representative)
-        }
-
-        return entries.sorted { lhs, rhs in
-            switch peopleSortOption {
-            case .mostActive:
-                if lhs.summary.plansInCommonCount == rhs.summary.plansInCommonCount {
-                    return lhs.summary.displayName.localizedCaseInsensitiveCompare(rhs.summary.displayName) == .orderedAscending
-                }
-                return lhs.summary.plansInCommonCount > rhs.summary.plansInCommonCount
-            case .highestStreak:
-                if lhs.summary.highestStreak == rhs.summary.highestStreak {
-                    return lhs.summary.displayName.localizedCaseInsensitiveCompare(rhs.summary.displayName) == .orderedAscending
-                }
-                return lhs.summary.highestStreak > rhs.summary.highestStreak
-            case .recentlyActive:
-                return (lhs.summary.lastActiveAt ?? .distantPast) > (rhs.summary.lastActiveAt ?? .distantPast)
-            }
-        }
+        PeopleSummaryBuilder.entries(from: socialService.groups, sortedBy: peopleSortOption)
     }
 
     private var peopleStatsRow: some View {
@@ -486,6 +445,15 @@ struct TogetherView: View {
     private func shareActivePlan() async {
         guard await checkIdentityForCloudAction("share this plan") else { return }
         guard let plan = appModel.activePlan else { return }
+
+        // Reuse the existing group when this plan is already shared by me,
+        // instead of creating a duplicate zone for the same plan.
+        if let existing = socialService.groups.first(where: { $0.planID == plan.id && isOwner($0) }) {
+            sharingGroup = existing
+            cloudActionError = nil
+            return
+        }
+
         let share = await socialService.createSharedPlan(
             planID: plan.id,
             planTitle: plan.title,
@@ -495,7 +463,7 @@ struct TogetherView: View {
             ownerEnrollment: appModel.activePlanEnrollment,
             ownerStreak: appModel.currentStreak
         )
-        if share != nil, let group = socialService.groups.first {
+        if share != nil, let group = socialService.groups.first(where: { $0.planID == plan.id }) ?? socialService.groups.first {
             sharingGroup = group
             cloudActionError = nil
         }
@@ -510,7 +478,10 @@ struct TogetherView: View {
             }
         }
 
-        guard let enrollment = appModel.activePlanEnrollment, enrollment.planID == group.planID else { return }
+        guard let enrollment = appModel.activePlanEnrollment, enrollment.planID == group.planID else {
+            actionMessage = "This plan isn't in your library on this device yet, so your progress can't sync to it."
+            return
+        }
 
         let zoneID = CKRecordZone.ID(zoneName: group.id, ownerName: group.zoneOwnerName)
         _ = await socialService.syncMyProgress(
@@ -628,17 +599,6 @@ struct TogetherView: View {
         }
         return nil
     }
-}
-
-private struct PersonSummaryEntry: Identifiable {
-    var id: String { summary.id }
-    let summary: PersonSummary
-    let representativeMember: PlanMembership
-}
-
-private struct TogetherMemberContext {
-    let member: PlanMembership
-    let groupID: String
 }
 
 // MARK: - Shared Plan Detail
@@ -812,7 +772,7 @@ struct SharedPlanDetailView: View {
                         Text(member.profile?.displayName ?? member.displayName)
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(Color.primaryText)
-                        if member.displayName == appModel.userDisplayName {
+                        if isCurrentUser(member) {
                             Text("(you)")
                                 .font(.caption)
                                 .foregroundStyle(Color.mutedText)
@@ -1023,6 +983,13 @@ struct SharedPlanDetailView: View {
         socialService.isOwner(of: group, currentMemberID: currentMemberID, currentDisplayName: appModel.userDisplayName)
     }
 
+    private func isCurrentUser(_ member: PlanMembership) -> Bool {
+        guard let currentMemberID else {
+            return member.displayName == appModel.userDisplayName
+        }
+        return member.id == "member-\(currentMemberID)"
+    }
+
     private var unavailableMessage: String {
         switch identityStatus {
         case .available:
@@ -1112,6 +1079,15 @@ struct PlanCloudSharingSheet: UIViewControllerRepresentable {
             Task {
                 do {
                     let record = try await container.privateCloudDatabase.record(for: recordID)
+
+                    // CloudKit allows one share per root record, so reuse the
+                    // existing share when the plan was already shared once.
+                    if let shareReference = record.share,
+                       let existingShare = try await container.privateCloudDatabase.record(for: shareReference.recordID) as? CKShare {
+                        prepareHandler(existingShare, container, nil)
+                        return
+                    }
+
                     let share = CKShare(rootRecord: record)
                     share[CKShare.SystemFieldKey.title] = "Join \(group.planTitle) on Hide the Word" as CKRecordValue
                     share.publicPermission = .readWrite

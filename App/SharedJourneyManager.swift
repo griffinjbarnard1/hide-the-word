@@ -694,13 +694,11 @@ final class SharedPlanManager {
                 return ActionFeedback(success: true, message: "You left the shared plan.")
             }
 
-            do {
-                try await container.sharedCloudDatabase.deleteRecordZone(withID: zoneID)
-                await fetchGroups()
-                return ActionFeedback(success: true, message: "You left the shared plan.")
-            } catch {
-                try await container.sharedCloudDatabase.deleteRecord(withID: recordID)
-            }
+            // Delete my membership record first so the remaining members stop
+            // seeing me, then drop the shared zone to leave the share itself.
+            // The record may not exist if I never synced, so this is best-effort.
+            try? await container.sharedCloudDatabase.deleteRecord(withID: recordID)
+            try await container.sharedCloudDatabase.deleteRecordZone(withID: zoneID)
             await fetchGroups()
             return ActionFeedback(success: true, message: "You left the shared plan.")
         } catch {
