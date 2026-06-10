@@ -206,6 +206,33 @@ struct ReviewSchedulerTests {
         }
     }
     @Test
+    func previewIntervalMatchesAppliedInterval() {
+        let setID = BuiltInContent.anxietySetID
+        let unit = BuiltInContent.builtInStudyUnits(for: setID)[0]
+        let existing = VerseProgress(
+            verseID: unit.id,
+            reviewCount: 3,
+            intervalDays: 4,
+            lastReviewedAt: calendar.date(byAdding: .day, value: -4, to: baseDate),
+            nextReviewAt: baseDate,
+            lastRating: .medium
+        )
+
+        for rating in ReviewRating.allCases {
+            let preview = ReviewScheduler.previewIntervalDays(after: rating, existing: existing)
+            let applied = ReviewScheduler.apply(rating: rating, to: unit, existing: existing, reviewedAt: baseDate)
+            #expect(preview == applied.intervalDays)
+        }
+    }
+
+    @Test
+    func previewIntervalForUnseenUnitMatchesFirstReview() {
+        #expect(ReviewScheduler.previewIntervalDays(after: .hard, existing: nil) == 1)
+        #expect(ReviewScheduler.previewIntervalDays(after: .medium, existing: nil) == 2)
+        #expect(ReviewScheduler.previewIntervalDays(after: .easy, existing: nil) == 4)
+    }
+
+    @Test
     func bibleCatalogSupportsCrossChapterRanges() {
         let verses = BibleCatalog.verseRange(
             bookID: "1peter",
