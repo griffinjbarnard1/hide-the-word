@@ -31,7 +31,7 @@
 		8A71E1405F4E7E97F39298CA /* SessionViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C8EC38257689A9D827B218 /* SessionViews.swift */; };
 		9116B5945EE633DEE6DDC317 /* JourneyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D1A82E96DC626DDF5A8C38 /* JourneyView.swift */; };
 		91AF4FA319B9B9B35CAE04F4 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E56BC5E8BC8BE9FC2E59454 /* NotificationManager.swift */; };
-		9A5CD83F0AD03CC55C3F541D /* PeopleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D35D2870BE27AB7F241A4 /* PeopleView.swift */; };
+		9A5CD83F0AD03CC55C3F541D /* PeopleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D35D2870BE27AB7F241A4 /* PeopleModel.swift */; };
 		9C02ED5FFF0150CDA610CF40 /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE70668B83591B60FAD293A /* HapticManager.swift */; };
 		A35F551FA1BDC94347A0DF4D /* ReviewProgressStoreEdgeCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0922E1353CE1A09B4862D2AD /* ReviewProgressStoreEdgeCaseTests.swift */; };
 		A8812E6872C51D73BD4916DD /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475387F54DB737C77D2891C4 /* OnboardingView.swift */; };
@@ -122,7 +122,7 @@
 		CCF600C5F8E5ABCD2DDFF913 /* PassageBreakdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassageBreakdown.swift; sourceTree = "<group>"; };
 		CFE70668B83591B60FAD293A /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
 		D304FB9EE1A7ED109EA4257A /* ReviewProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewProgressStore.swift; sourceTree = "<group>"; };
-		DA1D35D2870BE27AB7F241A4 /* PeopleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeopleView.swift; sourceTree = "<group>"; };
+		DA1D35D2870BE27AB7F241A4 /* PeopleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeopleModel.swift; sourceTree = "<group>"; };
 		DE7DD203D4AF2835514D7F1A /* WeeklyProgressCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyProgressCard.swift; sourceTree = "<group>"; };
 		EE27DDFD39459B7124DE1ACD /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		EF5F83AF75EF136D92C62DB5 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -188,7 +188,7 @@
 				2E56BC5E8BC8BE9FC2E59454 /* NotificationManager.swift */,
 				475387F54DB737C77D2891C4 /* OnboardingView.swift */,
 				CCF600C5F8E5ABCD2DDFF913 /* PassageBreakdown.swift */,
-				DA1D35D2870BE27AB7F241A4 /* PeopleView.swift */,
+				DA1D35D2870BE27AB7F241A4 /* PeopleModel.swift */,
 				1B8AF0C9DA76E40A1C3196CB /* PlanLibraryView.swift */,
 				2BACCDEC8A35F4455BA851F8 /* PlanShareCard.swift */,
 				EF5F83AF75EF136D92C62DB5 /* PrivacyInfo.xcprivacy */,
@@ -387,7 +387,7 @@
 				91AF4FA319B9B9B35CAE04F4 /* NotificationManager.swift in Sources */,
 				A8812E6872C51D73BD4916DD /* OnboardingView.swift in Sources */,
 				BE2834A60D3FFFDD025AD7A9 /* PassageBreakdown.swift in Sources */,
-				9A5CD83F0AD03CC55C3F541D /* PeopleView.swift in Sources */,
+				9A5CD83F0AD03CC55C3F541D /* PeopleModel.swift in Sources */,
 				3DB338436C6F158961480B2A /* PlanLibraryView.swift in Sources */,
 				49D7135CB3A9C14EDFAC953D /* PlanShareCard.swift in Sources */,
 				F80EC175059BCF2A17F197B4 /* PublicProfileEditorView.swift in Sources */,

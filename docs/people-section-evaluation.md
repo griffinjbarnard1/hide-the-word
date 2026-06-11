@@ -1,5 +1,10 @@
 # People Section Evaluation (April 13, 2026)
 
+> **Update (June 10, 2026):** Phase 1.5 item 1 ("Unify People surface") is done.
+> The unused standalone `PeopleView` was removed; person aggregation now lives in
+> `App/PeopleModel.swift` (`PeopleSummaryBuilder`) and the `TogetherView` People
+> tab is the single People surface.
+
 ## Snapshot of current implementation
 
 The current social model is **plan-scoped collaboration**, not a global social graph:
